@@ -1,0 +1,27 @@
+[package]
+name = "realworld-rocket-react"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rocket = "0.5.1"
+rocket_db_pools = { version = "0.2.0", features = ["sqlx_postgres"] }
+sqlx = { version = "0.7", features = ["chrono"] }
+chrono = "0.4.41"
+
+# -------------------------- TELEMETRY START -----------------------------------
+opentelemetry-otlp = { version = "0.30.0", features = ["grpc-tonic"] }
+opentelemetry = "0.30.0"
+opentelemetry_sdk = { version = "0.30.0", features = ["rt-tokio"] }
+tracing-opentelemetry = "0.31.0"
+tracing-panic = "0.1.2"
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "registry",
+    "fmt",
+    "tracing-log",
+] }
+tracing-bunyan-formatter = "0.3.10"
+opentelemetry-appender-tracing = "0.30.1"
+tracing = { version = "0.1", features = ["attributes"]}
+# -------------------------- TELEMETRY END -------------------------------------
