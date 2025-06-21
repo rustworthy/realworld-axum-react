@@ -1,4 +1,4 @@
-use realworld_rocket_react::{construct_rocket, telemetry::init_tracing};
+use realworld_rocket_react::{construct_rocket, init_tracing};
 
 #[rocket::main]
 async fn main() {

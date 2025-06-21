@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            NOW()::timestamptz AS \"db_time!\",\n            uuid_generate_v4() AS \"nonce!\"\n        ;\n    ",
+  "query": "\n        SELECT\n            NOW()::timestamptz AS \"db_time!\",\n            uuid_generate_v4() AS \"nonce!\";\n        ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       null
     ]
   },
-  "hash": "66853adf92fa40a03c8a9e639b863d8a365cf361d2983ad1646eaed959843f13"
+  "hash": "01159304d1ce3f0ac4aa95b8351d306bf698c4864c216b8d42fe13e116f9aab2"
 }

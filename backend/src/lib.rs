@@ -3,9 +3,13 @@ extern crate rocket;
 #[macro_use]
 extern crate tracing;
 
-pub mod telemetry;
+mod telemetry;
+
+pub use telemetry::init_tracing;
 
 use chrono::{DateTime, Utc};
+use rocket::serde::Serialize;
+use rocket::serde::json::Json;
 use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Connection, Database, sqlx::PgPool};
 use uuid::Uuid;
@@ -14,20 +18,30 @@ use uuid::Uuid;
 #[database("main")]
 struct Db(PgPool);
 
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+struct HealthCheckPayload {
+    db_time: DateTime<Utc>,
+    nonce: Uuid,
+    migrate: String,
+    version: &'static str,
+}
+
 #[get("/healthz")]
 #[instrument(name = "SERVICE HEALTH CHECK", skip(db))]
-async fn health(db: Connection<Db>) -> String {
+async fn health(db: Connection<Db>) -> Json<HealthCheckPayload> {
     let db_check_payload = check_db_conn(db).await;
     info!(
         "Database server time {:?} millis",
         &db_check_payload.db_time
     );
-    format!(
-        "DB server time: {}. Nonce={}. MIGRATE={}",
-        db_check_payload.db_time,
-        db_check_payload.nonce,
-        std::env::var("MIGRATE").ok().unwrap_or("0".into())
-    )
+    let payload = HealthCheckPayload {
+        db_time: db_check_payload.db_time,
+        nonce: db_check_payload.nonce,
+        migrate: std::env::var("MIGRATE").ok().unwrap_or("0".into()),
+        version: env!("CARGO_PKG_VERSION").into(),
+    };
+    Json(payload)
 }
 
 #[derive(Debug)]
@@ -43,9 +57,8 @@ async fn check_db_conn(mut db: Connection<Db>) -> DatabaseCheckPayload {
         r#"
         SELECT
             NOW()::timestamptz AS "db_time!",
-            uuid_generate_v4() AS "nonce!"
-        ;
-    "#
+            uuid_generate_v4() AS "nonce!";
+        "#
     )
     .fetch_one(&mut **db)
     .await
