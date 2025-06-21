@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            NOW()::timestamptz AS \"db_time!\",\n            uuid_generate_v4() AS \"nonce!\"\n        ;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "db_time!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "nonce!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "66853adf92fa40a03c8a9e639b863d8a365cf361d2983ad1646eaed959843f13"
+}

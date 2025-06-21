@@ -1,0 +1,31 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    tls:
+      insecure: true
+    endpoint: ${env:OTEL_EXPORTER_OTLP_BACKEND_ENDPOINT}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, debug]

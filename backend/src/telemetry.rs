@@ -6,8 +6,8 @@ use tracing_subscriber::{
     Registry, filter::EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-pub fn init_tracing(service_name: &'static str) {
-    match std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT").ok() {
+pub fn init_tracing(service_name: &'static str, otel_endpoint: Option<String>) {
+    match otel_endpoint {
         Some(otel_endpoint) => {
             let filter_layer = EnvFilter::try_from_default_env().unwrap_or("info".into());
             let trace_layer = {
@@ -46,7 +46,10 @@ pub fn init_tracing(service_name: &'static str) {
             Registry::default()
                 .with(filter_layer)
                 .with(JsonStorageLayer)
-                .with(BunyanFormattingLayer::new(service_name.into(), std::io::stdout))
+                .with(BunyanFormattingLayer::new(
+                    service_name.into(),
+                    std::io::stdout,
+                ))
                 .with(trace_layer)
                 .with(log_layer)
                 .init();

@@ -58,6 +58,8 @@ db/reset:
 
 .PHONY: db/setup
 db/setup:
+	while ! (docker exec ${POSTGRES_CONTAINER_NAME} pg_isready); do \
+		echo "⏳ Waiting for the database to start accepting connections..."; done
 	sqlx db setup --database-url=${POSTGRES_URL}
 
 .PHONY: db/stop
@@ -74,7 +76,7 @@ db/shell:
 db/purge: db/stop
 	@docker ps -a | grep -i ${POSTGRES_CONTAINER_NAME} && \
 	docker rm ${POSTGRES_CONTAINER_NAME} || true
-	@docker volume rm ${POSTGRES_CONTAINER_NAME}-data
+	@docker volume rm --force ${POSTGRES_CONTAINER_NAME}-data
 
 # ---------------------------- UTILITY SERVICES --------------------------------
 .PHONY: jaeger/start
@@ -111,7 +113,7 @@ setup: tools/install jaeger/start db/start db/setup prepare
 
 .PHONY: watch
 watch:
-	ROCKET_DATABASES='{main={url="${POSTGRES_URL}"}}' \
+	ROCKET_DATABASES='{main={url="${POSTGRES_URL}"}}' MIGRATE=1 \
 		cargo watch --clear --exec "run"
 
 .PHONY: fmt
@@ -129,4 +131,5 @@ all: setup
 	RUST_LOG="realworld_rocket_react=info,rocket=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
 	ROCKET_DATABASES='{main={url="${POSTGRES_URL}"}}' \
+	MIGRATE=1 \
 		cargo run --release
