@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./server
+        working-directory: backend
     env:
       WEBDRIVER_PORT: 4444
       NODE_VERSION: 18
