@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: cargo
+    directory: /server
+    schedule:
+      interval: monthly
+    groups:
+      cargo-bump:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+          - "minor"

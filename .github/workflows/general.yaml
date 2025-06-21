@@ -1,0 +1,25 @@
+name: general
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    env:
+      WEBDRIVER_PORT: 4444
+      NODE_VERSION: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+      - run: gem install kamal
+      - uses: docker/setup-buildx-action@v3
+    
