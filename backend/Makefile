@@ -111,6 +111,10 @@ prepare:
 .PHONY: setup
 setup: tools/install jaeger/start db/start db/setup prepare
 
+.PHONY: test/api
+test/api:
+	cargo test --test api
+
 .PHONY: watch
 watch: prepare
 	fuser -k 8000/tcp || true
