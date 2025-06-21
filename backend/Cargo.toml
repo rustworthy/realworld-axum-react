@@ -9,6 +9,7 @@ rocket_db_pools = { version = "0.2", features = ["sqlx_postgres"] }
 sqlx = { version = "0.7", features = ["chrono", "uuid"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.17", features = ["v4", "serde"] }
+dotenvy = "0.15.7"
 
 # -------------------------- TELEMETRY START -----------------------------------
 opentelemetry-otlp = { version = "0.30.0", features = ["grpc-tonic"] }

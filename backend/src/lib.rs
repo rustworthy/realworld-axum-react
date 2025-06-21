@@ -39,7 +39,7 @@ async fn health(db: Connection<Db>) -> Json<HealthCheckPayload> {
         db_time: db_check_payload.db_time,
         nonce: db_check_payload.nonce,
         migrate: std::env::var("MIGRATE").ok().unwrap_or("0".into()),
-        version: env!("CARGO_PKG_VERSION").into(),
+        version: env!("CARGO_PKG_VERSION"),
     };
     Json(payload)
 }
@@ -52,18 +52,13 @@ struct DatabaseCheckPayload {
 
 #[instrument(name = "CHECK DATABASE CONNECTION", skip(db))]
 async fn check_db_conn(mut db: Connection<Db>) -> DatabaseCheckPayload {
-    let payload = sqlx::query_as!(
+    sqlx::query_as!(
         DatabaseCheckPayload,
-        r#"
-        SELECT
-            NOW()::timestamptz AS "db_time!",
-            uuid_generate_v4() AS "nonce!";
-        "#
+        r#"SELECT NOW() AS "db_time!", uuid_generate_v4() AS "nonce!";"#
     )
     .fetch_one(&mut **db)
     .await
-    .expect("successfully fetch data db engine");
-    payload
+    .expect("successfully fetch data db engine")
 }
 
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
@@ -80,7 +75,11 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 }
 
 pub fn construct_rocket(migrate: bool) -> Rocket<Build> {
-    let rocket = rocket::build()
+    let config = rocket::Config::figment().merge((
+        "databases.main.url",
+        std::env::var("DATABASE_URL").expect("DATABASE_URL to be available in the environment"),
+    ));
+    let rocket = rocket::custom(config)
         .mount("/", routes![health])
         .attach(Db::init());
 

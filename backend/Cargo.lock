@@ -1741,6 +1741,7 @@ name = "realworld-rocket-react"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "dotenvy",
  "opentelemetry",
  "opentelemetry-appender-tracing",
  "opentelemetry-otlp",

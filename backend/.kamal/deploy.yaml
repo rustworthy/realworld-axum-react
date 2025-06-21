@@ -31,7 +31,7 @@ env:
     ROCKET_PORT: 8000
     RUST_LOG: "realworld_rocket_react=info,rocket=error"
   secret:
-    - ROCKET_DATABASES
+    - DATABASE_URL
   tags:
     migrator:
       clear:

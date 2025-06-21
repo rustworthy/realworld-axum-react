@@ -28,6 +28,6 @@ jobs:
       - name: build image, publish image, and deploy application
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
-          ROCKET_DATABASES: ${{ secrets.ROCKET_DATABASES }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: kamal deploy -c .kamal/deploy.yaml
   

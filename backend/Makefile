@@ -112,9 +112,9 @@ prepare:
 setup: tools/install jaeger/start db/start db/setup prepare
 
 .PHONY: watch
-watch:
-	ROCKET_DATABASES='{main={url="${POSTGRES_URL}"}}' MIGRATE=1 \
-		cargo watch --clear --exec "run"
+watch: prepare
+	fuser -k 8000/tcp || true
+	cargo watch --exec "run" 
 
 .PHONY: fmt
 fmt:
@@ -123,13 +123,14 @@ fmt:
 .PHONY: check
 check:
 	cargo fmt --check
-	cargo clippy
-	cargo d --no-deps --all-features
+	SQLX_OFFLINE=1 cargo clippy
+	cargo doc --no-deps --all-features
 
 .PHONY: all
 all: setup
+	fuser -k 8000/tcp || true
 	RUST_LOG="realworld_rocket_react=info,rocket=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
-	ROCKET_DATABASES='{main={url="${POSTGRES_URL}"}}' \
+	DATABASE_URL=${POSTGRES_URL} \
 	MIGRATE=1 \
 		cargo run --release
