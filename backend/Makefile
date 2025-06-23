@@ -127,7 +127,7 @@ test/api:
 
 .PHONY: test/spec
 test/spec:
-	git clone git@github.com:gothinkster/realworld.git --branch main --single-branch || true
+	git clone https://github.com/gothinkster/realworld.git --branch main --single-branch || true
 	cd ./realworld/api && APIURL=http://localhost:${APP_PORT} ./run-api-tests.sh
 
 .PHONY: watch
