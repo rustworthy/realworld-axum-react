@@ -1,0 +1,2 @@
+drop function if exists put_creation_mutation_timestamps_guard_on;
+drop function if exists guard_creation_mutation_timestamps;
