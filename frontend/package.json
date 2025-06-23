@@ -10,6 +10,7 @@
   "scripts": {
     "husky-prepare": "cd .. && husky frontend/.husky",
     "start": "webpack serve --env mode=development",
+    "start:analyzer": "webpack serve --env mode=development analyzer=true",
     "build:dev": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production",
     "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0"
