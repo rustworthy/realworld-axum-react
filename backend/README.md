@@ -9,7 +9,7 @@ _should_ be used to run tests on CI with [`Newman`][2].
 
 ## Setup
 
-Make sure you got `cargo`, `GNU Make`, and `docker` installed.
+Make sure you got [`cargo`][4], [`GNU Make`][5], and [`docker`][6] installed.
 Change your working directory to `backend` and hit:
 
 ```console
@@ -22,7 +22,20 @@ You should now be able to start the back-end in watch mode with:
 $ make watch
 ```
 
+Run integration tests with:
+
+```console
+$ make test/api
+```
+
+NB! Make sure you got `docker` installed: for each of tests we are launching a
+dedicated [test container][3] with PostgreSQL.
+
 <!-- -------------------------------- LINKS -------------------------------- -->
 
 [1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml
 [2]: https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/
+[3]: https://testcontainers.com/?language=rust
+[4]: https://doc.rust-lang.org/cargo/getting-started/installation.html
+[5]: https://www.gnu.org/software/make/
+[6]: https://docs.docker.com/engine/install/

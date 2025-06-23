@@ -8,6 +8,8 @@ POSTGRES_DATABASE=${PROJECT_NAME}
 POSTGRES_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
 POSTGRES_CONTAINER_NAME=${PROJECT_NAME}-postgres
 
+APP_PORT=8000
+
 JAEGER_CONTAINER_NAME=${PROJECT_NAME}-jaeger
 JAEGER_HOST=127.0.0.1
 JAEGER_UI_PORT=8001
@@ -123,9 +125,14 @@ prepare:
 test/api:
 	cargo test --test api
 
+.PHONY: test/spec
+test/spec:
+	git clone git@github.com:gothinkster/realworld.git --branch main --single-branch || true
+	cd ./realworld/api && APIURL=http://localhost:${APP_PORT} ./run-api-tests.sh
+
 .PHONY: watch
 watch: prepare
-	fuser -k 8000/tcp || true
+	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --exec "run" 
 
 .PHONY: fmt
@@ -140,7 +147,7 @@ check:
 
 .PHONY: all
 all: setup
-	fuser -k 8000/tcp || true
+	fuser -k ${APP_PORT}/tcp || true
 	RUST_LOG="realworld_rocket_react=info,rocket=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
 	DATABASE_URL=${POSTGRES_URL} \
