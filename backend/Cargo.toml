@@ -2,6 +2,8 @@
 name = "realworld-rocket-react"
 version = "0.1.0"
 edition = "2024"
+authors = ["Pavel Mikhalkevich", "dzmitry kalatsilshchykau"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 rocket = { version = "0.5", features = ["json"] }
