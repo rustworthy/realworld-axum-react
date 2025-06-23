@@ -8,7 +8,7 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "prepare": "cd .. && husky frontend/.husky",
+    "husky-prepare": "cd .. && husky frontend/.husky",
     "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0"
   },
   "repository": {
