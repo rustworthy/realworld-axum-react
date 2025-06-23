@@ -8,9 +8,8 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "prepare": "husky",
-    "test": "echo \"👀Test line for testing👀\" && exit 1",
-    "lint": "jest"
+    "prepare": "cd .. && husky frontend/.husky",
+    "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -26,5 +25,12 @@
   "bugs": {
     "url": "https://github.com/rustworthy/realworld-rocket-react/issues"
   },
-  "homepage": "https://github.com/rustworthy/realworld-rocket-react#readme"
+  "homepage": "https://github.com/rustworthy/realworld-rocket-react#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "typescipt": "^1.0.0"
+  },
+  "dependencies": {
+    "react": "^19.1.0"
+  }
 }
