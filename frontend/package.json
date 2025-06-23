@@ -1,0 +1,30 @@
+{
+  "name": "realworld-rocket-react",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=23.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "test": "echo \"👀Test line for testing👀\" && exit 1",
+    "lint": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rustworthy/realworld-rocket-react.git"
+  },
+  "keywords": [
+    "RUST",
+    "Rocket",
+    "React"
+  ],
+  "author": "Pavieł Michalkievič, Dzmitry Kalatsilshchykau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rustworthy/realworld-rocket-react/issues"
+  },
+  "homepage": "https://github.com/rustworthy/realworld-rocket-react#readme"
+}
