@@ -103,13 +103,21 @@ jaeger/purge: jaeger/stop
 .PHONY: teardown
 teardown: tools/uninstall db/purge jaeger/purge
 
-# ----------------------------  MAIN COMMANDS ----------------------------------
+# ---------------------------- SETUP COMMANDS ----------------------------------
+.PHONY: dotenv
+dotenv:
+	@echo "🔑 Setting up dotenv file"
+	@echo "" >> .env
+	@echo "# The content below has been copied from .env.example file" >> .env
+	@cat .env.example | tee -a .env
+
+.PHONY: setup
+setup: dotenv tools/install jaeger/start db/start db/setup prepare
+
+# ------------------------- DEVELOPMENT COMMANDS -------------------------------
 .PHONY: prepare
 prepare:
 	cargo sqlx prepare --database-url=${POSTGRES_URL}
-
-.PHONY: setup
-setup: tools/install jaeger/start db/start db/setup prepare
 
 .PHONY: test/api
 test/api:
