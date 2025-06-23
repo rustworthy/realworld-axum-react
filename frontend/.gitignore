@@ -7,3 +7,6 @@
 # ignore a local copy of https://github.com/gothinkster/realworld
 # that can be used for running the postman tests locally with `make test/spec`
 node_modules
+
+# output folder after app build
+build
