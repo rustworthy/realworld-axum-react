@@ -3,39 +3,14 @@ extern crate rocket;
 #[macro_use]
 extern crate tracing;
 
-mod routes;
+mod http;
 mod telemetry;
 
+use crate::http::routes;
+use crate::http::cors;
+use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Database, sqlx::PgPool};
 pub use telemetry::init_tracing;
-
-use crate::routes::health;
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
-use rocket::{Build, Rocket, fairing};
-use rocket::{Request, Response};
-
-pub struct CORS;
-
-#[rocket::async_trait]
-impl Fairing for CORS {
-    fn info(&self) -> Info {
-        Info {
-            name: "Add CORS headers to responses",
-            kind: Kind::Response,
-        }
-    }
-
-    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new(
-            "Access-Control-Allow-Methods",
-            "POST, GET, PATCH, OPTIONS",
-        ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-    }
-}
 
 #[derive(Database)]
 #[database("main")]
@@ -57,15 +32,19 @@ pub(crate) async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 pub fn construct_rocket(database_url: String, migrate: bool) -> Rocket<Build> {
     let config = rocket::Config::figment().merge(("databases.main.url", database_url));
     let rocket = rocket::custom(config)
-        .mount("/", routes![health])
-        .attach(CORS)
+        .mount("/", routes![routes::health])
         .attach(Db::init());
 
-    match migrate {
+    let rocket = match migrate {
         true => rocket.attach(fairing::AdHoc::try_on_ignite(
             "Run pending database migrations",
             run_migrations,
         )),
         false => rocket,
+    };
+
+    match std::env::var("ALLOWED_ORIGINS").ok() {
+        Some(origins) => rocket.attach(cors::cors(origins)),
+        None => rocket,
     }
 }

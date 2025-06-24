@@ -2002,6 +2002,7 @@ dependencies = [
  "opentelemetry-otlp",
  "opentelemetry_sdk",
  "rocket",
+ "rocket_cors",
  "rocket_db_pools",
  "sqlx",
  "testcontainers-modules",
@@ -2196,6 +2197,22 @@ dependencies = [
  "syn 2.0.103",
  "unicode-xid",
  "version_check",
+]
+
+[[package]]
+name = "rocket_cors"
+version = "0.6.0"
+source = "git+https://github.com/lawliet89/rocket_cors.git?rev=072d90359b23e9b291df6b672c07c93de9c46011#072d90359b23e9b291df6b672c07c93de9c46011"
+dependencies = [
+ "http 0.2.12",
+ "log",
+ "regex",
+ "rocket",
+ "serde",
+ "serde_derive",
+ "unicase",
+ "unicase_serde",
+ "url",
 ]
 
 [[package]]
@@ -3468,6 +3485,22 @@ checksum = "e1b88fcfe09e89d3866a5c11019378088af2d24c3fbd4f0543f96b479ec90697"
 dependencies = [
  "serde",
  "version_check",
+]
+
+[[package]]
+name = "unicase"
+version = "2.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75b844d17643ee918803943289730bec8aac480150456169e647ed0b576ba539"
+
+[[package]]
+name = "unicase_serde"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ef53697679d874d69f3160af80bc28de12730a985d57bdf2b47456ccb8b11f1"
+dependencies = [
+ "serde",
+ "unicase",
 ]
 
 [[package]]
