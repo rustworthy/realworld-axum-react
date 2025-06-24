@@ -10,7 +10,32 @@ use rocket_db_pools::{Database, sqlx::PgPool};
 pub use telemetry::init_tracing;
 
 use crate::routes::health;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::http::Header;
 use rocket::{Build, Rocket, fairing};
+use rocket::{Request, Response};
+
+pub struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response,
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "POST, GET, PATCH, OPTIONS",
+        ));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
 
 #[derive(Database)]
 #[database("main")]
@@ -33,6 +58,7 @@ pub fn construct_rocket(database_url: String, migrate: bool) -> Rocket<Build> {
     let config = rocket::Config::figment().merge(("databases.main.url", database_url));
     let rocket = rocket::custom(config)
         .mount("/", routes![health])
+        .attach(CORS)
         .attach(Db::init());
 
     match migrate {

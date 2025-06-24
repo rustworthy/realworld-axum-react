@@ -131,7 +131,7 @@ test/spec:
 	cd ./realworld/api && APIURL=http://localhost:${APP_PORT} ./run-api-tests.sh
 
 .PHONY: watch
-watch: prepare
+watch: db/start prepare
 	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --clear --exec "run" 
 
