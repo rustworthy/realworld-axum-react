@@ -133,7 +133,7 @@ test/spec:
 .PHONY: watch
 watch: prepare
 	fuser -k ${APP_PORT}/tcp || true
-	cargo watch --exec "run" 
+	cargo watch --clear --exec "run" 
 
 .PHONY: fmt
 fmt:
