@@ -1,8 +1,11 @@
 use rocket::http::Method;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
 
-pub fn cors(allowed_origins: String) -> Cors {
-    let allowed_origins = AllowedOrigins::some_regex(&[allowed_origins]);
+pub fn cors<S>(allowed_origins: &[S]) -> Cors
+where
+    S: AsRef<str>,
+{
+    let allowed_origins = AllowedOrigins::some_regex(allowed_origins);
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Patch, Method::Put]

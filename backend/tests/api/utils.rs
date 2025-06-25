@@ -1,3 +1,4 @@
+use realworld_rocket_react::Config;
 use rocket::local::asynchronous::Client;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
@@ -25,10 +26,11 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
         "postgres://postgres:postgres@localhost:{}/{}",
         host_port, test_name
     );
-    let rocket = realworld_rocket_react::construct_rocket(
+    let rocket = realworld_rocket_react::construct_rocket(Some(Config {
+        migrate: true,
         database_url,
-        true, // _do_ run migrations
-    );
+        allowed_origins: None,
+    }));
     let client = Client::tracked(rocket)
         .await
         .expect("valid rocket application");

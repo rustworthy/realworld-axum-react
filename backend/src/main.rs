@@ -26,12 +26,7 @@ async fn main() {
 
     // --------------------     RUN APPLICATION    -----------------------------
     // --------------------   MIGRATING IF NEEDED  -----------------------------
-    let database_url =
-        std::env::var("DATABASE_URL").expect("DATABASE_URL to be available in the environment");
-    let migrate = std::env::var("MIGRATE")
-        .ok()
-        .is_some_and(|value| value == "1");
-    if let Err(e) = construct_rocket(database_url, migrate).launch().await {
+    if let Err(e) = construct_rocket(None).launch().await {
         panic!("Failed to launch rocket app: {:?}", e);
     };
 }
