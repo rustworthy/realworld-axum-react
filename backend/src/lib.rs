@@ -3,14 +3,18 @@ extern crate rocket;
 #[macro_use]
 extern crate tracing;
 
-mod routes;
+mod config;
+mod http;
 mod telemetry;
 
+use crate::http::cors;
+use crate::http::routes;
+pub use config::Config;
+use rocket::figment::providers::Env;
+use rocket::figment::providers::Serialized;
+use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Database, sqlx::PgPool};
 pub use telemetry::init_tracing;
-
-use crate::routes::health;
-use rocket::{Build, Rocket, fairing};
 
 #[derive(Database)]
 #[database("main")]
@@ -29,17 +33,30 @@ pub(crate) async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     }
 }
 
-pub fn construct_rocket(database_url: String, migrate: bool) -> Rocket<Build> {
-    let config = rocket::Config::figment().merge(("databases.main.url", database_url));
+pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
+    let config = match config {
+        Some(overrides) => rocket::Config::figment()
+            .merge(Env::raw())
+            .merge(Serialized::globals(overrides)),
+        None => rocket::Config::figment().merge(Env::raw()),
+    };
+    let custom: Config = config.extract().expect("config");
+    let config = config.merge(("databases.main.url", custom.database_url));
+
     let rocket = rocket::custom(config)
-        .mount("/", routes![health])
+        .mount("/", routes![routes::health])
         .attach(Db::init());
 
-    match migrate {
+    let rocket = match custom.migrate {
         true => rocket.attach(fairing::AdHoc::try_on_ignite(
             "Run pending database migrations",
             run_migrations,
         )),
         false => rocket,
+    };
+
+    match custom.allowed_origins {
+        Some(origins) => rocket.attach(cors::cors(&origins)),
+        None => rocket,
     }
 }
