@@ -9,12 +9,12 @@ mod telemetry;
 
 use crate::http::cors;
 use crate::http::routes;
+pub use config::Config;
 use rocket::figment::providers::Env;
 use rocket::figment::providers::Serialized;
 use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Database, sqlx::PgPool};
 pub use telemetry::init_tracing;
-pub use config::Config;
 
 #[derive(Database)]
 #[database("main")]

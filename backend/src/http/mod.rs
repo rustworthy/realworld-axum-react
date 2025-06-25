@@ -1,2 +1,2 @@
-pub(crate) mod routes;
 pub(crate) mod cors;
+pub(crate) mod routes;

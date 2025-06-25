@@ -6,7 +6,7 @@ where
     S: AsRef<str>,
 {
     let allowed_origins = AllowedOrigins::some_regex(allowed_origins);
-    let cors = rocket_cors::CorsOptions {
+    rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Patch, Method::Put]
             .into_iter()
@@ -17,6 +17,5 @@ where
         ..Default::default()
     }
     .to_cors()
-    .expect("CORS fairing build successfully");
-    cors
+    .expect("CORS fairing build successfully")
 }
