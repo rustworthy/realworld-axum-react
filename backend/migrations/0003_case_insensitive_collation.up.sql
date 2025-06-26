@@ -1,0 +1,13 @@
+-- We most likely do not want users to be able to create usernames or emails
+-- that are unique when comparing case-sensitively, i.e. we do not want users 
+-- with emails `rob.Pike@gmail.com` and `Rob.pike@gmail.com` co-exist. To avoid
+-- this we would need to either explicitly create a case-insensitive index or
+-- do extra checks at the application level, which is suboptimal. To tackle this,
+-- we are creating a text collation that sorts text case-insensitively.
+-- 
+-- This should be applied with caution though - only to some core domain fields like
+-- `username` and `email` mentioned above - because this collation does not support
+-- comparing text with `LIKE/ILIKE` (unlike "ucs_basic" collation).
+--  
+-- Source: https://github.com/launchbadge/realworld-axum-sqlx/blob/f1b25654773228297e35c292f357d33b7121a101/migrations/1_setup.sql#L48-L50 
+create collation case_insensitive (provider = icu, locale = 'und-u-ks-level2', deterministic = false);
