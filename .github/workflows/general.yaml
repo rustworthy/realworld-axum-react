@@ -26,7 +26,7 @@ jobs:
           cargo fmt --check
           SQLX_OFFLINE=1 cargo clippy
           cargo doc --no-deps --all-features
-  test_api:
+  unit-tests:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,11 +39,37 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: run API tests
-        run: cargo test --release --test api
+        run: cargo test --release
+  api-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: cargo generate-lockfile
+        if: hashFiles('Cargo.lock') == ''
+        run: cargo generate-lockfile
+      - name: run API tests
+        run: cargo test --release --test api --features=api-test
+  e2e-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: cargo generate-lockfile
+        if: hashFiles('Cargo.lock') == ''
+        run: cargo generate-lockfile
+      - name: run API tests
+        run: cargo test --test e2e --features=e2e-test
   deploy:
-    needs:
-      - check
-      - test_api
+    needs: [check, unit-tests, api-tests, e2e-tests]
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -121,9 +121,21 @@ setup: dotenv tools/install jaeger/start db/start db/setup prepare
 prepare:
 	cargo sqlx prepare --database-url=${POSTGRES_URL}
 
+.PHONY: test
+test:
+	cargo test
+
 .PHONY: test/api
 test/api:
-	cargo test --test api
+	cargo test --test api --features=api-test
+
+.PHONY: test/e2e
+test/e2e:
+	cargo test --test e2e --features=e2e-test
+
+.PHONY: test/all
+test/all:
+	cargo test --all-features
 
 .PHONY: test/spec
 test/spec:

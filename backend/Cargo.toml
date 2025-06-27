@@ -2,8 +2,28 @@
 name = "realworld-rocket-react"
 version = "0.1.0"
 edition = "2024"
-authors = ["Pavel Mikhalkevich", "dzmitry kalatsilshchykau"]
+authors = ["Pavel Mikhalkevich", "Dzmitry Kalatsilshchykau"]
 license = "MIT OR Apache-2.0"
+
+# There are several groups of tests in the project:
+#
+# - good old unit tests, which you can launch with `cargo t`;
+#
+# - API test (integration) behind `api-test` feature flag, which can
+#   can be run with `cargo t --test api --features=api-test`
+#
+# - FE + BE tests (end-to end) behind `e2e-test` feature flag, which you
+#   can run  with `cargo test --test e2e --features=e2e-test`
+#
+# End-to-end tests will require serving the front-end distribution, 
+# writing data to the database (docker containers), and what not, while
+# unit tests do not need all these tools.
+#
+# All the test-suites can be launched with `cargo t --all-features`.
+[features]
+default = []
+api-test = []
+e2e-test = ["api-test"]
 
 [dependencies]
 rocket = { version = "0.5", features = ["json"] }
