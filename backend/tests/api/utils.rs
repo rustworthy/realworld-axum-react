@@ -2,8 +2,8 @@ use realworld_rocket_react::Config;
 use rocket::local::asynchronous::Client;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
-use testcontainers_modules::testcontainers::ContainerAsync;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
+use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 
 pub struct TestContext {
     #[allow(unused)]
@@ -15,6 +15,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
     // arrange
     let container = postgres::Postgres::default()
         .with_db_name(test_name)
+        .with_tag("17")
         .start()
         .await
         .expect("successfully launched PostgreSQL container");

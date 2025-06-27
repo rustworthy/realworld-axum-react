@@ -29,7 +29,11 @@ tracing-subscriber = { version = "0.3.19", features = [
 tracing-bunyan-formatter = "0.3.10"
 opentelemetry-appender-tracing = "0.30.1"
 tracing = { version = "0.1", features = ["attributes"] }
+anyhow = "1.0.98"
+argon2 = "0.5.3"
+rand = "0.8"
 # -------------------------- TELEMETRY END -------------------------------------
 
 [dev-dependencies]
+fake = "4.3.0"
 testcontainers-modules = { version = "0.12.1", features = ["postgres"] }

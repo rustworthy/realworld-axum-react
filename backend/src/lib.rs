@@ -6,6 +6,7 @@ extern crate tracing;
 mod config;
 mod http;
 mod telemetry;
+mod utils;
 
 use crate::http::cors;
 use crate::http::routes;
