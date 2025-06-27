@@ -21,11 +21,12 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-      - name: run API tests
-        run: |
-          cargo fmt --check
-          SQLX_OFFLINE=1 cargo clippy
-          cargo doc --no-deps --all-features
+      - name: cargo fmt --check
+        run: cargo fmt --check
+      - name: SQLX_OFFLINE=1 cargo clippy
+        run: SQLX_OFFLINE=1 cargo clippy
+      - name: cargo doc --no-deps --all-features
+        run: cargo doc --no-deps --all-features
   unit-tests:
     runs-on: ubuntu-latest
     defaults:
