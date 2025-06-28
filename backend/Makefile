@@ -123,7 +123,7 @@ prepare:
 
 .PHONY: test
 test:
-	cargo test
+	cargo test $(p) -- --nocapture
 
 .PHONY: test/api
 test/api:

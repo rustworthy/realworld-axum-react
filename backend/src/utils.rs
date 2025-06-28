@@ -3,14 +3,14 @@ use argon2::Argon2;
 use argon2::PasswordHash;
 use argon2::PasswordHasher as _;
 use argon2::PasswordVerifier;
+use argon2::password_hash;
 use argon2::password_hash::SaltString;
 
 #[allow(unused)]
 pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
     // generate a salt
-    let mut rng = rand::thread_rng();
+    let mut rng = password_hash::rand_core::OsRng;
     let salt = SaltString::generate(&mut rng);
-    dbg!(&salt);
     // hash password to PHC string ($argon2id$v=19$...)
     let password_hash = Argon2::default()
         .hash_password(password.as_ref(), &salt)
@@ -44,7 +44,7 @@ mod tests {
     use fake::faker::internet::en::Password;
 
     #[test]
-    fn hash_then_verify() {
+    fn hash_password_then_verify() {
         let password: String = Password(5..10).fake();
         let password_hash = hash_password(&password).unwrap();
         // the resulted string will have the following format:
