@@ -11,6 +11,8 @@ mod utils;
 use crate::http::cors;
 use crate::http::routes;
 pub use config::Config;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::EncodingKey;
 use rocket::figment::providers::Env;
 use rocket::figment::providers::Serialized;
 use rocket::{Build, Rocket, fairing};
@@ -46,6 +48,8 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
 
     let rocket = rocket::custom(config)
         .mount("/", routes![routes::health])
+        .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
+        .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());
 
     let rocket = match custom.migrate {

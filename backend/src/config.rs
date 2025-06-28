@@ -6,4 +6,5 @@ pub struct Config {
     pub migrate: bool,
     pub database_url: String,
     pub allowed_origins: Option<Vec<String>>,
+    pub secret_key: String,
 }

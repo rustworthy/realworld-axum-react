@@ -11,7 +11,7 @@ const TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 #[serde_with::serde_as]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct Claims {
+struct Claims {
     /// Whom token refers to (opaque string).
     sub: String,
 
@@ -24,37 +24,31 @@ pub struct Claims {
     exp: DateTime<Utc>,
 }
 
-#[allow(unused)]
-pub fn issue_token(
-    secret: impl AsRef<str>,
-    sub: String,
-    ttl: Option<Duration>,
+pub(in crate::http) fn issue_token(
+    sub: impl Into<String>,
+    key: &EncodingKey,
 ) -> anyhow::Result<String> {
     let issued_at = Utc::now();
-    let expires_at = issued_at + ttl.unwrap_or(TOKEN_TTL);
     let claims = Claims {
-        sub,
+        sub: sub.into(),
         iat: issued_at,
-        exp: expires_at,
+        exp: issued_at + TOKEN_TTL,
     };
-    let key = EncodingKey::from_base64_secret(secret.as_ref())
-        .map_err(|e| anyhow::anyhow!(e))
-        .context("failed to create jwt encoding key from provided base64-encoded secret")?;
-    let token = encode(&Header::default(), &claims, &key)
+    let token = encode(&Header::default(), &claims, key)
         .map_err(|e| anyhow::anyhow!(e))
         .context("failed to issue jwt token")?;
     Ok(token)
 }
 
-#[allow(unused)]
-pub fn verify_token(secret: impl AsRef<str>, token: impl AsRef<str>) -> anyhow::Result<String> {
-    let key = DecodingKey::from_base64_secret(secret.as_ref())
-        .map_err(|e| anyhow::anyhow!(e))
-        // TODO: this should never happen, sentinels exist to help us avoid such
-        // issues at runtime
-        .context("failed to create jwt decoding key from provided base64-encoded secret")?;
-    let TokenData { claims, .. } = decode::<Claims>(token.as_ref(), &key, &Validation::default())?;
-    Ok(claims.sub)
+pub(in crate::http) fn verify_token(
+    token: impl AsRef<str>,
+    key: &DecodingKey,
+) -> anyhow::Result<String> {
+    let TokenData {
+        claims: Claims { sub, .. },
+        ..
+    } = decode::<Claims>(token.as_ref(), key, &Validation::default())?;
+    Ok(sub)
 }
 
 #[cfg(test)]
@@ -69,9 +63,11 @@ mod tests {
     fn issue_token_then_verify() {
         // 256-bit key for HS256 algorithm, in reality you might want to use
         // `openssl rand -base64 32` to generate a secret key
-        let mut key = [0; 32];
-        password_hash::rand_core::OsRng.fill_bytes(&mut key);
-        let key = BASE64_STANDARD.encode(key);
+        let mut secret_bytes = [0; 32];
+        password_hash::rand_core::OsRng.fill_bytes(&mut secret_bytes);
+        let secret = BASE64_STANDARD.encode(secret_bytes);
+        let encoding_key = EncodingKey::from_base64_secret(&secret).unwrap();
+        let decoding_key = DecodingKey::from_base64_secret(&secret).unwrap();
 
         // whom the token is going to refer to; in reality, we rely on the database
         // engine when assigning identifiers to users, here we are generating UUID
@@ -87,7 +83,7 @@ mod tests {
         //  eyJzdWIiOmV4c...Tc1MTY1OTM5Nn0              - claims
         //  b_beenZM34BJt_5xfK5zo7JTy6QPWtIab8WxAsU7Qx8 - signature
         //
-        let token = issue_token(&key, user_id.clone(), None).unwrap();
+        let token = issue_token(user_id.clone(), &encoding_key).unwrap();
         let mut parts = token.split(".");
 
         let headers = parts.next().unwrap();
@@ -109,6 +105,6 @@ mod tests {
         let _signature = parts.next().unwrap();
         assert!(parts.next().is_none());
 
-        assert_eq!(verify_token(&key, token).unwrap(), user_id);
+        assert_eq!(verify_token(token, &decoding_key).unwrap(), user_id);
     }
 }

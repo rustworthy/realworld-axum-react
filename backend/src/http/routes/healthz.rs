@@ -1,10 +1,13 @@
 use chrono::{DateTime, Utc};
+use jsonwebtoken::{DecodingKey, EncodingKey};
+use rocket::State;
 use rocket::serde::Serialize;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use uuid::Uuid;
 
 use crate::Db;
+use crate::http::jwt::{issue_token, verify_token};
 
 #[derive(Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -13,8 +16,16 @@ pub(crate) struct HealthCheckPayload {
 }
 
 #[get("/healthz")]
-#[instrument(name = "SERVICE HEALTH CHECK", skip(db))]
-pub(crate) async fn health(db: Connection<Db>) -> Json<HealthCheckPayload> {
+#[instrument(name = "SERVICE HEALTH CHECK", skip(db, encoding_key, decoding_key))]
+pub(crate) async fn health(
+    db: Connection<Db>,
+    encoding_key: &State<EncodingKey>,
+    decoding_key: &State<DecodingKey>,
+) -> Json<HealthCheckPayload> {
+    // token keys are in state and issue/verify works as expected
+    let token = issue_token("health-check", encoding_key).expect("issued jwt");
+    verify_token(&token, decoding_key).expect("valid jwt");
+    // database is accepting connections
     let db_check_payload = check_db_conn(db).await;
     info!("Database server time {:?}", &db_check_payload.db_time);
     Json(HealthCheckPayload {
