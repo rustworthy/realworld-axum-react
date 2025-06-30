@@ -8,6 +8,7 @@ mod http;
 mod telemetry;
 mod utils;
 
+use crate::http::catchers;
 use crate::http::cors;
 use crate::http::routes;
 pub use config::Config;
@@ -49,6 +50,7 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     let rocket = rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
         .mount("/api/user", routes![routes::users::current_user])
+        .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());
