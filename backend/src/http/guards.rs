@@ -17,7 +17,14 @@ impl<'r> FromRequest<'r> for UserID {
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let key = try_outcome!(request.guard::<&State<DecodingKey>>().await);
-        match verify_token("1312312", key) {
+        let Some(token) = request
+            .headers()
+            .get_one("Authorization")
+            .and_then(|header| header.strip_prefix("Token "))
+        else {
+            return Outcome::Error((Status::Unauthorized, ()));
+        };
+        match verify_token(token, key) {
             Ok(sub) => Outcome::Success(UserID(sub)),
             Err(e) => {
                 warn!("Authentication failed: {}", e);

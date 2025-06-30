@@ -127,7 +127,7 @@ test:
 
 .PHONY: test/api
 test/api:
-	cargo test $(p) --test api --features=api-test
+	cargo test $(p) --test api --features=api-test -- --nocapture
 
 .PHONY: test/e2e
 test/e2e:
