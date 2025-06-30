@@ -47,7 +47,8 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     let config = config.merge(("databases.main.url", custom.database_url));
 
     let rocket = rocket::custom(config)
-        .mount("/", routes![routes::health])
+        .mount("/", routes![routes::healthz::health])
+        .mount("/api/user", routes![routes::users::current_user])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());

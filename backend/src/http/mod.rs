@@ -1,3 +1,5 @@
-pub(crate) mod cors;
-pub(super) mod jwt;
-pub(crate) mod routes;
+pub mod cors;
+pub mod routes;
+
+pub(in crate::http) mod guards;
+pub(in crate::http) mod jwt;

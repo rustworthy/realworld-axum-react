@@ -23,7 +23,11 @@ pub(crate) async fn health(
     decoding_key: &State<DecodingKey>,
 ) -> Json<HealthCheckPayload> {
     // token keys are in state and issue/verify works as expected
-    let token = issue_token("health-check", encoding_key).expect("issued jwt");
+    let token = issue_token(
+        Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap(),
+        encoding_key,
+    )
+    .expect("issued jwt");
     verify_token(&token, decoding_key).expect("valid jwt");
     // database is accepting connections
     let db_check_payload = check_db_conn(db).await;

@@ -1,5 +1,2 @@
-mod healthz;
-mod user;
-
-pub(crate) use healthz::health;
-pub(crate) use user::*;
+pub(crate) mod healthz;
+pub(crate) mod users;

@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode};
 use rocket::serde::{Deserialize, Serialize};
 use serde_with::TimestampSeconds;
+use uuid::Uuid;
 
 const TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
@@ -13,7 +14,7 @@ const TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 #[serde(crate = "rocket::serde")]
 struct Claims {
     /// Whom token refers to (opaque string).
-    sub: String,
+    sub: Uuid,
 
     /// When this token was issued (UTC timestamp).
     #[serde_as(as = "TimestampSeconds<i64>")]
@@ -24,13 +25,10 @@ struct Claims {
     exp: DateTime<Utc>,
 }
 
-pub(in crate::http) fn issue_token(
-    sub: impl Into<String>,
-    key: &EncodingKey,
-) -> anyhow::Result<String> {
+pub fn issue_token(sub: Uuid, key: &EncodingKey) -> anyhow::Result<String> {
     let issued_at = Utc::now();
     let claims = Claims {
-        sub: sub.into(),
+        sub,
         iat: issued_at,
         exp: issued_at + TOKEN_TTL,
     };
@@ -40,10 +38,7 @@ pub(in crate::http) fn issue_token(
     Ok(token)
 }
 
-pub(in crate::http) fn verify_token(
-    token: impl AsRef<str>,
-    key: &DecodingKey,
-) -> anyhow::Result<String> {
+pub fn verify_token(token: impl AsRef<str>, key: &DecodingKey) -> anyhow::Result<Uuid> {
     let TokenData {
         claims: Claims { sub, .. },
         ..
@@ -72,7 +67,7 @@ mod tests {
         // whom the token is going to refer to; in reality, we rely on the database
         // engine when assigning identifiers to users, here we are generating UUID
         // for test and demonstration purposes solely
-        let user_id = Uuid::new_v4().to_string();
+        let user_id = Uuid::new_v4();
 
         // the resulted string will have the following format:
         //
@@ -83,7 +78,7 @@ mod tests {
         //  eyJzdWIiOmV4c...Tc1MTY1OTM5Nn0              - claims
         //  b_beenZM34BJt_5xfK5zo7JTy6QPWtIab8WxAsU7Qx8 - signature
         //
-        let token = issue_token(user_id.clone(), &encoding_key).unwrap();
+        let token = issue_token(user_id, &encoding_key).unwrap();
         let mut parts = token.split(".");
 
         let headers = parts.next().unwrap();
