@@ -127,7 +127,7 @@ test:
 
 .PHONY: test/api
 test/api:
-	cargo test $(p) --test api --features=api-test -- --nocapture
+	ROCKET_LOG_LEVEL=off cargo test $(p) --test api --features=api-test -- --nocapture
 
 .PHONY: test/e2e
 test/e2e:
@@ -157,11 +157,11 @@ check:
 	SQLX_OFFLINE=1 cargo clippy
 	cargo doc --no-deps --all-features
 
-.PHONY: all
-all: setup
+.PHONY: otel
+otel:
 	fuser -k ${APP_PORT}/tcp || true
 	RUST_LOG="realworld_rocket_react=info,rocket=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
 	DATABASE_URL=${POSTGRES_URL} \
-	MIGRATE=1 \
-		cargo run --release
+	MIGRATE=true \
+		cargo run

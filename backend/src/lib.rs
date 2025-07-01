@@ -49,7 +49,15 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
 
     let rocket = rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
-        .mount("/api/user", routes![routes::users::current_user])
+        .mount(
+            "/api/user",
+            routes![
+                routes::users::read_current_user,
+                routes::users::create_user,
+                routes::users::update_current_user,
+                routes::users::login,
+            ],
+        )
         .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
