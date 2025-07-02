@@ -1,8 +1,8 @@
-import { BuildMode, BuildPaths, BuildPlatform, buildWebpack } from "./configs";
-
 import dotEnv from "dotenv";
 import path from "path";
 import webpack from "webpack";
+
+import { BuildMode, BuildPaths, BuildPlatform, buildWebpack } from "./configs";
 
 interface EnvVariables {
   mode?: BuildMode;

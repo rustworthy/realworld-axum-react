@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
+
 import { Button } from "./Button";
-import { MainLayout } from "./MainLayout";
 
 const App: FC = () => {
   const [counter, setCounter] = useState<number>(0);

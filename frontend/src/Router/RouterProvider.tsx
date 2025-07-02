@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+
 import { MainLayout } from "../MainLayout";
-import { HomePage, ForbiddenPage, NotFoundPage, SignInPage, SignUpPage } from "../pages";
+import { ForbiddenPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "../pages";
 
 const isAuth = true;
 
@@ -20,9 +21,7 @@ export const RouterProvider = () => {
           <Route path="/singup" element={<SignUpPage />} />
           <Route path="/forbidden" element={<ForbiddenPage />} />
 
-          <Route element={<ProtectedRoutes />}>
-            {/* <Route path="/protectedroute" element={<ProtectedElement />} /> */}
-          </Route>
+          <Route element={<ProtectedRoutes />}>{/* <Route path="/protectedroute" element={<ProtectedElement />} /> */}</Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

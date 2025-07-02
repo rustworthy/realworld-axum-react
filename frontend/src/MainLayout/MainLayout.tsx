@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import * as S from "./MainLayout.styles";
 import { Outlet, useNavigate } from "react-router-dom";
 
+import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
   const navigate = useNavigate();
@@ -23,9 +23,9 @@ export const MainLayout = () => {
       </S.Header>
 
       <S.ChildrenContainer>
-          <Suspense fallback={<div>Suspense loader will be here</div>}>
-            <Outlet />
-          </Suspense>
+        <Suspense fallback={<div>Suspense loader will be here</div>}>
+          <Outlet />
+        </Suspense>
       </S.ChildrenContainer>
 
       <S.Footer>

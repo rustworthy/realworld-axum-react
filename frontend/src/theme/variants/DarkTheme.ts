@@ -17,9 +17,7 @@
 //       `,
 //   },
 // }
-
 import { AppThemeType } from "../theme.types";
-
 
 const commonKeys = {
   color: {
@@ -32,32 +30,32 @@ const commonKeys = {
 };
 
 export const DarkTheme: AppThemeType = {
-   page: {
-        home: {
-            c01: commonKeys.color.text.c01,
-            c02: commonKeys.color.text.c02,
-            c03: commonKeys.color.text.c03,
-        },
+  page: {
+    home: {
+      c01: commonKeys.color.text.c01,
+      c02: commonKeys.color.text.c02,
+      c03: commonKeys.color.text.c03,
     },
+  },
 
-    mainLayout: {
-        c01: commonKeys.color.text.c01,
-        c02: commonKeys.color.text.c02,
-        header: {
-            c01: commonKeys.color.text.c03,
-            c02: "#111111",
-        },
-        footer: {
-            c01: "#ffffff",
-            c02: "linear-gradient(#485563, #29323c)",
-        }
+  mainLayout: {
+    c01: commonKeys.color.text.c01,
+    c02: commonKeys.color.text.c02,
+    header: {
+      c01: commonKeys.color.text.c03,
+      c02: "#111111",
     },
+    footer: {
+      c01: "#ffffff",
+      c02: "linear-gradient(#485563, #29323c)",
+    },
+  },
 
-    shared: {
-        button: {
-            c01: commonKeys.color.text.c01,
-            c02: commonKeys.color.text.c02,
-            c03: "#cfcfcf"
-        },
+  shared: {
+    button: {
+      c01: commonKeys.color.text.c01,
+      c02: commonKeys.color.text.c02,
+      c03: "#cfcfcf",
     },
-}
+  },
+};

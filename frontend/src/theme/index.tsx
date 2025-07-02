@@ -1,9 +1,11 @@
-import { GlobalStyles } from './globalStyles';
+import { FC, ReactNode } from "react";
+
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
-import { LightTheme } from './variants/LightTheme';
-import { FC, ReactNode } from 'react';
-import { ThemeVariantEnum } from './theme.types';
-import { DarkTheme } from './variants/DarkTheme';
+
+import { GlobalStyles } from "./globalStyles";
+import { ThemeVariantEnum } from "./theme.types";
+import { DarkTheme } from "./variants/DarkTheme";
+import { LightTheme } from "./variants/LightTheme";
 
 interface IThemeWrapper {
   themeVariant?: ThemeVariantEnum;
@@ -19,6 +21,6 @@ export const ThemeProvider: FC<IThemeWrapper> = ({ themeVariant = ThemeVariantEn
         <GlobalStyles />
         {children}
       </>
-    </StyledThemeProvider >
-  )
+    </StyledThemeProvider>
+  );
 };
