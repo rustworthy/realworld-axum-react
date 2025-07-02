@@ -6,7 +6,7 @@ const App: FC = () => {
   const [counter, setCounter] = useState<number>(0);
 
   return (
-    <MainLayout>
+    <>
       <h1> Value: {counter} </h1>
 
       <Button onClick={() => setCounter((prev) => prev + 1)} dataTestId="increase-button">
@@ -15,7 +15,7 @@ const App: FC = () => {
       <Button onClick={() => setCounter((prev) => prev - 1)} dataTestId="decrease-button">
         Decrease
       </Button>
-    </MainLayout>
+    </>
   );
 };
 

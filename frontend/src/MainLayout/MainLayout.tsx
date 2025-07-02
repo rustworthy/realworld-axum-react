@@ -1,11 +1,11 @@
-import { FC, ReactNode } from "react";
+import { Suspense } from "react";
 import * as S from "./MainLayout.styles";
+import { Outlet, useNavigate } from "react-router-dom";
 
-export interface IMainLayout {
-  children: ReactNode;
-}
 
-export const MainLayout: FC<IMainLayout> = ({ children }) => {
+export const MainLayout = () => {
+  const navigate = useNavigate();
+
   return (
     <S.Wrapper>
       <S.Header>
@@ -14,21 +14,25 @@ export const MainLayout: FC<IMainLayout> = ({ children }) => {
 
           <nav>
             <S.HeaderNavList>
-              <li>Home</li>
-              <li>Sing in</li>
-              <li>Sing up</li>
+              <li onClick={() => navigate("/")}>Home</li>
+              <li onClick={() => navigate("/singin")}>Sing in</li>
+              <li onClick={() => navigate("/singup")}>Sing up</li>
             </S.HeaderNavList>
           </nav>
         </S.HeaderContainer>
       </S.Header>
 
       <S.ChildrenContainer>
-        <S.Container>{children}</S.Container>
+          <Suspense fallback={<div>Suspense loader will be here</div>}>
+            <Outlet />
+          </Suspense>
       </S.ChildrenContainer>
 
       <S.Footer>
         <S.FooterContainer>
-          <S.FooterLink href="https://github.com/rustworthy/realworld-rocket-react" target="_blank">Fork on GitHub</S.FooterLink>
+          <S.FooterLink href="https://github.com/rustworthy/realworld-rocket-react" target="_blank">
+            Fork on GitHub
+          </S.FooterLink>
         </S.FooterContainer>
       </S.Footer>
     </S.Wrapper>

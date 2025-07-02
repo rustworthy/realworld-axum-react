@@ -32,6 +32,8 @@ export const LightTheme = {
     page: {
         home: {
             c01: commonKeys.color.text.c01,
+            c02: commonKeys.color.text.c02,
+            c03: commonKeys.color.text.c03,
         },
     },
 

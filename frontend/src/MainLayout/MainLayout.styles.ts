@@ -1,5 +1,6 @@
-import { DESKTOP_CONTAINER_WIDTH, EXTRA_LARGE_WIDTH, LARGE_CONTAINER_WIDTH, LARGE_WIDTH, MOBILE_CONTAINER_WIDTH, TABLET_CONTAINER_WIDTH, TABLET_WIDTH } from "../constants/styles.constants";
 import styled from "styled-components";
+
+import { LayoutContainer } from "../theme/globalStyledComponents";
 
 export const Wrapper = styled.div`
     width: 100dvw;
@@ -13,22 +14,6 @@ export const Wrapper = styled.div`
     justify-content: flex-start;
 `;
 
-export const Container = styled.div`
-    margin: 0 auto;
-    width: 100%;
-    max-width: ${DESKTOP_CONTAINER_WIDTH}px;
-
-    @media (max-width: ${EXTRA_LARGE_WIDTH}px) {
-        max-width: ${LARGE_CONTAINER_WIDTH}px;
-    }
-    @media (max-width: ${LARGE_WIDTH}px) {
-        max-width: ${TABLET_CONTAINER_WIDTH}px;
-    }
-    @media (max-width: ${TABLET_WIDTH}px) {
-        max-width: ${MOBILE_CONTAINER_WIDTH}px;
-    }
-`;
-
 export const Header = styled.header`
     width: 100%;
     height: 56px;
@@ -36,7 +21,7 @@ export const Header = styled.header`
     background-color: ${({ theme }) => theme.mainLayout.header.c02};
 `;
 
-export const HeaderContainer = styled(Container)`
+export const HeaderContainer = styled(LayoutContainer)`
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -71,7 +56,7 @@ export const Footer = styled.footer`
     background: ${({ theme }) => theme.mainLayout.footer.c02};
 `
 
-export const FooterContainer = styled(Container)`
+export const FooterContainer = styled(LayoutContainer)`
     display: flex;
     justify-content: center;
     align-items: center;
