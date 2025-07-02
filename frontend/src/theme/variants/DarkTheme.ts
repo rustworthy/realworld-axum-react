@@ -26,6 +26,7 @@ const commonKeys = {
     text: {
       c01: "#ffffff",
       c02: "#111111",
+      c03: "#5CB85B",
     },
   },
 };
@@ -37,10 +38,20 @@ export const DarkTheme: AppThemeType = {
         },
     },
 
+    mainLayout: {
+        c01: commonKeys.color.text.c01,
+        c02: commonKeys.color.text.c02,
+        header: {
+            c01: commonKeys.color.text.c03,
+            c02: "#111111",
+        },
+        footer: {
+            c01: "#ffffff",
+            c02: "linear-gradient(#485563, #29323c)",
+        }
+    },
+
     shared: {
-        bg: {
-            c01: commonKeys.color.text.c02,
-        }, 
         button: {
             c01: commonKeys.color.text.c01,
             c02: commonKeys.color.text.c02,

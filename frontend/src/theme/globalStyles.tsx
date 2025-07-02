@@ -27,17 +27,19 @@ export const GlobalStyles = createGlobalStyle`
         h5,
         h6,
         p,
+        ul,
+        li,
         body {
           margin: 0;
+          padding: 0;
         }
 
-        .notistack-SnackbarContainer {
-          bottom: 50px;
+        ul, li, a { 
+          color: inherit;
+          text-decoration: none;
         }
 
-        .MuiPaper-root,
-        .MuiPopover-paper,
-        .MuiMenu-paper {
-          box-shadow: none !important;
+        ul {
+          list-style: none;
         }
 `;

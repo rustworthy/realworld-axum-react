@@ -23,6 +23,7 @@ const commonKeys = {
         text: {
             c01: "#111111",
             c02: "#ffffff",
+            c03: "#5CB85B",
         },
     },
 };
@@ -34,10 +35,20 @@ export const LightTheme = {
         },
     },
 
+    mainLayout: {
+        c01: commonKeys.color.text.c01,
+        c02: commonKeys.color.text.c02,
+        header: {
+            c01: commonKeys.color.text.c03,
+            c02: "#ffffff",
+        },
+        footer: {
+            c01: "#ffffff",
+            c02: "linear-gradient(#485563, #29323c)",
+        }
+    },
+
     shared: {
-        bg: {
-            c01: commonKeys.color.text.c02,
-        }, 
         button: {
             c01: commonKeys.color.text.c01,
             c02: commonKeys.color.text.c02,
