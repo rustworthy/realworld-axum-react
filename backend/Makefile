@@ -131,7 +131,7 @@ test/api:
 
 .PHONY: test/e2e
 test/e2e:
-	cargo test --test e2e --features=e2e-test
+	cargo test --test e2e --features=e2e-test -- --nocapture
 
 .PHONY: test/all
 test/all:

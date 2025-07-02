@@ -7,4 +7,5 @@ pub struct Config {
     pub database_url: String,
     pub allowed_origins: Option<Vec<String>>,
     pub secret_key: String,
+    pub port: u16,
 }

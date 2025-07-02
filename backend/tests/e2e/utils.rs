@@ -2,18 +2,22 @@ use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
-use realworld_rocket_react::Config;
-use rocket::local::asynchronous::Client;
+use rocket::tokio::net::TcpListener;
+use rocket::{Build, Rocket};
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 
+use realworld_rocket_react::Config;
+use realworld_rocket_react::construct_rocket;
+
 pub struct TestContext {
     // we are only using this to hold a guard, once the test context
     // is dropped, the container will be automatically stopped and removed
     _container: ContainerAsync<Postgres>,
-    pub client: Client,
+    pub rocket: Rocket<Build>,
+    pub url: String,
 }
 
 fn gen_b64_secret_key() -> String {
@@ -43,20 +47,27 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
         "postgres://postgres:postgres@localhost:{}/{}",
         host_port, test_name
     );
+    // ask OS for an available port
+    let port = TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("port assigned by OS")
+        .local_addr()
+        .unwrap()
+        .port();
+    // address our front-end is available at
+    let url = format!("http://localhost:{}", port);
     // create a rocket instance for this test
-    let rocket = realworld_rocket_react::construct_rocket(Some(Config {
+    let rocket = construct_rocket(Some(Config {
         migrate: true,
         database_url,
         allowed_origins: None,
         secret_key: gen_b64_secret_key(),
-        port: 8000,
+        port,
     }));
-    // create a client talking to that rocket instance
-    let client = Client::tracked(rocket)
-        .await
-        .expect("valid rocket application");
+
     TestContext {
-        client,
         _container: container,
+        rocket,
+        url,
     }
 }
