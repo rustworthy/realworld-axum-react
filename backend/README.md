@@ -31,6 +31,33 @@ $ make test/api
 NB! Make sure you got `docker` installed: for each of tests we are launching a
 dedicated [test container][3] with PostgreSQL.
 
+## E2E Tests
+
+Prerequisites:
+
+- [google-chrome][7]
+- [chromedriver][8]
+- frontend project [setup](../frontend/README.md)
+
+Make sure chrome binaries are in your path and launch the driver process:
+
+```sh
+chromedriver --port=4444
+```
+
+Prepare the client distribution first (from the project's root):
+
+```sh
+cd frontend && npm run build:prod
+```
+
+The in the `backend` directory, hit:
+
+```sh
+make test/e2e
+make test/e2e/headless # to run in headless mode
+```
+
 <!-- -------------------------------- LINKS -------------------------------- -->
 
 [1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml
@@ -39,3 +66,5 @@ dedicated [test container][3] with PostgreSQL.
 [4]: https://doc.rust-lang.org/cargo/getting-started/installation.html
 [5]: https://www.gnu.org/software/make/
 [6]: https://docs.docker.com/engine/install/
+[7]: https://www.google.com/chrome/
+[8]: https://googlechromelabs.github.io/chrome-for-testing/#stable

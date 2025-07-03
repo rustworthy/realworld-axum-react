@@ -133,6 +133,10 @@ test/api:
 test/e2e:
 	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=e2e-test -- --nocapture
 
+.PHONY: test/e2e/headless
+test/e2e/headless:
+	ROCKET_LOG_LEVEL=off HEADLESS=1 cargo test --test e2e --features=e2e-test -- --nocapture
+
 .PHONY: test/all
 test/all:
 	cargo test --all-features
