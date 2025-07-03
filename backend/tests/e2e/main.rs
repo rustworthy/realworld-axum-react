@@ -1,40 +1,58 @@
+#![cfg(feature = "e2e-test")]
+
 mod utils;
 
-#[rocket::async_test]
-async fn test1() {
-    // arrange
-    let ctx = utils::setup("test1").await;
+use fantoccini::Locator;
+use std::time::Duration;
 
-    dbg!(&ctx.url);
+const WAIT_TIMEOUT: Duration = Duration::from_secs(5);
+
+#[rocket::async_test]
+async fn has_link_to_github_repo() {
+    // arrange
+    let ctx = utils::setup("leads_to_github_repo").await;
 
     // act
-    let _rocket = ctx.rocket.launch().await.unwrap();
+    ctx.client.goto(&ctx.url).await.unwrap();
+    let elem = ctx
+        .client
+        .wait()
+        .at_most(WAIT_TIMEOUT)
+        .for_element(Locator::LinkText("Fork on GitHub"))
+        .await
+        .unwrap();
+    elem.follow().await.unwrap();
 
     // assert
+    assert_eq!(
+        ctx.client.current_url().await.unwrap().domain(),
+        Some("github.com"),
+    );
+
+    // clean up
+    ctx.client.close().await.ok();
+    ctx.handle.abort();
 }
 
 #[rocket::async_test]
-async fn test2() {
+async fn homepage_contains_project_name() {
     // arrange
     let ctx = utils::setup("test2").await;
 
-    dbg!(&ctx.url);
-
     // act
-    let _rocket = ctx.rocket.launch().await.unwrap();
+    ctx.client.goto(&ctx.url).await.unwrap();
+    let h1 = ctx
+        .client
+        .wait()
+        .at_most(WAIT_TIMEOUT)
+        .for_element(Locator::Css("h1"))
+        .await
+        .unwrap();
 
     // assert
-}
+    assert_eq!(h1.text().await.unwrap(), "conduit",);
 
-#[rocket::async_test]
-async fn test3() {
-    // arrange
-    let ctx = utils::setup("test3").await;
-
-    dbg!(&ctx.url);
-
-    // act
-    let _rocket = ctx.rocket.launch().await.unwrap();
-
-    // assert
+    // clean up
+    ctx.client.close().await.ok();
+    ctx.handle.abort();
 }

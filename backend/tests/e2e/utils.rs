@@ -2,8 +2,11 @@ use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
+use rocket::fs::FileServer;
+use rocket::serde::json::serde_json;
 use rocket::tokio::net::TcpListener;
-use rocket::{Build, Rocket};
+use rocket::tokio::spawn;
+use rocket::tokio::task::JoinHandle;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
@@ -16,14 +19,35 @@ pub struct TestContext {
     // we are only using this to hold a guard, once the test context
     // is dropped, the container will be automatically stopped and removed
     _container: ContainerAsync<Postgres>,
-    pub rocket: Rocket<Build>,
+    pub handle: JoinHandle<()>,
     pub url: String,
+    pub client: fantoccini::Client,
 }
 
 fn gen_b64_secret_key() -> String {
     let mut secret_bytes = [0; 32];
     password_hash::rand_core::OsRng.fill_bytes(&mut secret_bytes);
     BASE64_STANDARD.encode(secret_bytes)
+}
+
+async fn init_webdriver_client() -> fantoccini::Client {
+    let mut chrome_args = Vec::new();
+    if std::env::var("HEADLESS").ok().is_some() {
+        chrome_args.extend(["--headless", "--disable-gpu", "--disable-dev-shm-usage"]);
+    }
+    let mut caps = serde_json::map::Map::new();
+    caps.insert(
+        "goog:chromeOptions".to_string(),
+        serde_json::json!({
+            "args": chrome_args,
+        }),
+    );
+    // let url = (*CHROMEDRIVER).1.clone();
+    fantoccini::ClientBuilder::native()
+        .capabilities(caps)
+        .connect("tcp://localhost:4444")
+        .await
+        .expect("web driver to be available")
 }
 
 pub(crate) async fn setup(test_name: &'static str) -> TestContext {
@@ -56,18 +80,27 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
         .port();
     // address our front-end is available at
     let url = format!("http://localhost:{}", port);
-    // create a rocket instance for this test
+    // create a rocket instance for this test, mounting
+    // file server with the front-end build
     let rocket = construct_rocket(Some(Config {
         migrate: true,
         database_url,
         allowed_origins: None,
         secret_key: gen_b64_secret_key(),
         port,
-    }));
+    }))
+    .mount("/", FileServer::from("../frontend/build"));
+    // launch rocket application on a dedicated thread
+    let handle = spawn(async {
+        rocket.launch().await.expect("launched rocket app ok");
+    });
+
+    let client = init_webdriver_client().await;
 
     TestContext {
         _container: container,
-        rocket,
+        handle,
         url,
+        client,
     }
 }

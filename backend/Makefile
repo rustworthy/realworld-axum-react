@@ -123,7 +123,7 @@ prepare:
 
 .PHONY: test
 test:
-	cargo test $(p) -- --nocapture
+	SQLX_OFFLINE=1 cargo test $(p) -- --nocapture
 
 .PHONY: test/api
 test/api:
@@ -131,7 +131,7 @@ test/api:
 
 .PHONY: test/e2e
 test/e2e:
-	cargo test --test e2e --features=e2e-test -- --nocapture
+	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=e2e-test -- --nocapture
 
 .PHONY: test/all
 test/all:

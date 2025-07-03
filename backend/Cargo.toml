@@ -49,14 +49,15 @@ rocket_cors = { git = "https://github.com/lawliet89/rocket_cors.git", rev = "072
 sqlx = { version = "0.7", features = ["chrono", "uuid"] }
 serde_with = { version = "3.13.0", features = ["chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
-dotenvy = "0.15.7"
 uuid = { version = "1.17", features = ["serde"] }
 argon2 = "0.5.3"
 jsonwebtoken = { version = "9.3.1", default-features = false }
 anyhow = "1.0.98"
+dotenvy = "0.15.7" # only used in debug mode
 
 [dev-dependencies]
 base64 = "0.22.1"
 fake = "4.3.0"
+fantoccini = "0.22.0"
 testcontainers-modules = { version = "0.12.1", features = ["postgres"] }
 uuid = { version = "1.17", features = ["v4"] }
