@@ -10,9 +10,6 @@ permissions:
   contents: read
 on:
   workflow_call:
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
 name: e2e
 jobs:
   test:
