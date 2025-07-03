@@ -1,0 +1,51 @@
+# This is a dedicated workflow similar to the one we've implemented earlier in 
+# `wewerewondering` project. In there, is a Svelte-powered front-end with axum-powered
+# backend, but the idea is fundamentally the same: we are launching chromedriver,
+# building the front-end, serving this build from the otherwise API server, and
+# use fantoccini to navigate the app and make assertions in the end-to-end test suite.
+#
+# https://github.com/jonhoo/wewerewondering/issues/202 
+# https://github.com/jonhoo/wewerewondering/blob/08c4beb474a1fc03e8f794c683390717979c5ef9/.github/workflows/e2e.yml
+permissions:
+  contents: read
+on:
+  workflow_call:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+name: e2e
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: ubuntu-latest / stable / e2e
+    defaults:
+      run:
+        working-directory: ./backend
+    env:
+      WEBDRIVER_PORT: 4444
+      NODE_VERSION: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Launch web driver in background
+        run: chromedriver --port=${{ env.WEBDRIVER_PORT}} &
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Prepare front-end distribution
+        run: |
+          cd ../frontend
+          npm ci
+          npm run build:prod
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: cargo generate-lockfile
+        if: hashFiles('Cargo.lock') == ''
+        run: cargo generate-lockfile
+      - name: Run end-to-end tests
+        env:
+          HEADLESS: 1
+          ROCKET_LOG_LEVEL: off
+        run: cargo test --release --test e2e --features=e2e-test

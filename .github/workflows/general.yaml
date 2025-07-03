@@ -56,19 +56,7 @@ jobs:
       - name: run API tests
         run: cargo test --release --test api --features=api-test
   e2e-tests:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
-      - name: cargo generate-lockfile
-        if: hashFiles('Cargo.lock') == ''
-        run: cargo generate-lockfile
-      - name: run API tests
-        run: cargo test --test e2e --features=e2e-test
+    uses: '.github/workflows/e2e.yaml'
   deploy:
     needs: [check, unit-tests, api-tests, e2e-tests]
     runs-on: ubuntu-latest
