@@ -56,7 +56,7 @@ jobs:
       - name: run API tests
         run: cargo test --release --test api --features=api-test
   e2e-tests:
-    uses: '.github/workflows/e2e.yaml'
+    uses: './.github/workflows/e2e.yaml'
   deploy:
     needs: [check, unit-tests, api-tests, e2e-tests]
     runs-on: ubuntu-latest
