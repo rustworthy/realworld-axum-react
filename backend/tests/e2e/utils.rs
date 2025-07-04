@@ -118,6 +118,35 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     }
 }
 
+/// Macro for test setup, execution, and cleanup.
+///
+/// We are using this marco to try and keep our tests concise, "hiding"
+/// setup and cleanup actions, but also guaranteeing them.
+///
+/// Usage:
+/// ```no_run
+/// async fn test1(ctx: TestContext) {
+///     ctx.client.goto(&ctx.url).await.unwrap();
+/// }
+///
+/// async fn test2(ctx: TestContext) {
+///     ctx.client.goto(&ctx.url).await.unwrap();
+/// }
+///
+/// mod tests {
+///     async_test!(test1);
+///     async_test!(test2);
+///     // ...
+/// }
+/// ```
+///
+/// Another - and probably more elegant approach - would be to create
+/// a procedural macro, while a downside is having this way another crate
+/// in the project which needs maintenance and whose logic is still tightly
+/// coupled to our concrete e2e test needs.
+///
+/// Here is an example of that alternative approach:
+/// https://github.com/mainmatter/gerust/blob/b02ee562d06ec2dc51be812e4bb044ecca2b5260/blueprint/macros/src/lib.rs.liquid#L85-L116
 #[macro_export]
 macro_rules! async_test {
     ($test_fn:ident) => {
