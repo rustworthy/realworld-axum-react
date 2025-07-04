@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
 import { MainLayout } from "../MainLayout";
 import { ForbiddenPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "../pages";
