@@ -104,3 +104,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
         client,
     }
 }
+
+#[macro_export]
+macro_rules! async_test {
+    ($test_fn:ident) => {
+        #[rocket::async_test]
+        async fn $test_fn() {
+            super::$test_fn().await;
+        }
+    };
+}

@@ -7,7 +7,6 @@ use std::time::Duration;
 
 const WAIT_TIMEOUT: Duration = Duration::from_secs(5);
 
-#[rocket::async_test]
 async fn has_link_to_github_repo() {
     // arrange
     let ctx = utils::setup("leads_to_github_repo").await;
@@ -34,7 +33,6 @@ async fn has_link_to_github_repo() {
     ctx.handle.abort();
 }
 
-#[rocket::async_test]
 async fn homepage_contains_project_name() {
     // arrange
     let ctx = utils::setup("test2").await;
@@ -55,4 +53,9 @@ async fn homepage_contains_project_name() {
     // clean up
     ctx.client.close().await.ok();
     ctx.handle.abort();
+}
+
+mod tests {
+    super::async_test!(has_link_to_github_repo);
+    super::async_test!(homepage_contains_project_name);
 }
