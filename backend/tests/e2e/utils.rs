@@ -16,11 +16,14 @@ use realworld_rocket_react::Config;
 use realworld_rocket_react::construct_rocket;
 
 pub struct TestContext {
-    // we are only using this to hold a guard, once the test context
-    // is dropped, the container will be automatically stopped and removed
-    _container: ContainerAsync<Postgres>,
-    pub handle: JoinHandle<()>,
     pub url: String,
+    pub client: fantoccini::Client,
+}
+
+pub struct TestRunContext {
+    pub container: ContainerAsync<Postgres>,
+    pub handle: JoinHandle<()>,
+    pub ctx: TestContext,
     pub client: fantoccini::Client,
 }
 
@@ -50,7 +53,7 @@ async fn init_webdriver_client() -> fantoccini::Client {
         .expect("web driver to be available")
 }
 
-pub(crate) async fn setup(test_name: &'static str) -> TestContext {
+pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // create a PostgreSQL cluster and a database with the `test_name`; since
     // we are using a dedicated cluster for each test, we could in fact go with
     // any database name as long as the app knows the correct connection string;
@@ -94,13 +97,23 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
     let handle = spawn(async {
         rocket.launch().await.expect("launched rocket app ok");
     });
-
+    // create fantoccini client that the test function will be
+    // using to navigate to get the application in the browser
     let client = init_webdriver_client().await;
-
-    TestContext {
-        _container: container,
-        handle,
+    // prepare context that the test function is going to
+    // receive as its argument and use to perform test actions
+    let ctx = TestContext {
         url,
+        client: client.clone(),
+    };
+    // prepare the "testrunner" context, that our wrapper will use to move
+    // the test context to the actual test function and perform clean-up actions
+    // after the test execution, such as stopping the database container, closing
+    // the webdriver session, killing our rocket application
+    TestRunContext {
+        container,
+        handle,
+        ctx,
         client,
     }
 }
@@ -110,7 +123,21 @@ macro_rules! async_test {
     ($test_fn:ident) => {
         #[rocket::async_test]
         async fn $test_fn() {
-            super::$test_fn().await;
+            // setup
+            let testrun_ctx = crate::utils::setup(stringify!($test_fn)).await;
+
+            // test
+            let handle = rocket::tokio::spawn(super::$test_fn(testrun_ctx.ctx)).await;
+
+            // teardown
+            testrun_ctx.handle.abort();
+            testrun_ctx.client.close().await.ok();
+            testrun_ctx.container.stop_with_timeout(Some(0)).await.ok();
+
+            // unwind
+            if let Err(e) = handle {
+                std::panic::resume_unwind(Box::new(e));
+            }
         }
     };
 }
