@@ -1,11 +1,14 @@
 version: 2
 updates:
+  # --------------------------------- CI/CD ------------------------------------
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
+      
+  # -------------------------------- BACKEND -----------------------------------
   - package-ecosystem: cargo
-    directory: /server
+    directory: /backend
     schedule:
       interval: monthly
     groups:
@@ -14,3 +17,25 @@ updates:
         update-types:
           - "patch"
           - "minor"
+
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: monthly
+
+  # -------------------------------- FRONTEND ----------------------------------
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+    groups:
+      npm-bump:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+          - "minor"
+
+  - package-ecosystem: docker
+    directory: /frontend
+    schedule:
+      interval: monthly
