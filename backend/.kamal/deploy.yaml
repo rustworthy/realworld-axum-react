@@ -7,21 +7,13 @@ registry:
     - KAMAL_REGISTRY_PASSWORD
 builder:
   arch: amd64
-  # Pass in additional build args needed for your Dockerfile.
-  # args:
-  #   RUBY_VERSION: <%= ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}" %>
+  args:
+    pgk: realworld-rocket-react
 
-# Deploy to these servers.
 servers:
   web:
     hosts:
       - 91.107.231.70: [ migrator ]
-    options:
-      "add-host": host.docker.internal:host-gateway
-  # job:
-  #   hosts:
-  #     - 192.168.0.1
-  #   cmd: bin/jobs
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:

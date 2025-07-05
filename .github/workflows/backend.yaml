@@ -80,5 +80,6 @@ jobs:
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secret.SECRET_KEY }}
         run: kamal deploy -c .kamal/deploy.yaml
   
