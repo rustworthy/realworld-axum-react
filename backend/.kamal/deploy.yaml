@@ -8,7 +8,7 @@ registry:
 builder:
   arch: amd64
   args:
-    pgk: realworld-rocket-react
+    pkg: realworld-rocket-react
 
 servers:
   web:
