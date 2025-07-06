@@ -25,7 +25,7 @@ export const HomePage: FC = () => {
           <S.BannerDescription>A place to share your knowledge.</S.BannerDescription>
         </S.BannerContainer>
       </S.Banner>
-      {isLoading ? <span>Loading artiles</span> : isError ? <span>Error</span> : <Feed articles={data} />}
+      {isLoading ? <span>Loading artiles</span> : isError ? <span>Error</span> : <Feed articles={data!} />}
     </S.PageWrapper>
   );
 };
