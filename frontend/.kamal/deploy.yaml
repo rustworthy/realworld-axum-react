@@ -8,7 +8,7 @@ registry:
 builder:
   arch: amd64
   args:
-    BACKEND_URL: api.realworld-rocket-react.com
+    BACKEND_URL: https://api.realworld-rocket-react.com
 
 servers:
   web:
