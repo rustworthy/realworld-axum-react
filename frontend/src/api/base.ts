@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+import { config } from "../config";
+
 export type Article = {
   id: number;
   title: string;
@@ -10,8 +12,10 @@ export type Article = {
 export const base = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://jsonplaceholder.typicode.com",
+    baseUrl: config.BACKEND_URL,
   }),
+  // ONLY FOR INITIAL SETUP PURPOSES, WILL BE REMOVED ONCE OPENAPI
+  // SPEC IN MADE AVAILABLE FOR CODE GENERATION
   endpoints: (builder) => ({
     listArticlesByAuthor: builder.query<Article[], number>({
       query: (authorId) => `/posts?userId=${authorId}`,

@@ -2,7 +2,7 @@ import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
-import webpack, { Configuration, DefinePlugin } from "webpack";
+import webpack, { Configuration, DefinePlugin, EnvironmentPlugin } from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 
 import { BuildOptions } from "./types/types";
@@ -22,6 +22,7 @@ export function buildPlugins({ mode, paths, analyzer, platform }: BuildOptions):
       __ENV__: JSON.stringify(mode),
       "process.env.REACT_APP_MODE": JSON.stringify(process.env.REACT_APP_MODE),
     }),
+    new EnvironmentPlugin(["BACKEND_URL"]),
   ];
 
   if (isDev) {
