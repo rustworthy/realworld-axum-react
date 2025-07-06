@@ -14,13 +14,5 @@ export const base = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: config.BACKEND_URL,
   }),
-  // ONLY FOR INITIAL SETUP PURPOSES, WILL BE REMOVED ONCE OPENAPI
-  // SPEC IN MADE AVAILABLE FOR CODE GENERATION
-  endpoints: (builder) => ({
-    listArticlesByAuthor: builder.query<Article[], number>({
-      query: (authorId) => `/posts?userId=${authorId}`,
-    }),
-  }),
+  endpoints: () => ({}),
 });
-
-export const { useListArticlesByAuthorQuery, useLazyListArticlesByAuthorQuery } = base;
