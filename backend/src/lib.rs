@@ -2,6 +2,8 @@
 extern crate rocket;
 #[macro_use]
 extern crate tracing;
+#[macro_use]
+extern crate rocket_okapi;
 
 mod config;
 mod http;
@@ -18,6 +20,7 @@ use rocket::figment::providers::Env;
 use rocket::figment::providers::Serialized;
 use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Database, sqlx::PgPool};
+use rocket_okapi::swagger_ui::*;
 pub use telemetry::init_tracing;
 
 #[derive(Database)]
@@ -46,22 +49,22 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     };
     let custom: Config = config.extract().expect("config");
     let config = config.merge(("databases.main.url", custom.database_url));
-
-    let rocket = rocket::custom(config)
+    let openapi_settings = rocket_okapi::settings::OpenApiSettings::default();
+    let mut rocket = rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
         .mount(
-            "/api/user",
-            routes![
-                routes::users::read_current_user,
-                routes::users::create_user,
-                routes::users::update_current_user,
-                routes::users::login,
-            ],
+            "/swagger-ui",
+            make_swagger_ui(&SwaggerUIConfig {
+                url: "../openapi.json".into(),
+                ..Default::default()
+            }),
         )
         .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());
+
+    mount_endpoints_and_merged_docs! {rocket, "/".to_owned(), openapi_settings, "/api" => routes::get_routes_and_docs(&openapi_settings)}
 
     let rocket = match custom.migrate {
         true => rocket.attach(fairing::AdHoc::try_on_ignite(

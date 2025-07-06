@@ -46,6 +46,7 @@ tracing = { version = "0.1", features = ["attributes"] }
 rocket = { version = "0.5", features = ["json"] }
 rocket_db_pools = { version = "0.2", features = ["sqlx_postgres"] }
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors.git", rev = "072d90359b23e9b291df6b672c07c93de9c46011" }
+rocket_okapi = { version = "0.9.0", features = ["swagger"] }
 sqlx = { version = "0.7", features = ["chrono", "uuid"] }
 serde_with = { version = "3.14.0", features = ["chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
@@ -53,7 +54,7 @@ uuid = { version = "1.17", features = ["serde"] }
 argon2 = "0.5.3"
 jsonwebtoken = { version = "9.3.1", default-features = false }
 anyhow = "1.0.98"
-dotenvy = "0.15.7" # only used in debug mode
+dotenvy = "0.15.7"                                                                                                       # only used in debug mode
 
 [dev-dependencies]
 base64 = "0.22.1"
