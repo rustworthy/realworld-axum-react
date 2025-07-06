@@ -7,7 +7,7 @@ export type Article = {
   userId: number;
 };
 
-export const api = createApi({
+export const base = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://jsonplaceholder.typicode.com",
@@ -19,4 +19,4 @@ export const api = createApi({
   }),
 });
 
-export const { useListArticlesByAuthorQuery, useLazyListArticlesByAuthorQuery } = api;
+export const { useListArticlesByAuthorQuery, useLazyListArticlesByAuthorQuery } = base;

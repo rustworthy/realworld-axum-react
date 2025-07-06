@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --fix",
     "build:dev": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production",
-    "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0"
+    "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0",
+    "codegen": "npx @rtk-query/codegen-openapi openapi-config.ts"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
+    "@rtk-query/codegen-openapi": "^2.0.0",
     "@svgr/webpack": "^8.1.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/react": "^19.1.8",

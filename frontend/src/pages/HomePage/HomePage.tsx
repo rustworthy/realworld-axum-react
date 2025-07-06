@@ -1,7 +1,7 @@
 import { FC } from "react";
 
-import { useListArticlesByAuthorQuery } from "../../api";
-import type { Article } from "../../api";
+import { useListArticlesByAuthorQuery } from "../../api/base";
+import type { Article } from "../../api/base";
 import * as S from "./HomePage.styles";
 
 const Feed = (props: { articles: Article[] }) => (

@@ -1,16 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { api } from "./api";
+import { base } from "./api/base";
 
 export const store = configureStore({
   reducer: {
-    [api.reducerPath]: api.reducer,
+    [base.reducerPath]: base.reducer,
   },
 
   // this way we are enabling caching, invalidation, polling,
   // and other feature of `rtk-query`
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(base.middleware),
 });
 
 // required for `refetchOnFocus/refetchOnReconnect` functionality, see:
