@@ -64,7 +64,12 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());
 
-    mount_endpoints_and_merged_docs! {rocket, "/".to_owned(), openapi_settings, "/api" => routes::get_routes_and_docs(&openapi_settings)}
+    mount_endpoints_and_merged_docs! {
+        rocket,
+        "/".to_owned(),
+        openapi_settings,
+        "/api" => routes::users::get_routes_and_docs(&openapi_settings),
+    }
 
     let rocket = match custom.migrate {
         true => rocket.attach(fairing::AdHoc::try_on_ignite(
