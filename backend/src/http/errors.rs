@@ -1,4 +1,4 @@
-use rocket::serde::{json::Json, Serialize};
+use rocket::serde::{Serialize, json::Json};
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
@@ -8,6 +8,11 @@ use utoipa::ToSchema;
 #[derive(Debug, ToSchema, Serialize)]
 #[serde(crate = "rocket::serde")]
 pub(crate) struct Validation {
+    #[schema(
+        example = json!(
+            BTreeMap::from([("body".to_string(), vec!["can't be empty".to_string()])])
+        )
+    )]
     pub errors: BTreeMap<String, Vec<String>>,
 }
 

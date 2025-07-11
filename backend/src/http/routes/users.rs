@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use crate::http::errors::Error;
 use crate::http::errors::Validation;
 use crate::http::jwt::issue_token;
