@@ -2,8 +2,6 @@
 extern crate rocket;
 #[macro_use]
 extern crate tracing;
-#[macro_use]
-extern crate rocket_okapi;
 
 mod config;
 mod http;
@@ -20,8 +18,10 @@ use rocket::figment::providers::Env;
 use rocket::figment::providers::Serialized;
 use rocket::{Build, Rocket, fairing};
 use rocket_db_pools::{Database, sqlx::PgPool};
-use rocket_okapi::swagger_ui::*;
 pub use telemetry::init_tracing;
+use utoipa::OpenApi;
+use utoipa_scalar::Scalar;
+use utoipa_scalar::Servable;
 
 #[derive(Database)]
 #[database("main")]
@@ -40,6 +40,15 @@ pub(crate) async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     }
 }
 
+#[derive(OpenApi)]
+#[openapi(
+        nest(
+            (path = "/api", api = http::routes::users::UserApiDocs)
+        ),
+       // modifiers(&SecurityAddon)
+    )]
+struct ApiDoc;
+
 pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     let config = match config {
         Some(overrides) => rocket::Config::figment()
@@ -49,27 +58,14 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     };
     let custom: Config = config.extract().expect("config");
     let config = config.merge(("databases.main.url", custom.database_url));
-    let openapi_settings = rocket_okapi::settings::OpenApiSettings::default();
-    let mut rocket = rocket::custom(config)
+    let rocket = rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
-        .mount(
-            "/swagger-ui",
-            make_swagger_ui(&SwaggerUIConfig {
-                url: "../openapi.json".into(),
-                ..Default::default()
-            }),
-        )
+        .mount("/", Scalar::with_url("/scalar", ApiDoc::openapi()))
+        .mount("/api", http::routes::users::routes())
         .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(Db::init());
-
-    mount_endpoints_and_merged_docs! {
-        rocket,
-        "/".to_owned(),
-        openapi_settings,
-        "/api" => routes::users::get_routes_and_docs(&openapi_settings),
-    }
 
     let rocket = match custom.migrate {
         true => rocket.attach(fairing::AdHoc::try_on_ignite(
