@@ -57,7 +57,6 @@ jsonwebtoken = { version = "9.3.1", default-features = false }
 anyhow = "1.0.98"
 dotenvy = "0.15.7"                                                                                                       # only used in debug mode
 
-
 [dev-dependencies]
 base64 = "0.22.1"
 fake = "4.3.0"
