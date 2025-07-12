@@ -36,7 +36,7 @@ pub(crate) struct Registration {
 /// This will register new user in the system and also create
 /// a JWT token, i.e. will immediate log them in.
 #[utoipa::path(
-        tags = ["Users", "Auth"],
+        tags = ["Users"],
         responses(
             (status = 201, description = "User successfully created", body = UserPayload<User>),
             (status = 422, description = "Missing or invalid registration details", body = Validation),

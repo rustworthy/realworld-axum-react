@@ -7,7 +7,7 @@ use rocket_db_pools::Connection;
 ///
 /// This will return user's details as well as a fresh JWT token.
 #[utoipa::path(
-        tags = ["Users", "Auth"],
+        tags = ["Users"],
         responses(
             (status = 422, description = "Missing or invalid registration details", body = Validation),
             (status = 500, description = "Internal server error."),

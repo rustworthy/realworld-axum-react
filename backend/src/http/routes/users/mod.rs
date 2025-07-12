@@ -58,7 +58,6 @@ pub(crate) fn routes() -> Vec<Route> {
     ),
     tags(
         (name = "Users", description = "User management endpoints."),
-        (name = "Auth", description = "Authentication endpoints."),
     ),
 )]
 pub(crate) struct UserApiDocs;

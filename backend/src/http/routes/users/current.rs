@@ -8,11 +8,15 @@ use rocket_db_pools::Connection;
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
-        tags = ["Users"],
-        responses(
-            (status = 401, description = "Authentication required."),
-            (status = 500, description = "Internal server error."),
-        )
+    tags = ["Users"],
+    responses(
+        (status = 200, description = "User details and fresh JWT."),
+        (status = 401, description = "Token missing or invalid."),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        ("HttpAuthBearerJWT" = []),
+    ),
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db))]
 #[get("/user")]
@@ -33,11 +37,14 @@ pub(crate) async fn read(user_id: UserID, _db: Connection<Db>) -> Json<UserPaylo
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
-        tags = ["Users"],
-        responses(
-            (status = 401, description = "Authentication required."),
-            (status = 500, description = "Internal server error."),
-        )
+    tags = ["Users"],
+    responses(
+        (status = 401, description = "Authentication required."),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        ("HttpAuthBearerJWT" = []),
+    ),
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db))]
 #[put("/user")]

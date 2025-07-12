@@ -6,6 +6,7 @@ extern crate tracing;
 mod config;
 mod db;
 mod http;
+mod openapi;
 mod telemetry;
 mod utils;
 
@@ -17,19 +18,11 @@ use jsonwebtoken::EncodingKey;
 use rocket::figment::providers::Env;
 use rocket::figment::providers::Serialized;
 use rocket::{Build, Rocket};
-use utoipa::OpenApi;
-use utoipa_scalar::Scalar;
-use utoipa_scalar::Servable;
 
-#[derive(OpenApi)]
-#[openapi(
-        nest(
-            (path = "/api", api = http::routes::users::UserApiDocs)
-        ),
-       // modifiers(&SecurityAddon)
-    )]
-struct ApiDoc;
-
+/// Build `Rocket application.
+///
+/// Staging database and CORS elements is inspired by one of the official examples:
+/// <https://github.com/rwf2/Rocket/blob/f9de1bf4671100b2f9c9bea6ce206fc4748ca999/examples/databases/src/main.rs>
 pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     let config = match config {
         Some(overrides) => rocket::Config::figment()
@@ -41,13 +34,13 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     let config = config.merge(("databases.main.url", custom.database_url));
     rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
-        .mount("/", Scalar::with_url("/scalar", ApiDoc::openapi()))
         .mount("/api", http::routes::users::routes())
         .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(db::stage(custom.migrate))
         .attach(cors::stage(custom.allowed_origins))
+        .attach(openapi::stage())
 }
 
 // Making `Config` and `init_tracing` (alongside the `construct_rocket` builder)

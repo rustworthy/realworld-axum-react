@@ -9,7 +9,7 @@ use rocket::{
 use uuid::Uuid;
 
 #[derive(Debug)]
-pub struct UserID(pub Uuid);
+pub(in crate::http) struct UserID(pub Uuid);
 
 #[async_trait]
 impl<'r> FromRequest<'r> for UserID {
@@ -39,5 +39,31 @@ impl<'r> FromRequest<'r> for UserID {
                 Outcome::Error((Status::Unauthorized, ()))
             }
         }
+    }
+}
+
+// --------------------------- SECURITY ADDON ----------------------------------
+use utoipa::Modify;
+use utoipa::openapi::security::Http;
+use utoipa::openapi::security::HttpAuthScheme;
+use utoipa::openapi::security::SecurityScheme;
+
+pub(crate) struct SecurityAddon;
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let components = openapi
+            .components
+            .as_mut()
+            .expect("some components to be have been registered");
+        components.add_security_scheme(
+            "HttpAuthBearerJWT",
+            SecurityScheme::Http(
+                Http::builder()
+                    .scheme(HttpAuthScheme::Bearer)
+                    .bearer_format("JWT")
+                    .description(Some("JSON web token string in Authorization header"))
+                    .build(),
+            ),
+        )
     }
 }
