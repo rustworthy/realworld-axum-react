@@ -8,7 +8,7 @@ use rocket_db_pools::{Database, sqlx::PgPool};
 #[database("main")]
 pub(crate) struct Db(PgPool);
 
-pub(crate) async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
+async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     let Some(db) = Db::fetch(&rocket) else {
         return Err(rocket);
     };

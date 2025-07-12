@@ -1,7 +1,7 @@
-use rocket::http::Method;
+use rocket::{fairing::AdHoc, http::Method};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
 
-pub fn cors<S>(allowed_origins: &[S]) -> Cors
+fn cors<S>(allowed_origins: &[S]) -> Cors
 where
     S: AsRef<str>,
 {
@@ -18,4 +18,13 @@ where
     }
     .to_cors()
     .expect("CORS fairing build successfully")
+}
+
+pub fn stage(allowed_origins: Option<Vec<String>>) -> AdHoc {
+    AdHoc::on_ignite("CORS Stage", move |rocket| async move {
+        match allowed_origins {
+            Some(origins) => rocket.attach(cors(&origins)),
+            None => rocket,
+        }
+    })
 }

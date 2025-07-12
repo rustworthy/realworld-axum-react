@@ -39,19 +39,15 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
     };
     let custom: Config = config.extract().expect("config");
     let config = config.merge(("databases.main.url", custom.database_url));
-    let rocket = rocket::custom(config)
+    rocket::custom(config)
         .mount("/", routes![routes::healthz::health])
         .mount("/", Scalar::with_url("/scalar", ApiDoc::openapi()))
         .mount("/api", http::routes::users::routes())
         .register("/", catchers![catchers::unauthorized])
         .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
-        .attach(db::stage(custom.migrate));
-
-    match custom.allowed_origins {
-        Some(origins) => rocket.attach(cors::cors(&origins)),
-        None => rocket,
-    }
+        .attach(db::stage(custom.migrate))
+        .attach(cors::stage(custom.allowed_origins))
 }
 
 // Making `Config` and `init_tracing` (alongside the `construct_rocket` builder)
