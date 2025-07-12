@@ -1,3 +1,4 @@
+use rocket::serde::json;
 use rocket::serde::{Serialize, json::Json};
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
@@ -18,6 +19,15 @@ pub(crate) struct Validation {
 
 #[derive(Debug, Responder)]
 pub(crate) enum Error {
+    #[allow(unused)]
     #[response(status = 422)]
     Validation(Json<Validation>),
+}
+
+impl<'a> From<json::Error<'a>> for Error {
+    fn from(value: json::Error<'a>) -> Self {
+        let mut errors = BTreeMap::new();
+        errors.insert("body".into(), vec![value.to_string()]);
+        Self::Validation(Json(Validation { errors }))
+    }
 }
