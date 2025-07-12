@@ -1,5 +1,6 @@
 use super::{User, UserPayload};
-use crate::{Db, http::guards::UserID};
+use crate::db::Db;
+use crate::http::guards::UserID;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 

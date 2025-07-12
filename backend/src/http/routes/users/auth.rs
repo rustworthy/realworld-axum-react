@@ -1,4 +1,5 @@
-use crate::{Db, http::errors::Validation};
+use crate::db::Db;
+use crate::http::errors::Validation;
 use rocket::http::Status;
 use rocket_db_pools::Connection;
 

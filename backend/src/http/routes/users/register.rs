@@ -1,5 +1,5 @@
 use super::{User, UserPayload};
-use crate::Db;
+use crate::db::Db;
 use crate::http::errors::Error;
 use crate::http::errors::Validation;
 use crate::http::jwt::issue_token;
@@ -51,10 +51,19 @@ pub(crate) async fn handler(
     _db: Connection<Db>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let user = registration?.into_inner().user;
-    let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
-    let jwt_string = issue_token(uid, encoding_key).unwrap();
 
-    drop(user.password); // should verify strength, hash, and store
+    // @Dzmitry, we of course should not be just dropping user's password,
+    // rather should verify it's not empty, hash, and store it in the database
+    // we already got hashing function in the codebase, but we do not have
+    // `user` table, neither sqlx query. It is the database engine that will
+    // issue uuid and return it back to us.
+    drop(user.password); // 
+
+    // @Dzmitry as if db engine returned this UUID to us
+    let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
+
+    // @Dzmitry and we issued a token for the newly created user
+    let jwt_string = issue_token(uid, encoding_key).unwrap();
 
     Ok(Json(UserPayload {
         user: User {
