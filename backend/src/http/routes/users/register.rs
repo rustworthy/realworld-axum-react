@@ -6,7 +6,7 @@ use crate::http::jwt::issue_token;
 use jsonwebtoken::EncodingKey;
 use rocket::State;
 use rocket::serde::Deserialize;
-use rocket::serde::json::Error as ParseError;
+use rocket::serde::json::Error as JsonError;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use utoipa::ToSchema;
@@ -46,7 +46,7 @@ pub(crate) struct Registration {
 #[instrument(name = "REGISTER USER", skip_all)]
 #[post("/user", data = "<registration>")]
 pub(crate) async fn handler(
-    registration: Result<Json<UserPayload<Registration>>, ParseError<'_>>,
+    registration: Result<Json<UserPayload<Registration>>, JsonError<'_>>,
     encoding_key: &State<EncodingKey>,
     _db: Connection<Db>,
 ) -> Result<Json<UserPayload<User>>, Error> {
@@ -57,7 +57,7 @@ pub(crate) async fn handler(
     // we already got hashing function in the codebase, but we do not have
     // `user` table, neither sqlx query. It is the database engine that will
     // issue uuid and return it back to us.
-    drop(user.password); // 
+    drop(user.password);
 
     // @Dzmitry as if db engine returned this UUID to us
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
