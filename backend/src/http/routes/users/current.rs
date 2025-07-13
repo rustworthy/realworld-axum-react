@@ -10,7 +10,7 @@ use rocket_db_pools::Connection;
 #[utoipa::path(
     tags = ["Users"],
     responses(
-        (status = 200, description = "User details and fresh JWT."),
+        (status = 200, description = "User details and fresh JWT.", body = UserPayload<User>),
         (status = 401, description = "Token missing or invalid."),
         (status = 500, description = "Internal server error."),
     ),

@@ -22,7 +22,8 @@ pub(crate) struct Registration {
 
     /// User's name or nickname.
     ///
-    /// This is  - just like [`User::email`] - unique in the system.
+    /// This is  - just like the user's `email` - case-insensitively unique
+    /// in the system.
     username: String,
 
     /// User's password.

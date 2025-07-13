@@ -18,7 +18,8 @@ pub(crate) struct User {
 
     /// User's name or nickname.
     ///
-    /// This is  - just like [`User::email`] - unique in the system.
+    /// This is  - just like the user's `email` - case-insensitively unique
+    /// in the system.
     username: String,
 
     /// User's biography.
@@ -30,6 +31,9 @@ pub(crate) struct User {
     image: Option<String>,
 }
 
+/// Container for all user management related endpoints.
+///
+/// See <https://realworld-docs.netlify.app/specifications/backend/endpoints/>
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub(crate) struct UserPayload<U> {
