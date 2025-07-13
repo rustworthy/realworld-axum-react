@@ -14,7 +14,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
-pub(crate) struct Registration {
+pub struct Registration {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.

@@ -15,7 +15,7 @@ static OPENAPI_JSON: LazyLock<&'static str> = LazyLock::new(|| {
 
 // https://guides.scalar.com/scalar/scalar-api-references/themes
 // https://github.com/scalar/scalar/blob/4526fd59436c1d81fe435674bbb4135a02554b60/packages/themes/src/presets/solarized.css
-static SCALAR_HTML: &'static str = r#"
+static SCALAR_HTML: &str = r#"
     <!doctype html>
     <html>
     <head>
