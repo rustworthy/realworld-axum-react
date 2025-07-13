@@ -45,7 +45,7 @@ pub(crate) struct Registration {
     )]
 #[instrument(name = "REGISTER USER", skip_all)]
 #[post("/user", data = "<registration>")]
-pub(crate) async fn handler(
+pub(crate) async fn register_user(
     registration: Result<Json<UserPayload<Registration>>, JsonError<'_>>,
     encoding_key: &State<EncodingKey>,
     _db: Connection<Db>,

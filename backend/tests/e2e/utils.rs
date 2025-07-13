@@ -88,9 +88,11 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     let rocket = construct_rocket(Some(Config {
         migrate: true,
         database_url,
-        allowed_origins: None,
         secret_key: gen_b64_secret_key(),
         port,
+        // we will be serving docs at the root
+        docs_ui_path: Some("/scalar".into()),
+        ..Default::default()
     }))
     .mount("/", FileServer::from("../frontend/build"));
     // launch rocket application on a dedicated thread

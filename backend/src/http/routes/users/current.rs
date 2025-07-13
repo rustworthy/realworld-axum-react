@@ -20,8 +20,8 @@ use rocket_db_pools::Connection;
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db))]
 #[get("/user")]
-pub(crate) async fn read(user_id: UserID, _db: Connection<Db>) -> Json<UserPayload<User>> {
-    dbg!(user_id.0);
+pub(crate) async fn read_current_user(id: UserID, _db: Connection<Db>) -> Json<UserPayload<User>> {
+    dbg!(id.0);
     Json(UserPayload {
         user: User {
             email: "pavel@mikhalkevich.com".into(),
@@ -48,6 +48,6 @@ pub(crate) async fn read(user_id: UserID, _db: Connection<Db>) -> Json<UserPaylo
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db))]
 #[put("/user")]
-pub(crate) async fn update(_db: Connection<Db>, user_id: UserID) {
-    dbg!(user_id.0);
+pub(crate) async fn update_current_user(id: UserID, _db: Connection<Db>) {
+    dbg!(id.0);
 }

@@ -40,9 +40,9 @@ pub(crate) struct UserPayload<U> {
 
 pub(crate) fn routes() -> Vec<Route> {
     routes![
-        register::handler,
-        current::read,
-        current::update,
+        register::register_user,
+        current::read_current_user,
+        current::update_current_user,
         auth::login
     ]
 }
@@ -51,9 +51,9 @@ pub(crate) fn routes() -> Vec<Route> {
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        register::handler,
-        current::read,
-        current::update,
+        register::register_user,
+        current::read_current_user,
+        current::update_current_user,
         auth::login,
     ),
     tags(

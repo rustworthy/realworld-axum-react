@@ -27,12 +27,13 @@ fn openapi() -> &'static str {
     &OPENAPI_JSON
 }
 
-pub(crate) fn stage() -> AdHoc {
+pub(crate) fn stage(docs_ui_path: Option<String>) -> AdHoc {
     AdHoc::on_ignite("Openapi JSON & Scalar UI Stage", move |rocket| async move {
         // generate pretty-formatted openapi spec, on app's startup
         let _open_api = &OPENAPI_JSON;
+        let ui = docs_ui_path.unwrap_or("/".into());
         rocket
-            .mount("/", Scalar::with_url("/scalar", ApiDoc::openapi()))
             .mount("/", routes![openapi])
+            .mount("/", Scalar::with_url(ui, ApiDoc::openapi()))
     })
 }

@@ -47,9 +47,9 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
     let rocket = realworld_rocket_react::construct_rocket(Some(Config {
         migrate: true,
         database_url,
-        allowed_origins: None,
         secret_key: gen_b64_secret_key(),
         port: 8000,
+        ..Default::default()
     }));
     // create a client talking to that rocket instance
     let client = Client::tracked(rocket)

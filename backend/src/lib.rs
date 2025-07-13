@@ -40,7 +40,7 @@ pub fn construct_rocket(config: Option<Config>) -> Rocket<Build> {
         .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
         .attach(db::stage(custom.migrate))
         .attach(cors::stage(custom.allowed_origins))
-        .attach(openapi::stage())
+        .attach(openapi::stage(custom.docs_ui_path))
 }
 
 // Making `Config` and `init_tracing` (alongside the `construct_rocket` builder)
