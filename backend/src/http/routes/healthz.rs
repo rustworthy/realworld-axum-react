@@ -1,3 +1,5 @@
+use crate::db::Db;
+use crate::http::jwt::{issue_token, verify_token};
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use rocket::State;
@@ -5,9 +7,6 @@ use rocket::serde::Serialize;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use uuid::Uuid;
-
-use crate::Db;
-use crate::http::jwt::{issue_token, verify_token};
 
 #[derive(Debug, Serialize)]
 #[serde(crate = "rocket::serde")]

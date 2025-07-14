@@ -165,7 +165,7 @@ check:
 	cargo doc --no-deps --all-features
 
 .PHONY: otel
-otel:
+otel: jaeger/start
 	fuser -k ${APP_PORT}/tcp || true
 	RUST_LOG="realworld_rocket_react=info,rocket=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
