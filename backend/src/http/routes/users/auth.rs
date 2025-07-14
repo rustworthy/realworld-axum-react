@@ -28,12 +28,13 @@ pub(crate) struct Login {
 ///
 /// This will return user's details as well as a fresh JWT token.
 #[utoipa::path(
-        tags = ["Users"],
-        responses(
-            (status = 200, description = "User successfully logged in", body = UserPayload<User>),
-            (status = 422, description = "Missing or invalid login details", body = Validation),
-            (status = 500, description = "Internal server error."),
-        )
+    tags = ["Users"],
+    responses(
+        (status = 200, description = "User successfully logged in", body = UserPayload<User>),
+        (status = 422, description = "Missing or invalid login details", body = Validation),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(/* authentication NOT required */),
 )]
 #[instrument(name = "LOG USER IN", skip_all)]
 #[post("/user/login", data = "<login_details>")]

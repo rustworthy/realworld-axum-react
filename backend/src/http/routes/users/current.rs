@@ -12,7 +12,7 @@ use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use utoipa::ToSchema;
 
-/// Read currently logged in user.
+/// Read current user.
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
@@ -22,9 +22,7 @@ use utoipa::ToSchema;
         (status = 401, description = "Token missing or invalid."),
         (status = 500, description = "Internal server error."),
     ),
-    security(
-        ("HttpAuthBearerJWT" = []),
-    ),
+    security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db, encoding_key))]
 #[get("/user")]
@@ -66,7 +64,7 @@ pub struct UserUpdate {
     image: Option<String>,
 }
 
-/// Update currently logged in user.
+/// Update current user.
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
@@ -77,9 +75,7 @@ pub struct UserUpdate {
         (status = 422, description = "Missing or invalid registration details", body = Validation),
         (status = 500, description = "Internal server error."),
     ),
-    security(
-        ("HttpAuthBearerJWT" = []),
-    ),
+    security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "GET CURRENT USER", skip(_db, encoding_key))]
 #[put("/user", data = "<update>")]
