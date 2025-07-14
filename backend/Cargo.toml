@@ -47,7 +47,6 @@ rocket = { version = "0.5", features = ["json"] }
 rocket_db_pools = { version = "0.2", features = ["sqlx_postgres"] }
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors.git", rev = "072d90359b23e9b291df6b672c07c93de9c46011" }
 utoipa = { version = "5.4.0", features = ["rocket_extras"] }
-utoipa-scalar = { version = "0.3.0", features = ["rocket"] }
 sqlx = { version = "0.7", features = ["chrono", "uuid"] }
 serde_with = { version = "3.14.0", features = ["chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
