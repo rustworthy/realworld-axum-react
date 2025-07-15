@@ -20,9 +20,8 @@ export function buildPlugins({ mode, paths, analyzer, platform }: BuildOptions):
     new DefinePlugin({
       __PLATFORM__: JSON.stringify(platform),
       __ENV__: JSON.stringify(mode),
-      "process.env.REACT_APP_MODE": JSON.stringify(process.env.REACT_APP_MODE),
     }),
-    new EnvironmentPlugin(["BACKEND_URL"]),
+    new EnvironmentPlugin(["BACKEND_URL", "REACT_APP_MODE"]),
   ];
 
   if (isDev) {
