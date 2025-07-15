@@ -131,7 +131,7 @@ test/api:
 
 .PHONY: test/e2e
 test/e2e:
-	cd ../frontend && BACKEND_URL=/ npm run build:prod
+	cd ../frontend && BACKEND_URL=/ && REACT_APP_MODE=production npm run build:prod
 	fuser -k 4444/tcp || true
 	chromedriver --port=4444 &
 	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=e2e-test -- --nocapture
