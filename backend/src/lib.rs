@@ -24,7 +24,7 @@ use axum::routing::get;
 use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
 
-// Making `Config` and `init_tracing` (alongside the `api` application builder)
+// Making `Config` and `init_tracing` (alongside the `api` application builder
 // available for crate's consumers which is our `main.rs` binary - where we are
 // initializing tracing, overriding configurations (if needed), then building
 // and launching the app
@@ -38,7 +38,7 @@ pub(crate) struct AppContext {
     pub db: PgPool,
 }
 
-pub async fn serve(config: Config) -> anyhow::Result<()> {
+pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
     let pool = PgPoolOptions::new()
         .connect(&config.database_url)
@@ -66,14 +66,17 @@ pub async fn serve(config: Config) -> anyhow::Result<()> {
         .await
         .context("failed to run migrations")?;
 
-    // -------------------------- RUN APP FOREVER ------------------------------
+    Ok(app)
+}
+
+pub async fn serve(config: Config) -> anyhow::Result<()> {
+    let app = api(config).await?;
     let ipv4: Ipv4Addr = "127.0.0.1".parse()?;
     let addr = SocketAddr::from((ipv4, 8000));
     let listener = TcpListener::bind(addr).await?;
     let _ = axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
-
     Ok(())
 }
 
