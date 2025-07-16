@@ -1,30 +1,18 @@
-use rocket::{fairing::AdHoc, http::Method};
-use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
+use axum::http::{Method, header};
+use regex::RegexSet;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
-fn cors<S>(allowed_origins: &[S]) -> Cors
+pub(crate) fn layer<I, S>(allowed_origins: I) -> CorsLayer
 where
+    I: IntoIterator<Item = S>,
     S: AsRef<str>,
 {
-    let allowed_origins = AllowedOrigins::some_regex(allowed_origins);
-    rocket_cors::CorsOptions {
-        allowed_origins,
-        allowed_methods: vec![Method::Get, Method::Patch, Method::Put]
-            .into_iter()
-            .map(|v| v.into())
-            .collect(),
-        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
-        allow_credentials: true,
-        ..Default::default()
-    }
-    .to_cors()
-    .expect("CORS fairing build successfully")
-}
-
-pub fn stage(allowed_origins: Option<Vec<String>>) -> AdHoc {
-    AdHoc::on_ignite("CORS Stage", move |rocket| async move {
-        match allowed_origins {
-            Some(origins) => rocket.attach(cors(&origins)),
-            None => rocket,
-        }
-    })
+    let origins = RegexSet::new(allowed_origins).expect("valid expressions");
+    CorsLayer::new()
+        .allow_methods([Method::GET, Method::PATCH, Method::PUT])
+        .allow_headers([header::AUTHORIZATION, header::ACCEPT])
+        .allow_credentials(true)
+        .allow_origin(AllowOrigin::predicate(move |origin, _| {
+            origin.to_str().is_ok_and(|o| origins.is_match(o))
+        }))
 }

@@ -1,4 +1,4 @@
-use realworld_rocket_react::{construct_rocket, init_tracing};
+use realworld_rocket_react::{Config, init_tracing, serve};
 
 #[rocket::main]
 async fn main() {
@@ -26,7 +26,7 @@ async fn main() {
 
     // --------------------     RUN APPLICATION    -----------------------------
     // --------------------   MIGRATING IF NEEDED  -----------------------------
-    if let Err(e) = construct_rocket(None).launch().await {
+    if let Err(e) = serve(Config::default()).await {
         panic!("Failed to launch rocket app: {:?}", e);
     };
 }

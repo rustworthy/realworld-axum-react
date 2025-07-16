@@ -3,7 +3,6 @@ use std::time::Duration;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode};
-use rocket::serde::{Deserialize, Serialize};
 use serde_with::TimestampSeconds;
 use uuid::Uuid;
 
@@ -11,7 +10,6 @@ const TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
 #[serde_with::serde_as]
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
 struct Claims {
     /// Whom token refers to (opaque string).
     sub: Uuid,

@@ -13,7 +13,7 @@ use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 
 use realworld_rocket_react::Config;
-use realworld_rocket_react::construct_rocket;
+use realworld_rocket_react::serve;
 
 pub struct TestContext {
     pub url: String,
@@ -85,7 +85,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     let url = format!("http://localhost:{}", port);
     // create a rocket instance for this test, mounting
     // file server with the front-end build
-    let rocket = construct_rocket(Some(Config {
+    let rocket = serve(Some(Config {
         migrate: true,
         database_url,
         secret_key: gen_b64_secret_key(),

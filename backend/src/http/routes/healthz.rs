@@ -1,36 +1,33 @@
+use crate::AppContext;
 use crate::db::Db;
 use crate::http::jwt::{issue_token, verify_token};
+use axum::Json;
+use axum::extract::State;
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey};
-use rocket::State;
-use rocket::serde::Serialize;
-use rocket::serde::json::Json;
-use rocket_db_pools::Connection;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
-#[serde(crate = "rocket::serde")]
 pub(crate) struct HealthCheckPayload {
     version: &'static str,
 }
 
-#[get("/healthz")]
-#[instrument(name = "SERVICE HEALTH CHECK", skip(db, encoding_key, decoding_key))]
+#[instrument(name = "SERVICE HEALTH CHECK", skip(ctx))]
 pub(crate) async fn health(
-    db: Connection<Db>,
-    encoding_key: &State<EncodingKey>,
-    decoding_key: &State<DecodingKey>,
+    // db: Connection<Db>,
+    ctx: State<AppContext>,
+    // decoding_key: State<DecodingKey>,
 ) -> Json<HealthCheckPayload> {
     // token keys are in state and issue/verify works as expected
     let token = issue_token(
         Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap(),
-        encoding_key,
+        &ctx.enc_key,
     )
     .expect("issued jwt");
-    verify_token(&token, decoding_key).expect("valid jwt");
+    verify_token(&token, &ctx.dec_key).expect("valid jwt");
     // database is accepting connections
-    let db_check_payload = check_db_conn(db).await;
-    info!("Database server time {:?}", &db_check_payload.db_time);
+    //let db_check_payload = check_db_conn(db).await;
+    //info!("Database server time {:?}", &db_check_payload.db_time);
     Json(HealthCheckPayload {
         version: env!("CARGO_PKG_VERSION"),
     })
@@ -43,7 +40,7 @@ struct DatabaseCheckPayload {
     // migration with "uuid-ossp" extension was successful
     _nonce: Uuid,
 }
-
+/*
 #[instrument(name = "CHECK DATABASE CONNECTION", skip(db))]
 async fn check_db_conn(mut db: Connection<Db>) -> DatabaseCheckPayload {
     sqlx::query_as!(
@@ -54,3 +51,4 @@ async fn check_db_conn(mut db: Connection<Db>) -> DatabaseCheckPayload {
     .await
     .expect("successfully fetch data db engine")
 }
+*/

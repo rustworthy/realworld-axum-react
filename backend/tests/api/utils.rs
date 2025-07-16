@@ -44,7 +44,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestContext {
         host_port, test_name
     );
     // create a rocket instance for this test
-    let rocket = realworld_rocket_react::construct_rocket(Some(Config {
+    let rocket = realworld_rocket_react::serve(Some(Config {
         migrate: true,
         database_url,
         secret_key: gen_b64_secret_key(),
