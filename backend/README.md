@@ -31,7 +31,7 @@ $ make test/api
 NB! Make sure you got `docker` installed: for each of tests we are launching a
 dedicated [test container][3] with PostgreSQL.
 
-## E2E Tests
+## E2E Browser Tests
 
 Prerequisites:
 
@@ -39,23 +39,11 @@ Prerequisites:
 - [chromedriver][8]
 - frontend project [setup](../frontend/README.md)
 
-Make sure chrome binaries are in your path and launch the driver process:
-
-```sh
-chromedriver --port=4444
-```
-
-Prepare the client distribution first (from the project's root):
-
-```sh
-cd frontend && npm run build:prod
-```
-
 The in the `backend` directory, hit:
 
 ```sh
-make test/e2e
-make test/e2e/headless # to run in headless mode
+make test/e2e/browser
+HEADLESS=1 make test/e2e/browser # to run in headless mode
 ```
 
 <!-- -------------------------------- LINKS -------------------------------- -->

@@ -1,16 +1,14 @@
-use std::time::Duration;
-
 use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
+use realworld_rocket_react::Config;
+use std::time::Duration;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::task::JoinHandle;
-
-use realworld_rocket_react::Config;
 use tower_http::services::ServeDir;
 
 const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
@@ -24,6 +22,7 @@ pub struct TestRunContext {
     pub container: ContainerAsync<Postgres>,
     pub handle: JoinHandle<()>,
     pub ctx: TestContext,
+    #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
 }
 
@@ -31,25 +30,6 @@ fn gen_b64_secret_key() -> String {
     let mut secret_bytes = [0; 32];
     password_hash::rand_core::OsRng.fill_bytes(&mut secret_bytes);
     BASE64_STANDARD.encode(secret_bytes)
-}
-
-async fn init_webdriver_client() -> fantoccini::Client {
-    let mut chrome_args = Vec::new();
-    if std::env::var("HEADLESS").ok().is_some() {
-        chrome_args.extend(["--headless", "--disable-gpu", "--disable-dev-shm-usage"]);
-    }
-    let mut caps = serde_json::map::Map::new();
-    caps.insert(
-        "goog:chromeOptions".to_string(),
-        serde_json::json!({
-            "args": chrome_args,
-        }),
-    );
-    fantoccini::ClientBuilder::native()
-        .capabilities(caps)
-        .connect("tcp://localhost:4444")
-        .await
-        .expect("web driver to be available")
 }
 
 pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
@@ -115,11 +95,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
 
     // create fantoccini client that the test function will be
     // using to navigate to get the application in the browser
-    let client = init_webdriver_client().await;
+    #[cfg(feature = "browser-test")]
+    let client = browser::init_webdriver_client().await;
     // prepare context that the test function is going to
     // receive as its argument and use to perform test actions
     let ctx = TestContext {
         url,
+        #[cfg(feature = "browser-test")]
         client: client.clone(),
     };
     // prepare the "testrunner" context, that our wrapper will use to move
@@ -130,6 +112,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         container,
         handle,
         ctx,
+        #[cfg(feature = "browser-test")]
         client,
     }
 }
@@ -185,4 +168,26 @@ macro_rules! async_test {
             }
         }
     };
+}
+
+#[cfg(feature = "browser-test")]
+mod browser {
+    pub(super) async fn init_webdriver_client() -> fantoccini::Client {
+        let mut chrome_args = Vec::new();
+        if std::env::var("HEADLESS").ok().is_some() {
+            chrome_args.extend(["--headless", "--disable-gpu", "--disable-dev-shm-usage"]);
+        }
+        let mut caps = serde_json::map::Map::new();
+        caps.insert(
+            "goog:chromeOptions".to_string(),
+            serde_json::json!({
+                "args": chrome_args,
+            }),
+        );
+        fantoccini::ClientBuilder::native()
+            .capabilities(caps)
+            .connect("tcp://localhost:4444")
+            .await
+            .expect("web driver to be available")
+    }
 }

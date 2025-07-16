@@ -125,27 +125,23 @@ prepare:
 test:
 	SQLX_OFFLINE=1 cargo test $(p) -- --nocapture
 
-.PHONY: test/api
-test/api:
-	ROCKET_LOG_LEVEL=off cargo test $(p) --test api --features=api-test -- --nocapture
-
 .PHONY: test/e2e
 test/e2e:
+	ROCKET_LOG_LEVEL=off cargo test $(p) --test e2e --features=e2e-test -- --nocapture
+
+.PHONY: test/e2e/browser
+test/e2e/browser:
 	cd ../frontend && BACKEND_URL=/ npm run build:prod
 	fuser -k 4444/tcp || true
 	chromedriver --port=4444 &
-	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=e2e-test -- --nocapture
-
-.PHONY: test/e2e/headless
-test/e2e/headless:
-	ROCKET_LOG_LEVEL=off HEADLESS=1 cargo test --test e2e --features=e2e-test -- --nocapture
+	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=browser-test -- --nocapture
 
 .PHONY: test/all
 test/all:
 	cargo test --all-features
 
-.PHONY: test/spec
-test/spec:
+.PHONY: test/e2e/spec
+test/e2e/spec:
 	git clone https://github.com/gothinkster/realworld.git --branch main --single-branch || true
 	cd ./realworld/api && APIURL=http://localhost:${APP_PORT} ./run-api-tests.sh
 

@@ -9,21 +9,18 @@ license = "MIT OR Apache-2.0"
 #
 # - good old unit tests, which you can launch with `cargo t`;
 #
-# - API test (integration) behind `api-test` feature flag, which can
-#   can be run with `cargo t --test api --features=api-test`
+# - e2e-to-end API test (integration) behind `api-test` feature flag,
+#   which can be run with `cargo t --test e2e --features=api-test`
 #
-# - FE + BE tests (end-to end) behind `e2e-test` feature flag, which you
-#   can run  with `cargo test --test e2e --features=e2e-test`
-#
-# End-to-end tests will require serving the front-end distribution, 
-# writing data to the database (docker containers), and what not, while
-# unit tests do not need all these tools.
+# - e2e-to-end FE + BE tests (browser) behind `e2e-test` feature flag,
+#   which you can run  with `cargo test --test e2e --features=browser-test`
 #
 # All the test-suites can be launched with `cargo t --all-features`.
 [features]
 default = []
-api-test = []
-e2e-test = ["api-test"]
+e2e-test = []
+api-test = ["e2e-test"]
+browser-test = ["e2e-test"]
 
 [dependencies]
 # -------------------------- TELEMETRY START -----------------------------------

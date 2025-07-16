@@ -1,7 +1,7 @@
 use crate::utils::setup;
 use rocket::http::{ContentType, Status};
 
-#[rocket::async_test]
+#[tokio::test]
 async fn healthz_endpoint() {
     // arrange
     let ctx = setup("healthz_endpoint").await;
