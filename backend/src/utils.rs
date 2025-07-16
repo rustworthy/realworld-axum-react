@@ -3,13 +3,13 @@ use argon2::Argon2;
 use argon2::PasswordHash;
 use argon2::PasswordHasher as _;
 use argon2::PasswordVerifier;
-use argon2::password_hash;
 use argon2::password_hash::SaltString;
+use rand::rngs::OsRng;
 
 #[allow(unused)]
 pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
     // generate a salt
-    let mut rng = password_hash::rand_core::OsRng;
+    let mut rng = OsRng;
     let salt = SaltString::generate(&mut rng);
     // hash password to PHC string ($argon2id$v=19$...)
     let password_hash = Argon2::default()

@@ -1,17 +1,17 @@
 #[macro_use]
-extern crate rocket;
-#[macro_use]
 extern crate tracing;
 #[macro_use]
 extern crate serde;
 
 mod config;
-mod db;
 mod http;
-mod openapi;
+// mod openapi;
 mod telemetry;
 mod utils;
 
+use anyhow::Context;
+use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -23,8 +23,6 @@ use axum::Router;
 use axum::routing::get;
 use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
-use rocket::figment::providers::Env;
-use rocket::figment::providers::Serialized;
 
 // Making `Config` and `init_tracing` (alongside the `api` application builder)
 // available for crate's consumers which is our `main.rs` binary - where we are
@@ -37,33 +35,38 @@ pub use telemetry::init_tracing;
 pub(crate) struct AppContext {
     pub enc_key: Arc<EncodingKey>,
     pub dec_key: Arc<DecodingKey>,
+    pub db: PgPool,
 }
 
 pub async fn serve(config: Config) -> anyhow::Result<()> {
+    // ------------------------- PREPARE CONTEXT -------------------------------
+    let pool = PgPoolOptions::new()
+        .connect(&config.database_url)
+        .await
+        .context("Failed to connect to database")?;
+
     let ctx = AppContext {
         enc_key: Arc::new(EncodingKey::from_base64_secret(&config.secret_key)?),
         dec_key: Arc::new(DecodingKey::from_base64_secret(&config.secret_key)?),
+        db: pool.clone(),
     };
-    //let config = match config {
-    //    Some(overrides) => rocket::Config::figment()
-    //        .merge(Env::raw())
-    //            .merge(Serialized::globals(overrides)),
-    //    None => rocket::Config::figment().merge(Env::raw()),
-    //};
-    // let custom: Config = config.extract().expect("config");
-    // let config = config.merge(("databases.main.url", custom.database_url));
+
+    // ------------------------- PREPARE AXUM APP ------------------------------
     let app = Router::new()
         .route("/healthz", get(routes::healthz::health))
         .with_state(ctx)
         .layer(cors::layer(config.allowed_origins));
     //  .mount("/api", http::routes::users::routes())
-    //  .register("/", catchers![catchers::unauthorized])
-    //  .manage(EncodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
-    //  .manage(DecodingKey::from_base64_secret(&custom.secret_key).expect("valid base64"))
     //  .attach(db::stage(custom.migrate))
-    //  .attach(cors::stage(custom.allowed_origins))
     //  .attach(openapi::stage(custom.docs_ui_path))
 
+    // -------------------------- RUN MIGRATIONS -------------------------------
+    sqlx::migrate!()
+        .run(&pool)
+        .await
+        .context("failed to run migrations")?;
+
+    // -------------------------- RUN APP FOREVER ------------------------------
     let ipv4: Ipv4Addr = "127.0.0.1".parse()?;
     let addr = SocketAddr::from((ipv4, 8000));
     let listener = TcpListener::bind(addr).await?;
@@ -74,7 +77,9 @@ pub async fn serve(config: Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-// source: https://github.com/davidpdrsn/realworld-axum-sqlx/blob/d03a2885b661c8466de24c507099e0e2d66b55bd/src/http/mod.rs
+/// Graceful shutdown signal.
+///
+/// Source: <https://github.com/davidpdrsn/realworld-axum-sqlx/blob/d03a2885b661c8466de24c507099e0e2d66b55bd/src/http/mod.rs>
 async fn shutdown_signal() {
     use tokio::signal;
 
