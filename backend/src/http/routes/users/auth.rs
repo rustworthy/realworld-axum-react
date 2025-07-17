@@ -2,6 +2,7 @@ use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::Validation;
 use crate::http::jwt::issue_token;
+use crate::http::routes::users::UserEndpointResult;
 use axum::Json;
 use axum::extract::State;
 use utoipa::ToSchema;
@@ -36,7 +37,7 @@ pub(crate) struct Login {
 pub(crate) async fn login(
     ctx: State<AppContext>,
     Json(login_details): Json<UserPayload<Login>>,
-) -> Json<UserPayload<User>> {
+) -> UserEndpointResult {
     // @Dzmitry, we of course should not be just dropping user's password,
     // rather should verify it's not empty, hash it and compare to what is
     // stored in our database
@@ -58,5 +59,5 @@ pub(crate) async fn login(
         },
     };
 
-    Json(paylaod)
+    Ok(Json(paylaod))
 }

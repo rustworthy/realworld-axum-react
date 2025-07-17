@@ -18,6 +18,7 @@ pub(crate) struct Validation {
 #[derive(Debug)]
 pub(crate) enum Error {
     Validation(Json<Validation>),
+    Unauthorized,
 }
 
 impl IntoResponse for Error {

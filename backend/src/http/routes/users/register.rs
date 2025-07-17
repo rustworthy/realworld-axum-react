@@ -1,7 +1,8 @@
 use super::{User, UserPayload};
 use crate::AppContext;
-use crate::http::errors::Validation;
+use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
+use crate::http::routes::users::UserEndpointResult;
 use axum::Json;
 use axum::extract::State;
 use utoipa::ToSchema;
@@ -45,7 +46,7 @@ pub struct Registration {
 pub(crate) async fn register_user(
     ctx: State<AppContext>,
     Json(registration): Json<UserPayload<Registration>>,
-) -> Json<UserPayload<User>> {
+) -> UserEndpointResult {
     // @Dzmitry, we of course should not be just dropping user's password,
     // rather should verify it's not empty, hash, and store it in the database
     // we already got hashing function in the codebase, but we do not have
@@ -69,5 +70,5 @@ pub(crate) async fn register_user(
         },
     };
 
-    Json(payload)
+    Ok(Json(payload))
 }

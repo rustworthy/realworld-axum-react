@@ -1,4 +1,5 @@
-use crate::AppContext;
+use crate::{AppContext, http::errors::Error};
+use axum::Json;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 
@@ -37,6 +38,8 @@ pub(crate) struct User {
 pub(crate) struct UserPayload<U> {
     user: U,
 }
+
+pub(super) type UserEndpointResult = Result<Json<UserPayload<User>>, Error>;
 
 // ------------------------------- ROUTER --------------------------------------
 
