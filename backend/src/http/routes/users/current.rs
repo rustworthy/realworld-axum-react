@@ -1,21 +1,18 @@
 use super::{User, UserPayload};
-use crate::db::Db;
-use crate::http::errors::Error;
+use crate::AppContext;
 use crate::http::errors::Validation;
-use crate::http::guards::UserID;
+use crate::http::extractors::UserID;
 use crate::http::jwt::issue_token;
-use jsonwebtoken::EncodingKey;
-use rocket::State;
-use rocket::serde::Deserialize;
-use rocket::serde::json::Error as JsonError;
-use rocket::serde::json::Json;
-use rocket_db_pools::Connection;
+use axum::Json;
+use axum::extract::State;
 use utoipa::ToSchema;
 
 /// Read current user.
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
+    get,
+    path = "",
     tags = ["Users"],
     responses(
         (status = 200, description = "User details and fresh JWT.", body = UserPayload<User>),
@@ -24,14 +21,12 @@ use utoipa::ToSchema;
     ),
     security(("HttpAuthBearerJWT" = [])),
 )]
-#[instrument(name = "GET CURRENT USER", skip(_db, encoding_key))]
-#[get("/user")]
+#[instrument(name = "GET CURRENT USER", skip(ctx))]
 pub(crate) async fn read_current_user(
+    ctx: State<AppContext>,
     id: UserID,
-    encoding_key: &State<EncodingKey>,
-    _db: Connection<Db>,
 ) -> Json<UserPayload<User>> {
-    let jwt_string = issue_token(id.0, encoding_key).unwrap();
+    let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
     Json(UserPayload {
         user: User {
             email: "pavel@mikhalkevich.com".into(),
@@ -44,7 +39,6 @@ pub(crate) async fn read_current_user(
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[serde(crate = "rocket::serde")]
 pub struct UserUpdate {
     /// User's email, e.g. `rob.pike@gmail.com`.
     email: Option<String>,
@@ -59,15 +53,14 @@ pub struct UserUpdate {
     ///
     /// Empty string means biography has never been provided.
     bio: Option<String>,
-
-    /// Location of user's image (if any).
-    image: Option<String>,
 }
 
 /// Update current user.
 ///
 /// This will return user's details and a re-freshed JWT token.
 #[utoipa::path(
+    put,
+    path = "",
     tags = ["Users"],
     responses(
         (status = 200, description = "User details and fresh JWT.", body = UserPayload<User>),
@@ -77,23 +70,20 @@ pub struct UserUpdate {
     ),
     security(("HttpAuthBearerJWT" = [])),
 )]
-#[instrument(name = "GET CURRENT USER", skip(_db, encoding_key))]
-#[put("/user", data = "<update>")]
+#[instrument(name = "UPDATE CURRENT USER", skip(ctx))]
 pub(crate) async fn update_current_user(
+    ctx: State<AppContext>,
     id: UserID,
-    update: Result<Json<UserPayload<UserUpdate>>, JsonError<'_>>,
-    encoding_key: &State<EncodingKey>,
-    _db: Connection<Db>,
-) -> Result<Json<UserPayload<User>>, Error> {
-    let jwt_string = issue_token(id.0, encoding_key).unwrap();
-    let partial = update?.into_inner().user;
-    Ok(Json(UserPayload {
+    Json(update): Json<UserPayload<UserUpdate>>,
+) -> Json<UserPayload<User>> {
+    let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
+    Json(UserPayload {
         user: User {
-            email: partial.email.unwrap_or("pavel@mikhalkevich.com".into()),
+            email: update.user.email.unwrap_or("pavel@mikhalkevich.com".into()),
             token: jwt_string,
-            username: partial.username.unwrap_or("pavel.mikhalkevich".into()),
-            bio: partial.bio.unwrap_or("".into()),
-            image: partial.image,
+            username: update.user.username.unwrap_or("pavel.mikhalkevich".into()),
+            bio: update.user.bio.unwrap_or("".into()),
+            image: None,
         },
-    }))
+    })
 }

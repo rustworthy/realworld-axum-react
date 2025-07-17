@@ -2,27 +2,33 @@
 extern crate tracing;
 #[macro_use]
 extern crate serde;
+#[macro_use]
+extern crate utoipa_axum;
 
 mod config;
 mod http;
-// mod openapi;
 mod telemetry;
 mod utils;
 
-use anyhow::Context;
-use sqlx::PgPool;
-use sqlx::postgres::PgPoolOptions;
-use std::net::Ipv4Addr;
-use std::net::SocketAddr;
-use std::sync::Arc;
-use tokio::net::TcpListener;
-
 use crate::http::cors;
+use crate::http::openapi;
 use crate::http::routes;
+use anyhow::Context;
 use axum::Router;
+use axum::http::header;
 use axum::routing::get;
 use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
+use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
+use std::net::IpAddr;
+use std::net::Ipv4Addr;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use std::sync::OnceLock;
+use tokio::net::TcpListener;
+use utoipa::OpenApi;
+use utoipa_axum::router::OpenApiRouter;
 
 // Making `Config` and `init_tracing` (alongside the `api` application builder
 // available for crate's consumers which is our `main.rs` binary - where we are
@@ -30,6 +36,44 @@ use jsonwebtoken::EncodingKey;
 // and launching the app
 pub use config::Config;
 pub use telemetry::init_tracing;
+
+static OPENAPI_JSON: OnceLock<&'static str> = OnceLock::new();
+
+/// Scalar initial html.
+///
+/// Using [`solarized`](https://guides.scalar.com/scalar/scalar-api-references/themes)
+/// theme and ["suppressing"](https://stackoverflow.com/a/13416784) browser's favicon
+/// not found error.
+///
+/// If there is a need for a customized icon or there is a requirement to
+/// serve all the assets (scripts, fonts, images) from our server, this html
+/// can be placed to a directory like `docs` or `templates` (especially if a template
+/// engine is used) and co-located with the vendors' assets (including the scalar build
+/// that we can download from the CDN ahead of time), which then can be served
+/// with [`ServeDir`](https://docs.rs/tower-http/latest/tower_http/services/struct.ServeDir.html)
+static SCALAR_HTML: &str = r#"
+    <!doctype html>
+    <html>
+    <head>
+        <title>Realworld Rocket React | API Docs</title>
+        <meta charset="utf-8"/>
+        <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <noscript>
+            Scalar requires Javascript to function. Please enable it to browse the documentation.
+        </noscript>
+        <script 
+            id="api-reference" 
+            data-configuration='{"theme": "solarized"}' 
+            data-url="openapi.json" 
+        >
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    </body>
+    </html>
+"#;
 
 #[derive(Clone)]
 pub(crate) struct AppContext {
@@ -52,13 +96,34 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     };
 
     // ------------------------- PREPARE AXUM APP ------------------------------
-    let app = Router::new()
+    let (app, docs) = OpenApiRouter::with_openapi(openapi::RootApiDoc::openapi())
         .route("/healthz", get(routes::healthz::health))
-        .with_state(ctx)
-        .layer(cors::layer(config.allowed_origins));
-    //  .mount("/api", http::routes::users::routes())
-    //  .attach(db::stage(custom.migrate))
-    //  .attach(openapi::stage(custom.docs_ui_path))
+        .with_state(ctx.clone())
+        .nest(
+            "/api/user",
+            http::routes::users::router().with_state(ctx.clone()),
+        )
+        .layer(cors::layer(config.allowed_origins))
+        .split_for_parts();
+
+    // ----------------------- PREPARE DOCUMENTATION ---------------------------
+    let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().unwrap().leak());
+    let app = app.merge(
+        Router::new()
+            .route(
+                "/openapi.json",
+                get(|| async {
+                    (
+                        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+                        *oai,
+                    )
+                }),
+            )
+            .route(
+                &config.docs_ui_path.unwrap_or("/".to_string()),
+                get(|| async { ([(header::CONTENT_TYPE, "text/html")], SCALAR_HTML) }),
+            ),
+    );
 
     // -------------------------- RUN MIGRATIONS -------------------------------
     sqlx::migrate!()
@@ -70,10 +135,11 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 }
 
 pub async fn serve(config: Config) -> anyhow::Result<()> {
-    let app = api(config).await?;
-    let ipv4: Ipv4Addr = "127.0.0.1".parse()?;
-    let addr = SocketAddr::from((ipv4, 8000));
+    let addr = SocketAddr::from((config.ip.clone(), config.port));
     let listener = TcpListener::bind(addr).await?;
+
+    let app = api(config).await?;
+
     let _ = axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;

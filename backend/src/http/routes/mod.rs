@@ -1,2 +1,2 @@
 pub(crate) mod healthz;
-// pub(crate) mod users;
+pub(crate) mod users;

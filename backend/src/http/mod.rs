@@ -1,6 +1,6 @@
 pub(crate) mod cors;
-//pub(crate) mod guards;
+pub(crate) mod errors;
+pub(crate) mod extractors;
+pub(crate) mod jwt;
+pub(crate) mod openapi;
 pub(crate) mod routes;
-
-pub(in crate::http) mod errors;
-pub(in crate::http) mod jwt;

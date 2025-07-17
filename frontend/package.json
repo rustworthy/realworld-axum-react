@@ -25,7 +25,7 @@
   "keywords": [
     "RealWorld",
     "RUST",
-    "Rocket",
+    "Axum",
     "React"
   ],
   "author": "Pavieł Michalkievič, Dzmitry Kalatsilshchykau",

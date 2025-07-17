@@ -57,11 +57,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // create app's configuration for testing purposes
     let config = Config {
         migrate: true,
+        ip: "127.0.0.1".parse().unwrap(),
+        port: 0,
         database_url,
         secret_key: gen_b64_secret_key(),
         // we will be serving docs at the root
-        docs_ui_path: Some("/scalar".into()),
-        ..Default::default()
+        docs_ui_path: Some("/scalar".to_string()),
+        allowed_origins: Vec::new(),
     };
 
     // launch application on a dedicated thread sending a message
@@ -71,6 +73,9 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         let app = realworld_rocket_react::api(config)
             .await
             .expect("configured, built and ran migrations ok");
+        // TODO: this is not checking CORS, we should probably we serving
+        // front-end on a different port, and provide the origin to back-end
+        // app in `ALLOWED_ORIGINS`
         let app = app.fallback_service(ServeDir::new(
             std::env::current_dir().unwrap().join("../frontend/build"),
         ));
@@ -107,7 +112,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // prepare the "testrunner" context, that our wrapper will use to move
     // the test context to the actual test function and perform clean-up actions
     // after the test execution, such as stopping the database container, closing
-    // the webdriver session, killing our rocket application
+    // the webdriver session, killing our web application
     TestRunContext {
         container,
         handle,

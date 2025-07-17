@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{Json, response::IntoResponse};
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
@@ -17,6 +17,11 @@ pub(crate) struct Validation {
 
 #[derive(Debug)]
 pub(crate) enum Error {
-    #[allow(unused)]
     Validation(Json<Validation>),
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> axum::response::Response {
+        todo!()
+    }
 }
