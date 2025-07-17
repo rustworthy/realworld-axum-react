@@ -47,4 +47,4 @@ jobs:
         env:
           HEADLESS: 1
           ROCKET_LOG_LEVEL: off
-        run: cargo test --release --test e2e --features=e2e-test
+        run: cargo test --release --test e2e --features=browser-test
