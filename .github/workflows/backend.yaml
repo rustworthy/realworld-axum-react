@@ -28,7 +28,7 @@ jobs:
         run: SQLX_OFFLINE=1 cargo clippy
       - name: cargo doc --no-deps --all-features
         run: cargo doc --no-deps --all-features
-  unit-tests:
+  unit-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,7 +42,7 @@ jobs:
         run: cargo generate-lockfile
       - name: run API tests
         run: cargo test --release
-  api-tests:
+  api-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -55,12 +55,12 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: run API tests
-        run: cargo test --release --test api --features=api-test
-  e2e-tests:
+        run: cargo test --release --test e2e --features=api-test
+  browser-test:
     uses: "./.github/workflows/browser-test.yaml"
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [check, unit-tests, api-tests, e2e-tests]
+    needs: [check, unit-test, api-test, browser-test]
     runs-on: ubuntu-latest
     defaults:
       run:
