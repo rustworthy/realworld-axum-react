@@ -30,7 +30,7 @@ jobs:
       - name: Lint
         run: npm run lint
   e2e-tests:
-    uses: './.github/workflows/e2e.yaml'
+    uses: './.github/workflows/browser-test.yaml'
   deploy:
     if: github.ref == 'refs/heads/main' 
     needs: [check, e2e-tests]
