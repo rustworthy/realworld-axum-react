@@ -1,11 +1,11 @@
 use super::{User, UserPayload};
 use crate::AppContext;
-use crate::http::errors::Validation;
+use crate::http::errors::{Error, Validation};
 use crate::http::extractors::UserID;
 use crate::http::jwt::issue_token;
-use crate::http::routes::users::UserEndpointResult;
 use axum::Json;
 use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
 use utoipa::ToSchema;
 
 /// Read current user.
@@ -23,7 +23,10 @@ use utoipa::ToSchema;
     security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "GET CURRENT USER", skip(ctx))]
-pub(crate) async fn read_current_user(ctx: State<AppContext>, id: UserID) -> UserEndpointResult {
+pub(crate) async fn read_current_user(
+    ctx: State<AppContext>,
+    id: UserID,
+) -> Result<Json<UserPayload<User>>, Error> {
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
     let payload = UserPayload {
         user: User {
@@ -73,15 +76,16 @@ pub struct UserUpdate {
 pub(crate) async fn update_current_user(
     ctx: State<AppContext>,
     id: UserID,
-    Json(update): Json<UserPayload<UserUpdate>>,
-) -> UserEndpointResult {
+    input: Result<Json<UserPayload<UserUpdate>>, JsonRejection>,
+) -> Result<Json<UserPayload<User>>, Error> {
+    let Json(UserPayload { user }) = input?;
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
     let payload = UserPayload {
         user: User {
-            email: update.user.email.unwrap_or("pavel@mikhalkevich.com".into()),
+            email: user.email.unwrap_or("pavel@mikhalkevich.com".into()),
             token: jwt_string,
-            username: update.user.username.unwrap_or("pavel.mikhalkevich".into()),
-            bio: update.user.bio.unwrap_or("".into()),
+            username: user.username.unwrap_or("pavel.mikhalkevich".into()),
+            bio: user.bio.unwrap_or("".into()),
             image: None,
         },
     };

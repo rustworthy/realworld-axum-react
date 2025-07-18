@@ -1,4 +1,7 @@
-use axum::{Json, response::IntoResponse};
+use axum::Json;
+use axum::extract::rejection::JsonRejection;
+use axum::http::{StatusCode, header};
+use axum::response::{IntoResponse, Response};
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
@@ -17,12 +20,28 @@ pub(crate) struct Validation {
 
 #[derive(Debug)]
 pub(crate) enum Error {
-    Validation(Json<Validation>),
+    Unprocessable(Validation),
     Unauthorized,
 }
 
+impl From<JsonRejection> for Error {
+    fn from(value: JsonRejection) -> Self {
+        let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
+        Self::Unprocessable(Validation { errors })
+    }
+}
+
 impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
-        todo!()
+    fn into_response(self) -> Response {
+        match self {
+            Self::Unauthorized => (
+                StatusCode::UNAUTHORIZED,
+                [(header::WWW_AUTHENTICATE, "Bearer")],
+            )
+                .into_response(),
+            Self::Unprocessable(validation) => {
+                (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
+            }
+        }
     }
 }

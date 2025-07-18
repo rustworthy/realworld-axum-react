@@ -2,9 +2,9 @@ use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
-use crate::http::routes::users::UserEndpointResult;
 use axum::Json;
 use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -45,14 +45,15 @@ pub struct Registration {
 #[instrument(name = "REGISTER USER", skip_all)]
 pub(crate) async fn register_user(
     ctx: State<AppContext>,
-    Json(registration): Json<UserPayload<Registration>>,
-) -> UserEndpointResult {
+    input: Result<Json<UserPayload<Registration>>, JsonRejection>,
+) -> Result<Json<UserPayload<User>>, Error> {
+    let Json(UserPayload { user }) = input?;
     // @Dzmitry, we of course should not be just dropping user's password,
     // rather should verify it's not empty, hash, and store it in the database
     // we already got hashing function in the codebase, but we do not have
     // `user` table, neither sqlx query. It is the database engine that will
     // issue uuid and return it back to us.
-    drop(registration.user.password);
+    drop(user.password);
 
     // @Dzmitry as if db engine returned this UUID to us
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
@@ -62,9 +63,9 @@ pub(crate) async fn register_user(
 
     let payload = UserPayload {
         user: User {
-            email: registration.user.email,
+            email: user.email,
             token: jwt_string,
-            username: registration.user.username,
+            username: user.username,
             bio: "".into(),
             image: None,
         },

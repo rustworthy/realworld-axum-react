@@ -1,10 +1,10 @@
 use super::{User, UserPayload};
 use crate::AppContext;
-use crate::http::errors::Validation;
+use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
-use crate::http::routes::users::UserEndpointResult;
 use axum::Json;
 use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -36,12 +36,13 @@ pub(crate) struct Login {
 #[instrument(name = "LOG USER IN", skip_all)]
 pub(crate) async fn login(
     ctx: State<AppContext>,
-    Json(login_details): Json<UserPayload<Login>>,
-) -> UserEndpointResult {
+    login_details: Result<Json<UserPayload<Login>>, JsonRejection>,
+) -> Result<Json<UserPayload<User>>, Error> {
+    let Json(UserPayload { user }) = login_details?;
     // @Dzmitry, we of course should not be just dropping user's password,
     // rather should verify it's not empty, hash it and compare to what is
     // stored in our database
-    drop(login_details.user.password);
+    drop(user.password);
 
     // @Dzmitry as if we found a user in db
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
@@ -51,7 +52,7 @@ pub(crate) async fn login(
 
     let paylaod = UserPayload {
         user: User {
-            email: login_details.user.email,
+            email: user.email,
             token: jwt_string,
             username: "rob.pike".into(),
             bio: "Co-author Go programming language".into(),
