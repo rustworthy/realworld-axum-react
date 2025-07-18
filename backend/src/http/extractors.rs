@@ -39,6 +39,6 @@ where
                 warn!("Authentication failed: {}", e);
                 Error::Unauthorized
             })
-            .map(|sub| UserID(sub))
+            .map(UserID)
     }
 }

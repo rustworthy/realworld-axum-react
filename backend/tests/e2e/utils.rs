@@ -15,7 +15,10 @@ const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct TestContext {
     pub url: String,
+    #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
+    #[cfg(feature = "api-test")]
+    pub http_client: reqwest::Client,
 }
 
 pub struct TestRunContext {
@@ -102,12 +105,20 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // using to navigate to get the application in the browser
     #[cfg(feature = "browser-test")]
     let client = browser::init_webdriver_client().await;
+
+    // create an HTTP client to call back-end's endpoints as if those were
+    // the calls from a script running in the browser or another back-end service
+    #[cfg(feature = "api-test")]
+    let http_client = reqwest::Client::new();
+
     // prepare context that the test function is going to
     // receive as its argument and use to perform test actions
     let ctx = TestContext {
         url,
         #[cfg(feature = "browser-test")]
         client: client.clone(),
+        #[cfg(feature = "api-test")]
+        http_client,
     };
     // prepare the "testrunner" context, that our wrapper will use to move
     // the test context to the actual test function and perform clean-up actions
@@ -164,8 +175,9 @@ macro_rules! async_test {
 
             // teardown
             testrun_ctx.handle.abort();
-            testrun_ctx.client.close().await.ok();
             testrun_ctx.container.stop_with_timeout(Some(0)).await.ok();
+            #[cfg(feature = "browser-test")]
+            testrun_ctx.client.close().await.ok();
 
             // unwind
             if let Err(e) = handle {

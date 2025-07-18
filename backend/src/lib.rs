@@ -133,15 +133,12 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 }
 
 pub async fn serve(config: Config) -> anyhow::Result<()> {
-    let addr = SocketAddr::from((config.ip.clone(), config.port));
+    let addr = SocketAddr::from((config.ip, config.port));
     let listener = TcpListener::bind(addr).await?;
-
     let app = api(config).await?;
-
-    let _ = axum::serve(listener, app)
+    Ok(axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
-        .await?;
-    Ok(())
+        .await?)
 }
 
 /// Graceful shutdown signal.

@@ -127,7 +127,7 @@ test:
 
 .PHONY: test/e2e
 test/e2e:
-	ROCKET_LOG_LEVEL=off cargo test $(p) --test e2e --features=e2e-test -- --nocapture
+	ROCKET_LOG_LEVEL=off cargo test $(p) --test e2e --features=api-test -- --nocapture
 
 .PHONY: test/e2e/browser
 test/e2e/browser:

@@ -1,5 +1,4 @@
-use crate::{AppContext, http::errors::Error};
-use axum::{Json, extract::rejection::JsonRejection};
+use crate::AppContext;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 
