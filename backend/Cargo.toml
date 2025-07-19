@@ -1,5 +1,5 @@
 [package]
-name = "realworld-rocket-react"
+name = "realworld-axum-react"
 version = "0.1.0"
 edition = "2024"
 authors = ["Pavel Mikhalkevich", "Dzmitry Kalatsilshchykau"]

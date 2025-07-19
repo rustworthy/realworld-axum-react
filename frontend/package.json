@@ -1,5 +1,5 @@
 {
-  "name": "realworld-rocket-react",
+  "name": "realworld-axum-react",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rustworthy/realworld-rocket-react.git"
+    "url": "git+https://github.com/rustworthy/realworld-axum-react.git"
   },
   "keywords": [
     "RealWorld",
@@ -31,9 +31,9 @@
   "author": "Pavieł Michalkievič, Dzmitry Kalatsilshchykau",
   "license": "MIT OR Apache-2.0",
   "bugs": {
-    "url": "https://github.com/rustworthy/realworld-rocket-react/issues"
+    "url": "https://github.com/rustworthy/realworld-axum-react/issues"
   },
-  "homepage": "https://github.com/rustworthy/realworld-rocket-react#readme",
+  "homepage": "https://github.com/rustworthy/realworld-axum-react#readme",
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",

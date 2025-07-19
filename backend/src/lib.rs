@@ -53,7 +53,7 @@ static SCALAR_HTML: &str = r#"
     <!doctype html>
     <html>
     <head>
-        <title>Realworld Rocket React | API Docs</title>
+        <title>Realworld Axum React | API Docs</title>
         <meta charset="utf-8"/>
         <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
         <meta name="viewport" content="width=device-width, initial-scale=1"/>

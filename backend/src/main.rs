@@ -1,4 +1,4 @@
-use realworld_rocket_react::{Config, init_tracing, serve};
+use realworld_axum_react::{Config, init_tracing, serve};
 
 #[tokio::main]
 async fn main() {

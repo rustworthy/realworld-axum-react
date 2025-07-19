@@ -30,7 +30,7 @@ export const MainLayout = () => {
 
       <S.Footer>
         <S.FooterContainer>
-          <S.FooterLink href="https://github.com/rustworthy/realworld-rocket-react" target="_blank">
+          <S.FooterLink href="https://github.com/rustworthy/realworld-axum-react" target="_blank">
             Fork on GitHub
           </S.FooterLink>
         </S.FooterContainer>

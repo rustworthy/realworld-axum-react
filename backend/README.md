@@ -1,4 +1,4 @@
-# Rocket & Sqlx powered backend of `realworld-rocket-react` app
+# Axum & Sqlx powered backend of `realworld-axum-react` app
 
 ## Spec
 

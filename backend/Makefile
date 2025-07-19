@@ -1,4 +1,4 @@
-PROJECT_NAME=realworld-rocket-react
+PROJECT_NAME=realworld-axum-react
 
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -127,14 +127,14 @@ test:
 
 .PHONY: test/e2e
 test/e2e:
-	ROCKET_LOG_LEVEL=off cargo test $(p) --test e2e --features=api-test -- --nocapture
+	SQLX_OFFLINE=1 cargo test $(p) --test e2e --features=api-test -- --nocapture
 
 .PHONY: test/e2e/browser
 test/e2e/browser:
 	cd ../frontend && BACKEND_URL=/ npm run build:prod
 	fuser -k 4444/tcp || true
 	chromedriver --port=4444 &
-	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=browser-test -- --nocapture
+	SQLX_OFFLINE=1 cargo test --test e2e --features=browser-test -- --nocapture
 
 .PHONY: test/all
 test/all: test test/e2e test/e2e/browser
@@ -162,7 +162,7 @@ check:
 .PHONY: otel
 otel: jaeger/start
 	fuser -k ${APP_PORT}/tcp || true
-	RUST_LOG="realworld_rocket_react=info,rocket=error" \
+	RUST_LOG="realworld_axum_react=info,axum=error" \
 	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
 	DATABASE_URL=${POSTGRES_URL} \
 	MIGRATE=true \

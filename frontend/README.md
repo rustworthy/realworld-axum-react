@@ -1,4 +1,4 @@
-# React-powered frontend of `realworld-rocket-react` app
+# React-powered frontend of `realworld-axum-react` app
 
 
 1. To start application run `npm install` in `frontend` folder

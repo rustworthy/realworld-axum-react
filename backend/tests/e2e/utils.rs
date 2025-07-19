@@ -2,7 +2,7 @@ use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
-use realworld_rocket_react::Config;
+use realworld_axum_react::Config;
 use std::time::Duration;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
@@ -73,7 +73,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // with the port number to the test's main thread
     let (tx, rx) = tokio::sync::oneshot::channel();
     let handle = tokio::spawn(async move {
-        let app = realworld_rocket_react::api(config)
+        let app = realworld_axum_react::api(config)
             .await
             .expect("configured, built and ran migrations ok");
         // TODO: this is not checking CORS, we should probably we serving

@@ -2174,7 +2174,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "realworld-rocket-react"
+name = "realworld-axum-react"
 version = "0.1.0"
 dependencies = [
  "anyhow",
