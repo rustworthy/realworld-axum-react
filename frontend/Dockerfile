@@ -1,7 +1,7 @@
 FROM node:22-alpine AS build
 
-## cargo package name, provide via --build-arg
 ARG BACKEND_URL
+ARG REACT_APP_MODE
 
 WORKDIR /build
 
@@ -9,7 +9,9 @@ COPY package*.json .
 RUN npm ci
 
 COPY . .
+
 ENV BACKEND_URL=$BACKEND_URL
+ENV REACT_APP_MODE=$REACT_APP_MODE
 RUN npm run build:prod
 
 ################################################################################
