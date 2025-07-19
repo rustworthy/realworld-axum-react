@@ -143,7 +143,7 @@ test/all:
 .PHONY: test/e2e/spec
 test/e2e/spec:
 	git clone https://github.com/gothinkster/realworld.git --branch main --single-branch || true
-	cd ./realworld/api && APIURL=http://localhost:${APP_PORT} ./run-api-tests.sh
+	cd ./realworld/api && APIURL=http://localhost:${APP_PORT}/api ./run-api-tests.sh
 
 .PHONY: watch
 watch: db/start prepare

@@ -38,19 +38,21 @@ pub(crate) struct UserPayload<U> {
     user: U,
 }
 
-//pub(super) type UserEndpointOutput = Result<Json<UserPayload<User>>, Error>;
-
 // ------------------------------- ROUTER --------------------------------------
-
 pub(crate) fn router() -> OpenApiRouter<AppContext> {
-    OpenApiRouter::new()
-        .routes(routes!(
-            current::read_current_user,
-            current::update_current_user,
-            register::register_user,
-        ))
+    let user_router = OpenApiRouter::new().routes(routes!(
+        current::read_current_user,
+        current::update_current_user,
+    ));
+
+    let auth_router = OpenApiRouter::new()
+        .routes(routes!(register::register_user))
         // `routes!` create a method router internally, and since we already
         // got `POST` user registration, this route should be attached via
         // a separate `routes!` call: https://stackoverflow.com/a/79303329
-        .routes(routes!(auth::login))
+        .routes(routes!(auth::login));
+
+    OpenApiRouter::new()
+        .nest("/user", user_router)
+        .nest("/users", auth_router)
 }
