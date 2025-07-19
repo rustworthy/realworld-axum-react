@@ -4,8 +4,8 @@ permissions:
 on:
   push:
     paths:
-      - '.github/workflows/backend.yaml'
-      - 'backend/**'
+      - ".github/workflows/backend.yaml"
+      - "backend/**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -28,7 +28,7 @@ jobs:
         run: SQLX_OFFLINE=1 cargo clippy
       - name: cargo doc --no-deps --all-features
         run: cargo doc --no-deps --all-features
-  unit-tests:
+  unit-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,7 +42,7 @@ jobs:
         run: cargo generate-lockfile
       - name: run API tests
         run: cargo test --release
-  api-tests:
+  api-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -55,12 +55,12 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: run API tests
-        run: cargo test --release --test api --features=api-test
-  e2e-tests:
-    uses: './.github/workflows/e2e.yaml'
+        run: cargo test --release --test e2e --features=api-test
+  browser-test:
+    uses: "./.github/workflows/browser-test.yaml"
   deploy:
-    if: github.ref == 'refs/heads/main' 
-    needs: [check, unit-tests, api-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main'
+    needs: [check, unit-test, api-test, browser-test]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -69,8 +69,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
-          bundler-cache: true 
+          ruby-version: "3.3"
+          bundler-cache: true
       - run: gem install kamal
       - uses: docker/setup-buildx-action@v3
       - uses: webfactory/ssh-agent@v0.9.1
@@ -82,4 +82,3 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: kamal deploy -c .kamal/deploy.yaml
-  
