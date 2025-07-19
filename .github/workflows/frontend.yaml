@@ -29,11 +29,11 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
-  e2e-tests:
-    uses: './.github/workflows/e2e.yaml'
+  browser-test:
+    uses: './.github/workflows/browser-test.yaml'
   deploy:
     if: github.ref == 'refs/heads/main' 
-    needs: [check, e2e-tests]
+    needs: [check, browser-test]
     runs-on: ubuntu-latest
     defaults:
       run:

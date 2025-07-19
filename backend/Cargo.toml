@@ -1,5 +1,5 @@
 [package]
-name = "realworld-rocket-react"
+name = "realworld-axum-react"
 version = "0.1.0"
 edition = "2024"
 authors = ["Pavel Mikhalkevich", "Dzmitry Kalatsilshchykau"]
@@ -9,21 +9,18 @@ license = "MIT OR Apache-2.0"
 #
 # - good old unit tests, which you can launch with `cargo t`;
 #
-# - API test (integration) behind `api-test` feature flag, which can
-#   can be run with `cargo t --test api --features=api-test`
+# - e2e-to-end API test (integration) behind `api-test` feature flag,
+#   which can be run with `cargo t --test e2e --features=api-test`
 #
-# - FE + BE tests (end-to end) behind `e2e-test` feature flag, which you
-#   can run  with `cargo test --test e2e --features=e2e-test`
-#
-# End-to-end tests will require serving the front-end distribution, 
-# writing data to the database (docker containers), and what not, while
-# unit tests do not need all these tools.
+# - e2e-to-end FE + BE tests (browser) behind `e2e-test` feature flag,
+#   which you can run  with `cargo test --test e2e --features=browser-test`
 #
 # All the test-suites can be launched with `cargo t --all-features`.
 [features]
 default = []
-api-test = []
-e2e-test = ["api-test"]
+e2e-test = []
+api-test = ["e2e-test"]
+browser-test = ["e2e-test"]
 
 [dependencies]
 # -------------------------- TELEMETRY START -----------------------------------
@@ -43,22 +40,39 @@ opentelemetry-appender-tracing = "0.30.1"
 tracing = { version = "0.1", features = ["attributes"] }
 # -------------------------- TELEMETRY END -------------------------------------
 
-rocket = { version = "0.5", features = ["json"] }
-rocket_db_pools = { version = "0.2", features = ["sqlx_postgres"] }
-rocket_cors = { git = "https://github.com/lawliet89/rocket_cors.git", rev = "072d90359b23e9b291df6b672c07c93de9c46011" }
-utoipa = { version = "5.4.0", features = ["rocket_extras"] }
-sqlx = { version = "0.7", features = ["chrono", "uuid"] }
+tokio = { version = "1.46.1", features = [
+    "macros",
+    "net",
+    "rt-multi-thread",
+    "signal",
+] }
+tower-http = { version = "0.6.6", features = ["cors", "fs"] }
+axum = { version = "0.8.4", features = ["macros"] }
+serde = { version = "1.0.219", features = ["derive"] }
 serde_with = { version = "3.14.0", features = ["chrono"] }
+utoipa = { version = "5.4.0", features = ["axum_extras"] }
+utoipa-axum = "0.2.0"
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "chrono",
+    "postgres",
+    "uuid",
+] }
+figment = { version = "0.10.19", features = ["env"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.17", features = ["serde"] }
 argon2 = "0.5.3"
 jsonwebtoken = { version = "9.3.1", default-features = false }
 anyhow = "1.0.98"
-dotenvy = "0.15.7"                                                                                                       # only used in debug mode
+dotenvy = "0.15.7" # only used in debug mode
+regex = "1.11.1"
+rand = "0.8"
 
 [dev-dependencies]
 base64 = "0.22.1"
 fake = "4.3.0"
 fantoccini = "0.22.0"
+reqwest = "0.12.22"
+serde_json = "1.0.140"
 testcontainers-modules = { version = "0.12.1", features = ["postgres"] }
 uuid = { version = "1.17", features = ["v4"] }

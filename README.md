@@ -1,1 +1,1 @@
-# Realworld app with `Rocket` and `React`
+# Realworld app with `Axum` and `React`

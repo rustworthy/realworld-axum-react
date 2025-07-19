@@ -8,7 +8,7 @@ registry:
 builder:
   arch: amd64
   args:
-    pkg: realworld-rocket-react
+    pkg: realworld-axum-react
 
 servers:
   web:
@@ -18,10 +18,10 @@ servers:
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
   clear:
-    ROCKET_ADDRESS: 0.0.0.0
-    ROCKET_PORT: 8000
+    IP: 0.0.0.0
+    PORT: 8000
     OTEL_EXPORTER_OTLP_ENDPOINT: http://realworld-rocket-react-otel-collector:4317
-    RUST_LOG: "realworld_rocket_react=info,rocket=error"
+    RUST_LOG: "realworld_axum_react=info,axum=error"
     ALLOWED_ORIGINS: '["^https://app.realworld-rocket-react.com"]'
     MIGRATE: false
   secret:
@@ -39,7 +39,7 @@ env:
 proxy:
   ssl: true
   host: api.realworld-rocket-react.com
-  app_port: 8000 # see `ROCKET_PORT`
+  app_port: 8000 # see `PORT`
   healthcheck:
     interval: 3
     path: /healthz

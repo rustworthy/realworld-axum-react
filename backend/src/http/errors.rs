@@ -1,5 +1,7 @@
-use rocket::serde::json;
-use rocket::serde::{Serialize, json::Json};
+use axum::Json;
+use axum::extract::rejection::JsonRejection;
+use axum::http::{StatusCode, header};
+use axum::response::{IntoResponse, Response};
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
@@ -7,7 +9,6 @@ use utoipa::ToSchema;
 ///
 /// See <https://realworld-docs.netlify.app/specifications/backend/error-handling/>
 #[derive(Debug, ToSchema, Serialize)]
-#[serde(crate = "rocket::serde")]
 pub(crate) struct Validation {
     #[schema(
         example = json!(
@@ -17,17 +18,30 @@ pub(crate) struct Validation {
     pub errors: BTreeMap<String, Vec<String>>,
 }
 
-#[derive(Debug, Responder)]
+#[derive(Debug)]
 pub(crate) enum Error {
-    #[allow(unused)]
-    #[response(status = 422)]
-    Validation(Json<Validation>),
+    Unprocessable(Validation),
+    Unauthorized,
 }
 
-impl<'a> From<json::Error<'a>> for Error {
-    fn from(value: json::Error<'a>) -> Self {
-        let mut errors = BTreeMap::new();
-        errors.insert("body".into(), vec![value.to_string()]);
-        Self::Validation(Json(Validation { errors }))
+impl From<JsonRejection> for Error {
+    fn from(value: JsonRejection) -> Self {
+        let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
+        Self::Unprocessable(Validation { errors })
+    }
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        match self {
+            Self::Unauthorized => (
+                StatusCode::UNAUTHORIZED,
+                [(header::WWW_AUTHENTICATE, "Bearer")],
+            )
+                .into_response(),
+            Self::Unprocessable(validation) => {
+                (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
+            }
+        }
     }
 }

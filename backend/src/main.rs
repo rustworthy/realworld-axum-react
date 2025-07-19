@@ -1,6 +1,6 @@
-use realworld_rocket_react::{construct_rocket, init_tracing};
+use realworld_axum_react::{Config, init_tracing, serve};
 
-#[rocket::main]
+#[tokio::main]
 async fn main() {
     // We are only using the dotenvy crate's functionality when developing
     // the application. This is primarily needed to enable the `sqlx` online
@@ -25,8 +25,13 @@ async fn main() {
     init_tracing(service_name, otel_endpoint);
 
     // --------------------     RUN APPLICATION    -----------------------------
-    // --------------------   MIGRATING IF NEEDED  -----------------------------
-    if let Err(e) = construct_rocket(None).launch().await {
-        panic!("Failed to launch rocket app: {:?}", e);
+    let config = match Config::try_build() {
+        Err(e) => panic!("Failed to build applications's configuration: {:?}", e),
+        Ok(config) => config,
     };
+
+    // --------------------     RUN APPLICATION    -----------------------------
+    if let Err(e) = serve(config).await {
+        panic!("Failed to start application: {:?}", e);
+    }
 }

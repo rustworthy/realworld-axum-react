@@ -1,19 +1,14 @@
 use super::{User, UserPayload};
-use crate::db::Db;
-use crate::http::errors::Error;
-use crate::http::errors::Validation;
+use crate::AppContext;
+use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
-use jsonwebtoken::EncodingKey;
-use rocket::State;
-use rocket::serde::Deserialize;
-use rocket::serde::json::Error as JsonError;
-use rocket::serde::json::Json;
-use rocket_db_pools::Connection;
+use axum::Json;
+use axum::extract::State;
+use axum::extract::rejection::JsonRejection;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[serde(crate = "rocket::serde")]
 pub struct Registration {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
@@ -37,6 +32,8 @@ pub struct Registration {
 /// This will register new user in the system and also create
 /// a JWT token, i.e. will immediate log them in.
 #[utoipa::path(
+    post,
+    path = "",
     tags = ["Users"],
     responses(
         (status = 201, description = "User successfully created", body = UserPayload<User>),
@@ -46,14 +43,11 @@ pub struct Registration {
     security(/* authentication NOT required */),
 )]
 #[instrument(name = "REGISTER USER", skip_all)]
-#[post("/user", data = "<registration>")]
 pub(crate) async fn register_user(
-    registration: Result<Json<UserPayload<Registration>>, JsonError<'_>>,
-    encoding_key: &State<EncodingKey>,
-    _db: Connection<Db>,
+    ctx: State<AppContext>,
+    input: Result<Json<UserPayload<Registration>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
-    let user = registration?.into_inner().user;
-
+    let Json(UserPayload { user }) = input?;
     // @Dzmitry, we of course should not be just dropping user's password,
     // rather should verify it's not empty, hash, and store it in the database
     // we already got hashing function in the codebase, but we do not have
@@ -65,9 +59,9 @@ pub(crate) async fn register_user(
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
 
     // @Dzmitry and we issued a token for the newly created user
-    let jwt_string = issue_token(uid, encoding_key).unwrap();
+    let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
 
-    Ok(Json(UserPayload {
+    let payload = UserPayload {
         user: User {
             email: user.email,
             token: jwt_string,
@@ -75,5 +69,7 @@ pub(crate) async fn register_user(
             bio: "".into(),
             image: None,
         },
-    }))
+    };
+
+    Ok(Json(payload))
 }
