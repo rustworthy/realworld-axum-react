@@ -39,7 +39,7 @@ pub(crate) struct UserPayload<U> {
 }
 
 // ------------------------------- ROUTER --------------------------------------
-pub(crate) fn router() -> OpenApiRouter<AppContext> {
+pub(crate) fn router(ctx: AppContext) -> OpenApiRouter {
     let user_router = OpenApiRouter::new().routes(routes!(
         current::read_current_user,
         current::update_current_user,
@@ -55,4 +55,5 @@ pub(crate) fn router() -> OpenApiRouter<AppContext> {
     OpenApiRouter::new()
         .nest("/user", user_router)
         .nest("/users", auth_router)
+        .with_state(ctx)
 }

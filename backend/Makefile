@@ -157,7 +157,7 @@ fmt:
 check:
 	cargo fmt --check
 	SQLX_OFFLINE=1 cargo clippy
-	cargo doc --no-deps --all-features
+	SQLX_OFFLINE=1 cargo doc --no-deps --all-features
 
 .PHONY: otel
 otel: jaeger/start

@@ -7,6 +7,7 @@ extern crate utoipa_axum;
 
 mod config;
 mod http;
+mod services;
 mod telemetry;
 mod utils;
 
@@ -97,7 +98,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     let (app, docs) = OpenApiRouter::with_openapi(openapi::RootApiDoc::openapi())
         .route("/healthz", get(routes::healthz::health))
         .with_state(ctx.clone())
-        .nest("/api", routes::users::router().with_state(ctx.clone()))
+        .nest("/api", routes::users::router(ctx))
         .layer(cors::layer(config.allowed_origins))
         .split_for_parts();
 
