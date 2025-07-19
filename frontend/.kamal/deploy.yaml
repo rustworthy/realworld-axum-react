@@ -9,6 +9,7 @@ builder:
   arch: amd64
   args:
     BACKEND_URL: https://api.realworld-rocket-react.com
+    REACT_APP_MODE: production
 
 servers:
   web:

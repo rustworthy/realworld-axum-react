@@ -1,10 +1,10 @@
-# This is a dedicated workflow similar to the one we've implemented earlier in 
+# This is a dedicated workflow similar to the one we've implemented earlier in
 # `wewerewondering` project. In there, is a Svelte-powered front-end with axum-powered
 # backend, but the idea is fundamentally the same: we are launching chromedriver,
 # building the front-end, serving this build from the otherwise API server, and
 # use fantoccini to navigate the app and make assertions in the end-to-end test suite.
 #
-# https://github.com/jonhoo/wewerewondering/issues/202 
+# https://github.com/jonhoo/wewerewondering/issues/202
 # https://github.com/jonhoo/wewerewondering/blob/08c4beb474a1fc03e8f794c683390717979c5ef9/.github/workflows/e2e.yml
 permissions:
   contents: read
@@ -32,8 +32,9 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
       - name: Prepare front-end distribution
-        env: 
+        env:
           BACKEND_URL: /
+          REACT_APP_MODE: production
         run: |
           cd ../frontend
           npm ci
