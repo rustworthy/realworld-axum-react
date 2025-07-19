@@ -1,93 +1,77 @@
-use crate::utils::setup;
-use rocket::http::{Header, Status};
+use reqwest::{StatusCode, header};
+
+use crate::utils::TestContext;
 
 // This token has been signed with using a secret in our `.env.example`, while
 // for each of our tests we are launching a dedicated rocker application with a
 // dedicated random secret key, and so we expect the back-end to reject us
 const TEST_JWT_TOKEN: &'static str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNWY3NTMzNy1hNWUzLTQ0YjEtOTdkNy02NjUzY2EyM2U5ZWUiLCJpYXQiOjE3NTEzMTE5NzksImV4cCI6MTc1MTkxNjc3OX0.QJXG34zRbMLin8JUr-BBbwOSQWwaJ9T2VGRDAbLTJ88";
 
-// --------------------------- POST /api/user ----------------------------------
-#[rocket::async_test]
-async fn create_user_empty_payload() {
-    // arrange
-    let ctx = setup("create_user_empty_payload").await;
-
-    // act
-    let response = ctx.client.post("/api/user").dispatch().await;
-
-    // assert
-    assert_eq!(response.status(), Status::UnprocessableEntity);
-    assert!(response.body().is_some());
+// --------------------------- POST /api/users ---------------------------------
+async fn create_user_empty_payload(ctx: TestContext) {
+    let url = format!("{}/api/users", ctx.url);
+    let response = ctx.http_client.post(url).send().await.unwrap();
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert!(response.bytes().await.unwrap().len() > 0);
 }
 
-// --------------------------- GET /api/user -----------------------------------
-#[rocket::async_test]
-async fn get_current_user_no_token() {
-    // arrange
-    let ctx = setup("get_current_user_no_token").await;
+// ------------------------- POST /api/users/login -----------------------------
+async fn login_empty_payload(ctx: TestContext) {
+    let url = format!("{}/api/users/login", ctx.url);
+    let response = ctx.http_client.post(url).send().await.unwrap();
 
-    // act
-    let response = ctx.client.get("/api/user").dispatch().await;
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert!(response.bytes().await.unwrap().len() > 0);
+}
 
-    // assert
-    assert_eq!(response.status(), Status::Unauthorized);
+// ---------------------------- GET /api/user ----------------------------------
+async fn get_current_user_no_token(ctx: TestContext) {
+    let url = format!("{}/api/user", ctx.url);
+    let response = ctx.http_client.get(url).send().await.unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     assert_eq!(
-        response.headers().get_one("WWW-Authenticate").unwrap(),
-        "Token"
+        response.headers().get(header::WWW_AUTHENTICATE).unwrap(),
+        // reminder: Realworld spec wants "Token" here and we are supporting
+        // both formats, but encouraging to use "Bearer"
+        "Bearer"
     );
-    assert!(response.body().is_none());
+    assert!(response.bytes().await.unwrap().is_empty());
 }
 
-#[rocket::async_test]
-async fn get_current_user_invalid_token() {
-    // arrange
-    let ctx = setup("get_current_user_invalid_token").await;
-
-    // act
-    let mut request = ctx.client.get("/api/user");
-    request.add_header(Header::new(
-        "Authorization",
-        format!("Token {}", TEST_JWT_TOKEN),
-    ));
-    let response = request.dispatch().await;
-
-    // assert
-    assert_eq!(response.status(), Status::Unauthorized);
+async fn get_current_user_invalid_token(ctx: TestContext) {
+    let url = format!("{}/api/user", ctx.url);
+    let response = ctx
+        .http_client
+        .get(url)
+        .header(header::AUTHORIZATION, format!("Bearer {}", TEST_JWT_TOKEN))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     assert_eq!(
-        response.headers().get_one("WWW-Authenticate").unwrap(),
-        "Token"
+        response.headers().get(header::WWW_AUTHENTICATE).unwrap(),
+        "Bearer"
     );
-    assert!(response.body().is_none());
+    assert!(response.bytes().await.unwrap().is_empty());
 }
 
-// --------------------------- PUT /api/user ----------------------------------
-#[rocket::async_test]
-async fn update_user_unauthenticated() {
-    // arrange
-    let ctx = setup("update_user_unauthenticated").await;
+// --------------------------- PUT /api/user -----------------------------------
+async fn update_user_unauthenticated(ctx: TestContext) {
+    let url = format!("{}/api/user", ctx.url);
+    let response = ctx.http_client.put(url).send().await.unwrap();
 
-    // act
-    let response = ctx.client.put("/api/user").dispatch().await;
-
-    // assert
-    assert_eq!(response.status(), Status::Unauthorized);
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     assert_eq!(
-        response.headers().get_one("WWW-Authenticate").unwrap(),
-        "Token"
+        response.headers().get(header::WWW_AUTHENTICATE).unwrap(),
+        "Bearer"
     );
-    assert!(response.body().is_none());
+    assert!(response.bytes().await.unwrap().is_empty());
 }
 
-// ------------------------- POST /api/user/login ------------------------------
-#[rocket::async_test]
-async fn login_empty_payload() {
-    // arrange
-    let ctx = setup("login_empty_payload").await;
-
-    // act
-    let response = ctx.client.post("/api/user/login").dispatch().await;
-
-    // assert
-    assert_eq!(response.status(), Status::UnprocessableEntity);
-    assert!(response.body().is_some());
+mod tests {
+    crate::async_test!(create_user_empty_payload);
+    crate::async_test!(login_empty_payload);
+    crate::async_test!(get_current_user_no_token);
+    crate::async_test!(get_current_user_invalid_token);
+    crate::async_test!(update_user_unauthenticated);
 }

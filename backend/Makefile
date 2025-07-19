@@ -137,8 +137,7 @@ test/e2e/browser:
 	ROCKET_LOG_LEVEL=off cargo test --test e2e --features=browser-test -- --nocapture
 
 .PHONY: test/all
-test/all:
-	cargo test --all-features
+test/all: test test/e2e test/e2e/browser
 
 .PHONY: test/e2e/spec
 test/e2e/spec:
