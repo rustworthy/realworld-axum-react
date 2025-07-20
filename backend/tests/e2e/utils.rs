@@ -18,16 +18,17 @@ use tower_http::services::ServeDir;
 const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct TestContext {
+    #[allow(unused)]
     pub backend_url: String,
+
+    #[cfg(feature = "api-test")]
+    pub http_client: reqwest::Client,
 
     #[cfg(feature = "browser-test")]
     pub frontend_url: String,
 
     #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
-
-    #[cfg(feature = "api-test")]
-    pub http_client: reqwest::Client,
 }
 
 pub struct TestRunContext {
@@ -92,20 +93,20 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         host_port, test_name
     );
 
-    // launch front-end application
+    // launch front-end application (if browser test)
     #[cfg(feature = "browser-test")]
     let (fe_handle, fe_url) = serve_on_available_port(
         axum::Router::new().fallback_service(ServeDir::new("../frontend/build")),
     )
     .await;
 
-    // create app's configuration for testing purposes, making sure
-    // to specify our front-end's domain in allowed origins
-    #[cfg(feature = "browser-test")]
-    let allowed_origins = vec![fe_url.clone()];
+    // create app's configuration for testing purposes, making sure to specify
+    // our front-end's domain in allowed origins (if browser test)
+    #[allow(unused_mut)]
+    let mut allowed_origins = Vec::with_capacity(1);
 
-    #[cfg(feature = "api-test")]
-    let allowed_origins = vec![];
+    #[cfg(feature = "browser-test")]
+    allowed_origins.push(fe_url.clone());
 
     let config = Config {
         migrate: true,
