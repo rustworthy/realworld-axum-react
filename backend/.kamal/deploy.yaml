@@ -7,8 +7,6 @@ registry:
     - KAMAL_REGISTRY_PASSWORD
 builder:
   arch: amd64
-  args:
-    pkg: realworld-axum-react
 
 servers:
   web:

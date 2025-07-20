@@ -1,12 +1,14 @@
 use anyhow::Context as _;
 use figment::{Figment, providers::Env};
+use secrecy::SecretString;
 use std::net::IpAddr;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Config {
-    pub secret_key: String,
+    pub secret_key: SecretString,
+    pub database_url: SecretString,
+
     pub migrate: bool,
-    pub database_url: String,
     pub allowed_origins: Vec<String>,
     pub ip: IpAddr,
     pub port: u16,

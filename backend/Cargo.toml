@@ -66,10 +66,14 @@ jsonwebtoken = { version = "9.3.1", default-features = false }
 anyhow = "1.0.98"
 dotenvy = "0.15.7" # only used in debug mode
 regex = "1.11.1"
-reqwest = "0.12.22"
+reqwest = { version = "0.12.22", default-features = false, features = [
+    "rustls-tls",
+] }
 rand = "0.8"
-resend-rs = "0.15.0"
-secrecy = "0.10.3"
+resend-rs = { version = "0.15.0", features = [
+    "rustls-tls",
+], default-features = false }
+secrecy = { version = "0.10.3", features = ["serde"] }
 
 [dev-dependencies]
 base64 = "0.22.1"

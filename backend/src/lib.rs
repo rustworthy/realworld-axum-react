@@ -20,6 +20,7 @@ use axum::http::header;
 use axum::routing::get;
 use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
@@ -84,13 +85,17 @@ pub(crate) struct AppContext {
 pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
     let pool = PgPoolOptions::new()
-        .connect(&config.database_url)
+        .connect(&config.database_url.expose_secret())
         .await
         .context("Failed to connect to database")?;
 
     let ctx = AppContext {
-        enc_key: Arc::new(EncodingKey::from_base64_secret(&config.secret_key)?),
-        dec_key: Arc::new(DecodingKey::from_base64_secret(&config.secret_key)?),
+        enc_key: Arc::new(EncodingKey::from_base64_secret(
+            &config.secret_key.expose_secret(),
+        )?),
+        dec_key: Arc::new(DecodingKey::from_base64_secret(
+            &config.secret_key.expose_secret(),
+        )?),
         db: pool.clone(),
     };
 
