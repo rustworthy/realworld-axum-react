@@ -84,7 +84,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .layer(cors::layer(config.allowed_origins))
         .split_for_parts();
 
-    // ----------------------- PREPARE DOCUMENTATION ---------------------------
+    // ------------------------ ATTACH DOCUMENTATION ---------------------------
     let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().unwrap().leak());
     let app = app.merge(
         Router::new()

@@ -9,7 +9,7 @@ const TEST_JWT_TOKEN: &'static str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzd
 
 // --------------------------- POST /api/users ---------------------------------
 async fn create_user_empty_payload(ctx: TestContext) {
-    let url = format!("{}/api/users", ctx.url);
+    let url = format!("{}/api/users", ctx.backend_url);
     let response = ctx.http_client.post(url).send().await.unwrap();
     assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     assert!(response.bytes().await.unwrap().len() > 0);
@@ -17,7 +17,7 @@ async fn create_user_empty_payload(ctx: TestContext) {
 
 // ------------------------- POST /api/users/login -----------------------------
 async fn login_empty_payload(ctx: TestContext) {
-    let url = format!("{}/api/users/login", ctx.url);
+    let url = format!("{}/api/users/login", ctx.backend_url);
     let response = ctx.http_client.post(url).send().await.unwrap();
 
     assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
@@ -26,7 +26,7 @@ async fn login_empty_payload(ctx: TestContext) {
 
 // ---------------------------- GET /api/user ----------------------------------
 async fn get_current_user_no_token(ctx: TestContext) {
-    let url = format!("{}/api/user", ctx.url);
+    let url = format!("{}/api/user", ctx.backend_url);
     let response = ctx.http_client.get(url).send().await.unwrap();
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     assert_eq!(
@@ -39,7 +39,7 @@ async fn get_current_user_no_token(ctx: TestContext) {
 }
 
 async fn get_current_user_invalid_token(ctx: TestContext) {
-    let url = format!("{}/api/user", ctx.url);
+    let url = format!("{}/api/user", ctx.backend_url);
     let response = ctx
         .http_client
         .get(url)
@@ -57,7 +57,7 @@ async fn get_current_user_invalid_token(ctx: TestContext) {
 
 // --------------------------- PUT /api/user -----------------------------------
 async fn update_user_unauthenticated(ctx: TestContext) {
-    let url = format!("{}/api/user", ctx.url);
+    let url = format!("{}/api/user", ctx.backend_url);
     let response = ctx.http_client.put(url).send().await.unwrap();
 
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);

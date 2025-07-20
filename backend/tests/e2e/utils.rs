@@ -1,5 +1,6 @@
 use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
+use axum::Router;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
 use realworld_axum_react::Config;
@@ -10,22 +11,31 @@ use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::task::JoinHandle;
+
+#[cfg(feature = "browser-test")]
 use tower_http::services::ServeDir;
 
 const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct TestContext {
-    pub url: String,
+    pub backend_url: String,
+
+    #[cfg(feature = "browser-test")]
+    pub frontend_url: String,
+
     #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
+
     #[cfg(feature = "api-test")]
     pub http_client: reqwest::Client,
 }
 
 pub struct TestRunContext {
     pub container: ContainerAsync<Postgres>,
-    pub handle: JoinHandle<()>,
     pub ctx: TestContext,
+    pub backend_handle: JoinHandle<()>,
+    #[cfg(feature = "browser-test")]
+    pub frontend_handle: JoinHandle<()>,
     #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
 }
@@ -34,6 +44,30 @@ fn gen_b64_secret_key() -> String {
     let mut secret_bytes = [0; 32];
     password_hash::rand_core::OsRng.fill_bytes(&mut secret_bytes);
     BASE64_STANDARD.encode(secret_bytes)
+}
+
+async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, String) {
+    // prepare a channel to receive the assigned port from
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    // launch app on any available port (OS will assign one for us)
+    let handle = tokio::spawn(async move {
+        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 0));
+        let listener = tokio::net::TcpListener::bind(&addr)
+            .await
+            .expect("port to be available");
+        let assigned_addr = listener.local_addr().unwrap();
+        tx.send(assigned_addr.port()).unwrap();
+        axum::serve(listener, app.into_make_service()).await.ok();
+    });
+    // wait for the app's port
+    let port = tokio::time::timeout(TESTRUN_SETUP_TIMEOUT, rx)
+        .await
+        .expect("test setup to not have timed out")
+        .expect("port to have been received from the channel");
+    // we now know the app's address
+    let url = format!("http://localhost:{}", port);
+
+    (handle, url)
 }
 
 pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
@@ -58,49 +92,38 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         host_port, test_name
     );
 
-    // create app's configuration for testing purposes
+    // launch front-end application
+    #[cfg(feature = "browser-test")]
+    let (fe_handle, fe_url) = serve_on_available_port(
+        axum::Router::new().fallback_service(ServeDir::new("../frontend/build")),
+    )
+    .await;
+
+    // create app's configuration for testing purposes, making sure
+    // to specify our front-end's domain in allowed origins
+    #[cfg(feature = "browser-test")]
+    let allowed_origins = vec![fe_url.clone()];
+
+    #[cfg(feature = "api-test")]
+    let allowed_origins = vec![];
+
     let config = Config {
         migrate: true,
         ip: "127.0.0.1".parse().unwrap(),
         port: 0,
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
-        // we will be serving docs at the root
         docs_ui_path: Some("/scalar".to_string()),
-        allowed_origins: Vec::new(),
+        allowed_origins,
     };
 
-    // launch application on a dedicated thread sending a message
-    // with the port number to the test's main thread
-    let (tx, rx) = tokio::sync::oneshot::channel();
-    let handle = tokio::spawn(async move {
-        let app = realworld_axum_react::api(config)
+    // launch back-end application
+    let (be_handle, be_url) = serve_on_available_port(
+        realworld_axum_react::api(config)
             .await
-            .expect("configured, built and ran migrations ok");
-        // TODO: this is not checking CORS, we should probably we serving
-        // front-end on a different port, and provide the origin to back-end
-        // app in `ALLOWED_ORIGINS`
-        let app = app.fallback_service(ServeDir::new(
-            std::env::current_dir().unwrap().join("../frontend/build"),
-        ));
-        // ask OS for an available port
-        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 0));
-        let listener = tokio::net::TcpListener::bind(&addr)
-            .await
-            .expect("port to be available");
-        let assigned_addr = listener.local_addr().unwrap();
-        tx.send(assigned_addr.port()).unwrap();
-        axum::serve(listener, app.into_make_service()).await.ok();
-    });
-
-    // wait for the app's port
-    let port = tokio::time::timeout(TESTRUN_SETUP_TIMEOUT, rx)
-        .await
-        .expect("test setup to not have timed out")
-        .expect("port to have been received from the channel");
-
-    // we now know the app's address
-    let url = format!("http://localhost:{}", port);
+            .expect("built app and ran migrations just fine"),
+    )
+    .await;
 
     // create fantoccini client that the test function will be
     // using to navigate to get the application in the browser
@@ -115,7 +138,9 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // prepare context that the test function is going to
     // receive as its argument and use to perform test actions
     let ctx = TestContext {
-        url,
+        backend_url: be_url,
+        #[cfg(feature = "browser-test")]
+        frontend_url: fe_url,
         #[cfg(feature = "browser-test")]
         client: client.clone(),
         #[cfg(feature = "api-test")]
@@ -127,8 +152,10 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // the webdriver session, killing our web application
     TestRunContext {
         container,
-        handle,
         ctx,
+        backend_handle: be_handle,
+        #[cfg(feature = "browser-test")]
+        frontend_handle: fe_handle,
         #[cfg(feature = "browser-test")]
         client,
     }
@@ -175,10 +202,13 @@ macro_rules! async_test {
             let handle = tokio::spawn(super::$test_fn(testrun_ctx.ctx)).await;
 
             // teardown
-            testrun_ctx.handle.abort();
-            testrun_ctx.container.stop_with_timeout(Some(0)).await.ok();
+            #[cfg(feature = "browser-test")]
+            testrun_ctx.frontend_handle.abort();
             #[cfg(feature = "browser-test")]
             testrun_ctx.client.close().await.ok();
+
+            testrun_ctx.backend_handle.abort();
+            testrun_ctx.container.stop_with_timeout(Some(0)).await.ok();
 
             // unwind
             if let Err(e) = handle {

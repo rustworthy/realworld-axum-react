@@ -7,7 +7,7 @@ use crate::utils::TestContext;
 async fn healthz_endpoint(ctx: TestContext) {
     // we are calling a healthcheck endpoints (just like the kamal proxy
     // or load balancer periodically does)
-    let healthz = format!("{}/healthz", ctx.url);
+    let healthz = format!("{}/healthz", ctx.backend_url);
     let response = ctx.http_client.get(healthz).send().await.unwrap();
 
     // the status code in 200 and ...
