@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, Validation};
@@ -35,7 +37,7 @@ pub(crate) struct Login {
 )]
 #[instrument(name = "LOG USER IN", skip_all)]
 pub(crate) async fn login(
-    ctx: State<AppContext>,
+    ctx: State<Arc<AppContext>>,
     login_details: Result<Json<UserPayload<Login>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = login_details?;

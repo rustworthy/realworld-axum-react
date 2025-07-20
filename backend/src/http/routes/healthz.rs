@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::AppContext;
 use crate::http::jwt::{issue_token, verify_token};
 use axum::Json;
@@ -12,7 +14,7 @@ pub(crate) struct HealthCheckPayload {
 }
 
 #[instrument(name = "SERVICE HEALTH CHECK", skip(ctx))]
-pub(crate) async fn health(ctx: State<AppContext>) -> Json<HealthCheckPayload> {
+pub(crate) async fn health(ctx: State<Arc<AppContext>>) -> Json<HealthCheckPayload> {
     // token keys are in state and issue/verify works as expected
     let token = issue_token(
         Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap(),

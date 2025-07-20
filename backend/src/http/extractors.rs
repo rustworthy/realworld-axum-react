@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::AppContext;
 use crate::http::errors::Error;
 use crate::http::jwt::verify_token;
@@ -8,7 +10,7 @@ use uuid::Uuid;
 #[derive(Debug)]
 pub(in crate::http) struct UserID(pub Uuid);
 
-impl<S> FromRequestParts<S> for UserID
+impl<S> FromRequestParts<Arc<S>> for UserID
 where
     // https://docs.rs/axum/0.6.4/axum/extract/struct.State.html#for-library-authors
     AppContext: FromRef<S>,
@@ -16,7 +18,10 @@ where
 {
     type Rejection = Error;
 
-    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<S>,
+    ) -> Result<Self, Self::Rejection> {
         let Some(token) = parts
             .headers
             .get("Authorization")

@@ -3,6 +3,7 @@ use argon2::password_hash::rand_core::RngCore as _;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
 use realworld_axum_react::Config;
+use secrecy::SecretString;
 use std::time::Duration;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
@@ -62,8 +63,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         migrate: true,
         ip: "127.0.0.1".parse().unwrap(),
         port: 0,
-        database_url,
-        secret_key: gen_b64_secret_key(),
+        database_url: SecretString::from(database_url),
+        secret_key: SecretString::from(gen_b64_secret_key()),
         // we will be serving docs at the root
         docs_ui_path: Some("/scalar".to_string()),
         allowed_origins: Vec::new(),

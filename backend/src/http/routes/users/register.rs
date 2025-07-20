@@ -5,6 +5,7 @@ use crate::http::jwt::issue_token;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
+use std::sync::Arc;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
@@ -44,7 +45,7 @@ pub struct Registration {
 )]
 #[instrument(name = "REGISTER USER", skip_all)]
 pub(crate) async fn register_user(
-    ctx: State<AppContext>,
+    ctx: State<Arc<AppContext>>,
     input: Result<Json<UserPayload<Registration>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;

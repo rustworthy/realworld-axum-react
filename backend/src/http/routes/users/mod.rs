@@ -1,4 +1,5 @@
 use crate::AppContext;
+use std::sync::Arc;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 
@@ -39,7 +40,7 @@ pub(crate) struct UserPayload<U> {
 }
 
 // ------------------------------- ROUTER --------------------------------------
-pub(crate) fn router(ctx: AppContext) -> OpenApiRouter {
+pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
     let user_router = OpenApiRouter::new().routes(routes!(
         current::read_current_user,
         current::update_current_user,

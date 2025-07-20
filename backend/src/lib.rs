@@ -8,21 +8,18 @@ extern crate utoipa_axum;
 mod config;
 mod http;
 mod services;
+mod state;
 mod telemetry;
 mod utils;
 
 use crate::http::cors;
 use crate::http::openapi;
 use crate::http::routes;
+use crate::state::AppContext;
 use anyhow::Context;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::EncodingKey;
-use secrecy::ExposeSecret;
-use sqlx::PgPool;
-use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -75,35 +72,15 @@ static SCALAR_HTML: &str = r#"
     </html>
 "#;
 
-#[derive(Clone)]
-pub(crate) struct AppContext {
-    pub enc_key: Arc<EncodingKey>,
-    pub dec_key: Arc<DecodingKey>,
-    pub db: PgPool,
-}
-
 pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
-    let pool = PgPoolOptions::new()
-        .connect(&config.database_url.expose_secret())
-        .await
-        .context("Failed to connect to database")?;
-
-    let ctx = AppContext {
-        enc_key: Arc::new(EncodingKey::from_base64_secret(
-            &config.secret_key.expose_secret(),
-        )?),
-        dec_key: Arc::new(DecodingKey::from_base64_secret(
-            &config.secret_key.expose_secret(),
-        )?),
-        db: pool.clone(),
-    };
+    let ctx = Arc::new(AppContext::try_build(&config).await?);
 
     // ------------------------- PREPARE AXUM APP ------------------------------
     let (app, docs) = OpenApiRouter::with_openapi(openapi::RootApiDoc::openapi())
         .route("/healthz", get(routes::healthz::health))
-        .with_state(ctx.clone())
-        .nest("/api", routes::users::router(ctx))
+        .with_state(Arc::clone(&ctx))
+        .nest("/api", routes::users::router(Arc::clone(&ctx)))
         .layer(cors::layer(config.allowed_origins))
         .split_for_parts();
 
@@ -128,7 +105,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 
     // -------------------------- RUN MIGRATIONS -------------------------------
     sqlx::migrate!()
-        .run(&pool)
+        .run(&ctx.db)
         .await
         .context("failed to run migrations")?;
 

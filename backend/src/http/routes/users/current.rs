@@ -6,6 +6,7 @@ use crate::http::jwt::issue_token;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
+use std::sync::Arc;
 use utoipa::ToSchema;
 
 /// Read current user.
@@ -24,7 +25,7 @@ use utoipa::ToSchema;
 )]
 #[instrument(name = "GET CURRENT USER", skip(ctx))]
 pub(crate) async fn read_current_user(
-    ctx: State<AppContext>,
+    ctx: State<Arc<AppContext>>,
     id: UserID,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
@@ -74,7 +75,7 @@ pub struct UserUpdate {
 )]
 #[instrument(name = "UPDATE CURRENT USER", skip(ctx))]
 pub(crate) async fn update_current_user(
-    ctx: State<AppContext>,
+    ctx: State<Arc<AppContext>>,
     id: UserID,
     input: Result<Json<UserPayload<UserUpdate>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
