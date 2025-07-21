@@ -25,12 +25,12 @@ pub struct ResendMailer {
 }
 
 impl ResendMailer {
-    pub fn new(sender: String, token: &SecretString, timeout: Option<Duration>) -> Self {
+    pub fn new(sender: String, token: &str, timeout: Option<Duration>) -> Self {
         let http_client = reqwest::Client::builder()
             .timeout(timeout.unwrap_or(SEND_EMAIL_REQUEST_TIMEOUT))
             .build()
             .expect("all required args passed");
-        let client = Resend::with_client(token.expose_secret(), http_client);
+        let client = Resend::with_client(token, http_client);
         Self { client, sender }
     }
 
@@ -139,7 +139,7 @@ mod test {
         SafeEmail().fake::<String>()
     }
 
-    fn mailer(uri: String) -> Mailer {
+    fn mailer(uri: String) -> ResendMailer {
         // Unfortunately, `resend-rs` crate does not expose a method  to set a
         // non-standard base URL and instead want to go via environment:
         // https://github.com/resend/resend-rust/blob/8fefbf5b1c45c68058974861bdb317c929207b5b/src/config.rs#L40-L48
@@ -160,7 +160,7 @@ mod test {
         unsafe { std::env::set_var("RESEND_BASE_URL", uri) };
         ResendMailer::new(
             "test@domain.io".to_string(),
-            "re_secret".into(),
+            "re_secret",
             Some(Duration::from_millis(500)),
         )
     }

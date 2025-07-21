@@ -23,7 +23,11 @@ impl AppContext {
 
         let ctx = match config.mailer_token.as_ref() {
             Some(token) => {
-                let mailer = ResendMailer::new("onboarding@resend.dev".to_string(), token, None);
+                let mailer = ResendMailer::new(
+                    "onboarding@resend.dev".to_string(),
+                    token.expose_secret(),
+                    None,
+                );
                 AppContext {
                     enc_key: EncodingKey::from_base64_secret(secret)?,
                     dec_key: DecodingKey::from_base64_secret(secret)?,

@@ -115,6 +115,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
         docs_ui_path: Some("/scalar".to_string()),
+        mailer_token: None,
         allowed_origins,
     };
 
