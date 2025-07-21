@@ -25,6 +25,18 @@ pub(crate) async fn health(ctx: State<Arc<AppContext>>) -> Json<HealthCheckPaylo
     // database is accepting connections
     let db_check_payload = check_db_conn(&ctx.db).await;
     info!("Database server time {:?}", &db_check_payload.db_time);
+
+    // mailer is ready, see test email instructions:
+    // https://resend.com/docs/dashboard/emails/send-test-emails
+    ctx.mailer
+        .send_email(
+            "delivered@resend.dev",
+            "healthcheck endpoint subject",
+            "healthcheck endpoint html content",
+            "healtheck endpoint text content",
+        )
+        .await
+        .expect("test email to have been sent ok");
     Json(HealthCheckPayload {
         version: env!("CARGO_PKG_VERSION"),
     })

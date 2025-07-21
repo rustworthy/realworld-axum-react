@@ -24,6 +24,7 @@ impl AppContext {
         let ctx = match config.mailer_token.as_ref() {
             Some(token) => {
                 let mailer = ResendMailer::new(
+                    // TODO: this should be taken from configuration
                     "onboarding@resend.dev".to_string(),
                     token.expose_secret(),
                     None,
