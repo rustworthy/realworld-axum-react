@@ -5,16 +5,27 @@ use resend_rs::{Resend, Result};
 use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
 
+#[async_trait::async_trait]
+pub(crate) trait Mailer {
+    async fn send_email(
+        &self,
+        to: &str,
+        subject: &str,
+        html: &str,
+        text: &str,
+    ) -> anyhow::Result<()>;
+}
+
 const SEND_EMAIL_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
 #[derive(Debug, Clone)]
-pub struct Mailer {
-    client: Resend,
+pub struct ResendMailer {
     sender: String,
+    client: Resend,
 }
 
-impl Mailer {
-    pub fn new(sender: String, token: SecretString, timeout: Option<Duration>) -> Self {
+impl ResendMailer {
+    pub fn new(sender: String, token: &SecretString, timeout: Option<Duration>) -> Self {
         let http_client = reqwest::Client::builder()
             .timeout(timeout.unwrap_or(SEND_EMAIL_REQUEST_TIMEOUT))
             .build()
@@ -40,9 +51,55 @@ impl Mailer {
     }
 }
 
+#[async_trait::async_trait]
+impl Mailer for ResendMailer {
+    async fn send_email(
+        &self,
+        to: &str,
+        subject: &str,
+        html: &str,
+        text: &str,
+    ) -> anyhow::Result<()> {
+        ResendMailer::send_email(self, to, subject, html, text).await
+    }
+}
+
+pub(crate) struct StdoutMailer {
+    sender: String,
+}
+
+impl StdoutMailer {
+    pub fn new(sender: String) -> Self {
+        Self { sender }
+    }
+
+    async fn send_email(
+        &self,
+        to: &str,
+        subject: &str,
+        html: &str,
+        text: &str,
+    ) -> anyhow::Result<()> {
+        todo!()
+    }
+}
+
+#[async_trait::async_trait]
+impl Mailer for StdoutMailer {
+    async fn send_email(
+        &self,
+        to: &str,
+        subject: &str,
+        html: &str,
+        text: &str,
+    ) -> anyhow::Result<()> {
+        StdoutMailer::send_email(self, to, subject, html, text).await
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::Mailer;
+    use super::ResendMailer;
     use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
@@ -101,7 +158,7 @@ mod test {
         // ```
         // Until then, let's just set the environment variable:
         unsafe { std::env::set_var("RESEND_BASE_URL", uri) };
-        Mailer::new(
+        ResendMailer::new(
             "test@domain.io".to_string(),
             "re_secret".into(),
             Some(Duration::from_millis(500)),

@@ -24,6 +24,7 @@ use utoipa::ToSchema;
     security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "GET CURRENT USER", skip(ctx))]
+#[axum::debug_handler]
 pub(crate) async fn read_current_user(
     ctx: State<Arc<AppContext>>,
     id: UserID,

@@ -7,6 +7,7 @@ use std::net::IpAddr;
 pub struct Config {
     pub secret_key: SecretString,
     pub database_url: SecretString,
+    pub mailer_token: Option<SecretString>,
 
     pub migrate: bool,
     pub allowed_origins: Vec<String>,

@@ -74,6 +74,7 @@ resend-rs = { version = "0.15.0", features = [
     "rustls-tls",
 ], default-features = false }
 secrecy = { version = "0.10.3", features = ["serde"] }
+async-trait = "0.1.88"
 
 [dev-dependencies]
 base64 = "0.22.1"

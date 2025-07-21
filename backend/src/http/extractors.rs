@@ -10,18 +10,15 @@ use uuid::Uuid;
 #[derive(Debug)]
 pub(in crate::http) struct UserID(pub Uuid);
 
-impl<S> FromRequestParts<Arc<S>> for UserID
+impl<S> FromRequestParts<S> for UserID
 where
     // https://docs.rs/axum/0.6.4/axum/extract/struct.State.html#for-library-authors
-    AppContext: FromRef<S>,
+    Arc<AppContext>: FromRef<S>,
     S: Send + Sync,
 {
     type Rejection = Error;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<S>,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let Some(token) = parts
             .headers
             .get("Authorization")
@@ -38,7 +35,7 @@ where
         else {
             return Err(Error::Unauthorized);
         };
-        let ctx = AppContext::from_ref(state);
+        let ctx = Arc::<AppContext>::from_ref(state);
         verify_token(token, &ctx.dec_key)
             .map_err(|e| {
                 warn!("Authentication failed: {}", e);

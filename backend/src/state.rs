@@ -1,14 +1,16 @@
 use crate::config::Config;
+use crate::services::mailer::{Mailer, ResendMailer, StdoutMailer};
 use anyhow::Context;
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use secrecy::ExposeSecret;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 
-#[derive(Clone)]
 pub(crate) struct AppContext {
     pub enc_key: EncodingKey,
     pub dec_key: DecodingKey,
     pub db: PgPool,
+    #[allow(unused)]
+    pub mailer: Box<dyn Mailer + Send + Sync + 'static>,
 }
 
 impl AppContext {
@@ -18,11 +20,29 @@ impl AppContext {
             .await
             .context("Failed to connect to database")?;
         let secret = config.secret_key.expose_secret();
-        let ctx = AppContext {
-            enc_key: EncodingKey::from_base64_secret(secret)?,
-            dec_key: DecodingKey::from_base64_secret(secret)?,
-            db: pool.clone(),
+
+        let ctx = match config.mailer_token.as_ref() {
+            Some(token) => {
+                let mailer = ResendMailer::new("onboarding@resend.dev".to_string(), token, None);
+                AppContext {
+                    enc_key: EncodingKey::from_base64_secret(secret)?,
+                    dec_key: DecodingKey::from_base64_secret(secret)?,
+                    db: pool.clone(),
+                    mailer: Box::new(mailer),
+                }
+            }
+            None if cfg!(debug_assertions) => {
+                let mailer = StdoutMailer::new("onboarding@resend.dev".to_string());
+                AppContext {
+                    enc_key: EncodingKey::from_base64_secret(secret)?,
+                    dec_key: DecodingKey::from_base64_secret(secret)?,
+                    db: pool.clone(),
+                    mailer: Box::new(mailer),
+                }
+            }
+            _ => anyhow::bail!("mailer token is not configured"),
         };
+
         Ok(ctx)
     }
 }
