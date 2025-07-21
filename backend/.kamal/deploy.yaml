@@ -25,6 +25,7 @@ env:
   secret:
     - DATABASE_URL
     - SECRET_KEY
+    - MAILER_TOKEN
   tags:
     migrator:
       clear:
