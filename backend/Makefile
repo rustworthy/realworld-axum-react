@@ -127,14 +127,14 @@ test:
 
 .PHONY: test/e2e
 test/e2e:
-	SQLX_OFFLINE=1 cargo test $(p) --test e2e --features=api-test -- --nocapture
+	SQLX_OFFLINE=1 cargo test $(p) --release --test e2e --features=api-test -- --nocapture
 
 .PHONY: test/e2e/browser
 test/e2e/browser:
 	cd ../frontend && BACKEND_URL=/ REACT_APP_MODE=production npm run build:prod
 	fuser -k 4444/tcp || true
 	chromedriver --port=4444 &
-	SQLX_OFFLINE=1 cargo test --test e2e --features=browser-test -- --nocapture
+	SQLX_OFFLINE=1 cargo test --release --test e2e --features=browser-test -- --nocapture
 
 .PHONY: test/all
 test/all: test test/e2e test/e2e/browser
