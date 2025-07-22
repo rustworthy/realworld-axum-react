@@ -156,7 +156,7 @@ fmt:
 .PHONY: check
 check:
 	cargo fmt --check
-	SQLX_OFFLINE=1 cargo clippy
+	SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
 	SQLX_OFFLINE=1 cargo doc --no-deps --all-features
 
 .PHONY: otel

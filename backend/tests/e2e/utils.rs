@@ -1,3 +1,5 @@
+#![allow(clippy::vec_init_then_push)]
+
 use argon2::password_hash;
 use argon2::password_hash::rand_core::RngCore as _;
 use axum::Router;
@@ -11,6 +13,11 @@ use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::task::JoinHandle;
+use uuid::Uuid;
+use wiremock::{
+    Mock, MockServer, ResponseTemplate,
+    matchers::{method, path},
+};
 
 #[cfg(feature = "browser-test")]
 use tower_http::services::ServeDir;
@@ -20,6 +27,8 @@ const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 pub struct TestContext {
     #[allow(unused)]
     pub backend_url: String,
+
+    pub mailer_server: MockServer,
 
     #[cfg(feature = "api-test")]
     pub http_client: reqwest::Client,
@@ -108,6 +117,18 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     #[cfg(feature = "browser-test")]
     allowed_origins.push(fe_url.clone());
 
+    // create a mock mailer server, i.e. our local instance of Resend,
+    // which just intercepts requests and allows us to inspect them
+    let mailer_server = MockServer::start().await;
+    Mock::given(path("/emails"))
+        .and(method("POST"))
+        .respond_with(
+            // https://resend.com/docs/api-reference/emails/send-email
+            ResponseTemplate::new(200).set_body_json(serde_json::json!({"id": Uuid::new_v4()})),
+        )
+        .mount(&mailer_server)
+        .await;
+
     let config = Config {
         migrate: true,
         ip: "127.0.0.1".parse().unwrap(),
@@ -115,8 +136,10 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
         docs_ui_path: Some("/scalar".to_string()),
-        mailer_token: Some(SecretString::from("re_")),
         allowed_origins,
+        mailer_token: Some(SecretString::from("re_")),
+        mailer_endpoint: Some(mailer_server.uri().parse().unwrap()),
+        mailer_from: Some("hello@realworld-axum-react".to_string()),
     };
 
     // launch back-end application
@@ -141,6 +164,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // receive as its argument and use to perform test actions
     let ctx = TestContext {
         backend_url: be_url,
+        mailer_server,
         #[cfg(feature = "browser-test")]
         frontend_url: fe_url,
         #[cfg(feature = "browser-test")]
@@ -198,7 +222,7 @@ macro_rules! async_test {
         #[tokio::test]
         async fn $test_fn() {
             // setup
-            let testrun_ctx = crate::utils::setup(stringify!($test_fn)).await;
+            let testrun_ctx = $crate::utils::setup(stringify!($test_fn)).await;
 
             // test
             let handle = tokio::spawn(super::$test_fn(testrun_ctx.ctx)).await;

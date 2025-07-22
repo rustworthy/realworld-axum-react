@@ -22,6 +22,17 @@ async fn healthz_endpoint(ctx: TestContext) {
     let body = response.bytes().await.unwrap();
     let payload: Value = serde_json::from_slice(&body).unwrap();
     assert!(payload.as_object().unwrap().get("version").is_some());
+
+    // we are also send a test email as part of the health check (to make sure
+    // the mailer is configured with the valid API key), so let's verify here
+    // that we are actually sending those requests
+    let sent_emails = ctx.mailer_server.received_requests().await.unwrap();
+    assert_eq!(sent_emails.len(), 1);
+    let body: serde_json::Value = sent_emails.last().unwrap().body_json().unwrap();
+    assert_eq!(
+        body.as_object().unwrap().get("subject").unwrap(),
+        "healthcheck endpoint subject"
+    )
 }
 
 mod tests {

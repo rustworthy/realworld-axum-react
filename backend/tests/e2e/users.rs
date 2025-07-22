@@ -5,14 +5,14 @@ use crate::utils::TestContext;
 // This token has been signed with using a secret in our `.env.example`, while
 // for each of our tests we are launching a dedicated rocker application with a
 // dedicated random secret key, and so we expect the back-end to reject us
-const TEST_JWT_TOKEN: &'static str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNWY3NTMzNy1hNWUzLTQ0YjEtOTdkNy02NjUzY2EyM2U5ZWUiLCJpYXQiOjE3NTEzMTE5NzksImV4cCI6MTc1MTkxNjc3OX0.QJXG34zRbMLin8JUr-BBbwOSQWwaJ9T2VGRDAbLTJ88";
+const TEST_JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNWY3NTMzNy1hNWUzLTQ0YjEtOTdkNy02NjUzY2EyM2U5ZWUiLCJpYXQiOjE3NTEzMTE5NzksImV4cCI6MTc1MTkxNjc3OX0.QJXG34zRbMLin8JUr-BBbwOSQWwaJ9T2VGRDAbLTJ88";
 
 // --------------------------- POST /api/users ---------------------------------
 async fn create_user_empty_payload(ctx: TestContext) {
     let url = format!("{}/api/users", ctx.backend_url);
     let response = ctx.http_client.post(url).send().await.unwrap();
     assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-    assert!(response.bytes().await.unwrap().len() > 0);
+    assert!(!response.bytes().await.unwrap().is_empty());
 }
 
 // ------------------------- POST /api/users/login -----------------------------
@@ -21,7 +21,7 @@ async fn login_empty_payload(ctx: TestContext) {
     let response = ctx.http_client.post(url).send().await.unwrap();
 
     assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-    assert!(response.bytes().await.unwrap().len() > 0);
+    assert!(!response.bytes().await.unwrap().is_empty());
 }
 
 // ---------------------------- GET /api/user ----------------------------------

@@ -82,14 +82,14 @@ mod tests {
         let headers = parts.next().unwrap();
         let decoded_header = BASE64_URL_SAFE_NO_PAD
             .decode(headers.as_bytes())
-            .and_then(|bytes| Ok(String::from_utf8(bytes).unwrap()))
+            .map(|bytes| String::from_utf8(bytes).unwrap())
             .unwrap();
         assert_eq!(decoded_header, r#"{"typ":"JWT","alg":"HS256"}"#);
 
         let claims = parts.next().unwrap();
         let decoded_claims = BASE64_URL_SAFE_NO_PAD
             .decode(claims.as_bytes())
-            .and_then(|bytes| Ok(String::from_utf8(bytes).unwrap()))
+            .map(|bytes| String::from_utf8(bytes).unwrap())
             .unwrap();
         // example of stringified unencoded claims:
         // "{"sub":"25f75337-a5e3-44b1-97d7-6653ca23e9ee","iat":1751116029,"exp":1751720829}"

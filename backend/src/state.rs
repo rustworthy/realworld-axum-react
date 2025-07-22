@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::services::mailer::{Mailer, ResendMailer, StdoutMailer};
-use anyhow::Context;
+use anyhow::{Context, anyhow};
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use secrecy::ExposeSecret;
 use sqlx::{PgPool, postgres::PgPoolOptions};
@@ -21,12 +21,20 @@ impl AppContext {
             .context("Failed to connect to database")?;
         let secret = config.secret_key.expose_secret();
 
+        // if API key to access a mailer service is specified, we _also_ expect
+        // "from" address to be configured, while the mailer's endpoint we default
+        // to the well-known Resend's endpoint (`resend_rs` does it under the hood)
         let ctx = match config.mailer_token.as_ref() {
             Some(token) => {
+                let sender_addr = config
+                    .mailer_from
+                    .as_ref()
+                    .ok_or_else(|| anyhow!("from address is not configured for mail"))?
+                    .to_owned();
                 let mailer = ResendMailer::new(
-                    // TODO: this should be taken from configuration
-                    "onboarding@resend.dev".to_string(),
+                    sender_addr,
                     token.expose_secret(),
+                    config.mailer_endpoint.clone(),
                     None,
                 );
                 AppContext {
@@ -37,7 +45,13 @@ impl AppContext {
                 }
             }
             None if cfg!(debug_assertions) => {
-                let mailer = StdoutMailer::new("onboarding@resend.dev".to_string());
+                let mailer = StdoutMailer::new(
+                    config
+                        .mailer_from
+                        .as_ref()
+                        .unwrap_or(&"onboarding@resend.dev".to_string())
+                        .to_owned(),
+                );
                 AppContext {
                     enc_key: EncodingKey::from_base64_secret(secret)?,
                     dec_key: DecodingKey::from_base64_secret(secret)?,

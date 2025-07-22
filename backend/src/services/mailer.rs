@@ -1,9 +1,10 @@
 #![allow(unused)]
 
 use resend_rs::types::CreateEmailBaseOptions;
-use resend_rs::{Resend, Result};
+use resend_rs::{Config, Resend, Result};
 use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
+use url::Url;
 
 #[async_trait::async_trait]
 pub(crate) trait Mailer {
@@ -25,12 +26,25 @@ pub struct ResendMailer {
 }
 
 impl ResendMailer {
-    pub fn new(sender: String, token: &str, timeout: Option<Duration>) -> Self {
+    pub fn new(
+        sender: String,
+        token: &str,
+        base_url: Option<Url>,
+        timeout: Option<Duration>,
+    ) -> Self {
         let http_client = reqwest::Client::builder()
             .timeout(timeout.unwrap_or(SEND_EMAIL_REQUEST_TIMEOUT))
             .build()
             .expect("all required args passed");
-        let client = Resend::with_client(token, http_client);
+        let client = match base_url {
+            Some(url) => Resend::with_config(
+                Config::builder(token)
+                    .client(http_client)
+                    .base_url(url)
+                    .build(),
+            ),
+            None => Resend::with_client(token, http_client),
+        };
         Self { client, sender }
     }
 
@@ -159,9 +173,10 @@ mod test {
         // Until then, let's just set the environment variable:
         unsafe { std::env::set_var("RESEND_BASE_URL", uri) };
         ResendMailer::new(
-            "test@domain.io".to_string(),
-            "re_secret",
-            Some(Duration::from_millis(500)),
+            "test@domain.io".to_string(),     // "from" address
+            "re_secret",                      // API token
+            None,                             // base url override
+            Some(Duration::from_millis(500)), // request timeout
         )
     }
 

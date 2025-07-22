@@ -2,12 +2,15 @@ use anyhow::Context as _;
 use figment::{Figment, providers::Env};
 use secrecy::SecretString;
 use std::net::IpAddr;
+use url::Url;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub secret_key: SecretString,
     pub database_url: SecretString,
     pub mailer_token: Option<SecretString>,
+    pub mailer_endpoint: Option<Url>,
+    pub mailer_from: Option<String>,
 
     pub migrate: bool,
     pub allowed_origins: Vec<String>,
