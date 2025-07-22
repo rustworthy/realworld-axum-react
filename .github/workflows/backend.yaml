@@ -24,8 +24,8 @@ jobs:
         run: cargo generate-lockfile
       - name: cargo fmt --check
         run: cargo fmt --check
-      - name: SQLX_OFFLINE=1 cargo clippy
-        run: SQLX_OFFLINE=1 cargo clippy
+      - name: SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
+        run: SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
       - name: cargo doc --no-deps --all-features
         run: cargo doc --no-deps --all-features
   unit-test:

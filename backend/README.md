@@ -22,10 +22,10 @@ You should now be able to start the back-end in watch mode with:
 $ make watch
 ```
 
-Run integration tests with:
+Run end-to-end tests with:
 
 ```console
-$ make test/api
+$ make test/e2e
 ```
 
 NB! Make sure you got `docker` installed: for each of tests we are launching a
@@ -41,9 +41,9 @@ Prerequisites:
 
 The in the `backend` directory, hit:
 
-```sh
-make test/e2e/browser
-HEADLESS=1 make test/e2e/browser # to run in headless mode
+```console
+$ make test/e2e/browser
+$ HEADLESS=1 make test/e2e/browser # to run in headless mode
 ```
 
 <!-- -------------------------------- LINKS -------------------------------- -->
