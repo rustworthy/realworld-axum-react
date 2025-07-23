@@ -74,11 +74,8 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 async-trait = "0.1.88"
 url = { version = "2.5.4", features = ["serde"] }
 
-# Use Resend from crate.io once this is merged:
-# https://github.com/resend/resend-rust/pull/28
 [dependencies.resend-rs]
-git = "https://github.com/rustworthy/resend-rust"
-branch = "feature/resend-with-config"
+version = "0.15.1-rc.0"
 features = ["rustls-tls"]
 default-features = false
 
