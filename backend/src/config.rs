@@ -4,13 +4,23 @@ use secrecy::SecretString;
 use std::net::IpAddr;
 use url::Url;
 
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum MailerTransport {
+    #[default]
+    Http,
+    Stdout,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub secret_key: SecretString,
     pub database_url: SecretString,
-    pub mailer_token: Option<SecretString>,
-    pub mailer_endpoint: Option<Url>,
-    pub mailer_from: Option<String>,
+    #[serde(default)]
+    pub mailer_transport: MailerTransport,
+    pub mailer_token: SecretString,
+    pub mailer_endpoint: Url,
+    pub mailer_from: String,
 
     pub migrate: bool,
     pub allowed_origins: Vec<String>,

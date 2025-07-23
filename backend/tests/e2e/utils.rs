@@ -5,7 +5,7 @@ use argon2::password_hash::rand_core::RngCore as _;
 use axum::Router;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
-use realworld_axum_react::Config;
+use realworld_axum_react::{Config, MailerTransport};
 use secrecy::SecretString;
 use std::time::Duration;
 use testcontainers_modules::postgres;
@@ -137,9 +137,10 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         secret_key: SecretString::from(gen_b64_secret_key()),
         docs_ui_path: Some("/scalar".to_string()),
         allowed_origins,
-        mailer_token: Some(SecretString::from("re_")),
-        mailer_endpoint: Some(mailer_server.uri().parse().unwrap()),
-        mailer_from: Some("hello@realworld-axum-react".to_string()),
+        mailer_transport: MailerTransport::Http,
+        mailer_token: SecretString::from("re_"),
+        mailer_endpoint: mailer_server.uri().parse().unwrap(),
+        mailer_from: "hello@realworld-axum-react".to_string(),
     };
 
     // launch back-end application

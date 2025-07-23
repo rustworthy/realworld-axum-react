@@ -27,11 +27,11 @@ use tokio::net::TcpListener;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 
-// Making `Config` and `init_tracing` (alongside the `api` application builder
-// available for crate's consumers which is our `main.rs` binary - where we are
-// initializing tracing, overriding configurations (if needed), then building
-// and launching the app
-pub use config::Config;
+// Making `Config` (and its components as needed) and `init_tracing` (alongside
+// the `api` application builder available for crate's consumers which is our
+// `main.rs` binary - where we are initializing tracing, overriding configurations
+// (if needed), then building and launching the app
+pub use config::{Config, MailerTransport};
 pub use telemetry::init_tracing;
 
 static OPENAPI_JSON: OnceLock<&'static str> = OnceLock::new();

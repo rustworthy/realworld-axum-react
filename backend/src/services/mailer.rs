@@ -1,21 +1,8 @@
-#![allow(unused)]
-
+use crate::config::MailerTransport;
 use resend_rs::types::CreateEmailBaseOptions;
 use resend_rs::{Config, Resend, Result};
-use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
 use url::Url;
-
-#[async_trait::async_trait]
-pub(crate) trait Mailer {
-    async fn send_email(
-        &self,
-        to: &str,
-        subject: &str,
-        html: &str,
-        text: &str,
-    ) -> anyhow::Result<()>;
-}
 
 const SEND_EMAIL_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -23,29 +10,33 @@ const SEND_EMAIL_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 pub struct ResendMailer {
     sender: String,
     client: Resend,
+    #[allow(unused)]
+    transport: MailerTransport,
 }
 
 impl ResendMailer {
     pub fn new(
         sender: String,
         token: &str,
-        base_url: Option<Url>,
+        base_url: Url,
+        transport: MailerTransport,
         timeout: Option<Duration>,
     ) -> Self {
         let http_client = reqwest::Client::builder()
             .timeout(timeout.unwrap_or(SEND_EMAIL_REQUEST_TIMEOUT))
             .build()
             .expect("all required args passed");
-        let client = match base_url {
-            Some(url) => Resend::with_config(
-                Config::builder(token)
-                    .client(http_client)
-                    .base_url(url)
-                    .build(),
-            ),
-            None => Resend::with_client(token, http_client),
-        };
-        Self { client, sender }
+        let client = Resend::with_config(
+            Config::builder(token)
+                .client(http_client)
+                .base_url(base_url)
+                .build(),
+        );
+        Self {
+            client,
+            sender,
+            transport,
+        }
     }
 
     #[tracing::instrument(name = "SEND EMAIL", fields(email_id), skip(html, text))]
@@ -59,60 +50,23 @@ impl ResendMailer {
         let email = CreateEmailBaseOptions::new(&*self.sender, [to.to_string()], subject)
             .with_html(html)
             .with_text(text);
+
+        #[cfg(debug_assertions)]
+        if let MailerTransport::Stdout = self.transport {
+            dbg!(&email);
+            return Ok(());
+        }
+
         let resp = self.client.emails.send(email).await?;
         tracing::info!(email_id = resp.id.to_string());
         Ok(())
     }
 }
 
-#[async_trait::async_trait]
-impl Mailer for ResendMailer {
-    async fn send_email(
-        &self,
-        to: &str,
-        subject: &str,
-        html: &str,
-        text: &str,
-    ) -> anyhow::Result<()> {
-        ResendMailer::send_email(self, to, subject, html, text).await
-    }
-}
-
-pub(crate) struct StdoutMailer {
-    sender: String,
-}
-
-impl StdoutMailer {
-    pub fn new(sender: String) -> Self {
-        Self { sender }
-    }
-
-    async fn send_email(
-        &self,
-        to: &str,
-        subject: &str,
-        html: &str,
-        text: &str,
-    ) -> anyhow::Result<()> {
-        todo!()
-    }
-}
-
-#[async_trait::async_trait]
-impl Mailer for StdoutMailer {
-    async fn send_email(
-        &self,
-        to: &str,
-        subject: &str,
-        html: &str,
-        text: &str,
-    ) -> anyhow::Result<()> {
-        StdoutMailer::send_email(self, to, subject, html, text).await
-    }
-}
-
 #[cfg(test)]
 mod test {
+    use crate::config::MailerTransport;
+
     use super::ResendMailer;
     use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
@@ -154,28 +108,11 @@ mod test {
     }
 
     fn mailer(uri: String) -> ResendMailer {
-        // Unfortunately, `resend-rs` crate does not expose a method  to set a
-        // non-standard base URL and instead want to go via environment:
-        // https://github.com/resend/resend-rust/blob/8fefbf5b1c45c68058974861bdb317c929207b5b/src/config.rs#L40-L48
-        //
-        // Imaginary API could look like:
-        // ```rs
-        // let http_client = reqwest::Client::builder()
-        //      .timeout(Duration::from_secs(10))
-        //      .build()
-        //      .unwrap();
-        // let resend_config = resend_rs::Config::builder('re_key')
-        //      .base_url('http://wiremock:35353'.parse().unwrap())
-        //      .client(http_client)
-        //      .build();
-        // let resend_client = resend_rs::Resend::with_config(resend_config);
-        // ```
-        // Until then, let's just set the environment variable:
-        unsafe { std::env::set_var("RESEND_BASE_URL", uri) };
         ResendMailer::new(
             "test@domain.io".to_string(),     // "from" address
             "re_secret",                      // API token
-            None,                             // base url override
+            uri.parse().unwrap(),             // base url override
+            MailerTransport::Http,            // transport
             Some(Duration::from_millis(500)), // request timeout
         )
     }
