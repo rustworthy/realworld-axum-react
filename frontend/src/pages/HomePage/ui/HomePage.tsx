@@ -1,6 +1,7 @@
 import { FC } from "react";
 
-import { useReadCurrentUserQuery } from "../../api/generated";
+import { useReadCurrentUserQuery } from "@/shared/api/generated";
+
 import * as S from "./HomePage.styles";
 
 export const HomePage: FC = () => {

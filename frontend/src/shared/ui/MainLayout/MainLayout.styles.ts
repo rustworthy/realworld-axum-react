@@ -1,6 +1,5 @@
+import { LayoutContainer } from "@/shared/styles/globalStyledComponents";
 import styled from "styled-components";
-
-import { LayoutContainer } from "../theme/globalStyledComponents";
 
 export const Wrapper = styled.div`
   width: 100dvw;

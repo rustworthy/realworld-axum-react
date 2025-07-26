@@ -1,9 +1,9 @@
 import { FC, ReactNode } from "react";
 
+import { ThemeVariantEnum } from "@/shared/types/theme.types";
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
 
 import { GlobalStyles } from "./globalStyles";
-import { ThemeVariantEnum } from "./theme.types";
 import { DarkTheme } from "./variants/DarkTheme";
 import { LightTheme } from "./variants/LightTheme";
 
