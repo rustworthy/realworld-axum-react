@@ -1,4 +1,4 @@
-import { AppThemeType } from "./src/theme/theme.types";
+import { AppThemeType } from "./src/app/providers/ThemeProvider";
 
 declare module "styled-components" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type

@@ -1,20 +1,20 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Provider as StateProvider } from "react-redux";
 
-import { RouterProvider } from "./Router/RouterProvider";
-import { store } from "./store";
-import { ThemeProvider } from "./theme";
-import { ThemeVariantEnum } from "./theme/theme.types";
+import { ThemeVariantEnum } from "@/shared/types/theme.types";
+
+import { ReduxProvider } from "./providers/ReduxProvider";
+import { RouterProvider } from "./providers/RouterProvider";
+import { ThemeProvider } from "./providers/ThemeProvider";
 
 const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <StrictMode>
-    <StateProvider store={store}>
+    <ReduxProvider>
       <ThemeProvider themeVariant={ThemeVariantEnum.Light}>
         <RouterProvider />
       </ThemeProvider>
-    </StateProvider>
+    </ReduxProvider>
   </StrictMode>,
 );
