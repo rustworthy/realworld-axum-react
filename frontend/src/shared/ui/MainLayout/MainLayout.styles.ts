@@ -38,10 +38,11 @@ export const HeaderNavList = styled.ul`
   justify-content: flex-start;
   align-items: center;
   gap: 16px;
+`;
 
-  li {
-    cursor: pointer;
-  }
+export const HeaderNavItem = styled.li<{ isActive?: boolean }>`
+  cursor: pointer;
+  color: ${(props) => (props.isActive ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.3)")};
 `;
 
 export const ChildrenContainer = styled.main`

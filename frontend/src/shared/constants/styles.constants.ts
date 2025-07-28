@@ -11,3 +11,14 @@ export const TABLET_WIDTH = 768;
 export const LARGE_WIDTH = 992;
 export const DESKTOP_WIDTH = 1024;
 export const EXTRA_LARGE_WIDTH = 1200;
+
+export const SR_ONLY = `
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+`;

@@ -24,6 +24,7 @@ const commonKeys = {
       c01: "#111111",
       c02: "#ffffff",
       c03: "#5CB85B",
+      c04: "#449d44",
     },
   },
 };
@@ -54,7 +55,8 @@ export const LightTheme = {
     button: {
       c01: commonKeys.color.text.c01,
       c02: commonKeys.color.text.c02,
-      c03: "#848484",
+      c03: commonKeys.color.text.c03,
+      c04: commonKeys.color.text.c04,
     },
   },
 };

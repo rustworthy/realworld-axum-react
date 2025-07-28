@@ -6,6 +6,7 @@ import {
   LARGE_CONTAINER_WIDTH,
   LARGE_WIDTH,
   MOBILE_CONTAINER_WIDTH,
+  SR_ONLY,
   TABLET_CONTAINER_WIDTH,
   TABLET_WIDTH,
 } from "../constants/styles.constants";
@@ -25,4 +26,8 @@ export const LayoutContainer = styled.div`
   @media (max-width: ${TABLET_WIDTH}px) {
     max-width: ${MOBILE_CONTAINER_WIDTH}px;
   }
+`;
+
+export const SrOnlyLabel = styled.label`
+  ${SR_ONLY}
 `;
