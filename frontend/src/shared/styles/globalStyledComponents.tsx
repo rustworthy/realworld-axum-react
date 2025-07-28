@@ -1,4 +1,4 @@
-import { styled } from "styled-components";
+import { css, styled } from "styled-components";
 
 import {
   DESKTOP_CONTAINER_WIDTH,
@@ -6,7 +6,6 @@ import {
   LARGE_CONTAINER_WIDTH,
   LARGE_WIDTH,
   MOBILE_CONTAINER_WIDTH,
-  SR_ONLY,
   TABLET_CONTAINER_WIDTH,
   TABLET_WIDTH,
 } from "../constants/styles.constants";
@@ -28,6 +27,17 @@ export const LayoutContainer = styled.div`
   }
 `;
 
+export const PositionAbsoluteHidden = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+`;
+
 export const SrOnlyLabel = styled.label`
-  ${SR_ONLY}
+  ${PositionAbsoluteHidden};
 `;
