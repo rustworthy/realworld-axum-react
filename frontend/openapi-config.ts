@@ -9,9 +9,9 @@ export default (() => {
   }
   return {
     schemaFile,
-    apiFile: "./src/api/base.ts",
+    apiFile: "./src/shared/api/base.ts",
     apiImport: "base",
-    outputFile: "./src/api/generated.ts",
+    outputFile: "./src/shared/api/generated.ts",
     exportName: "api",
     hooks: true,
   } satisfies ConfigFile;
