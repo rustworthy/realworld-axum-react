@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Button = styled.button`
-  height: 50px;
+  height: 54px;
   width: 100%;
   padding: 12px 24px;
   color: ${({ theme }) => theme.shared.button.c02};
