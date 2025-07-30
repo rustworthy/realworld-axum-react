@@ -1,9 +1,11 @@
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
+import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
 import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -18,6 +20,7 @@ const schema = z.object({
 });
 
 export const SignUpPage = () => {
+  const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
   const {
     register,
@@ -42,12 +45,12 @@ export const SignUpPage = () => {
     }
 
     toast.success("Great! Let's confirm your email address. Please check your inbox.");
+    navigate("/confirm-email");
   };
 
   return (
-    <S.PageWrapper>
-      <S.Title>Sign up</S.Title>
-      <S.SubTitle href="/signin">Have an account?</S.SubTitle>
+    <AuthPage title="Sign up">
+      <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
       <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)}>
         <S.FormInputContainer>
@@ -99,6 +102,6 @@ export const SignUpPage = () => {
           </Button>
         </S.SignUpButtonContainer>
       </S.SignUpForm>
-    </S.PageWrapper>
+    </AuthPage>
   );
 };
