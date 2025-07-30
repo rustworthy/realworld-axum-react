@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const PageWrapper = styled.div`
+  padding-top: 3rem;
   width: 100%;
   height: 100%;
   overflow-x: hidden;
@@ -20,7 +21,7 @@ export const Title = styled.h1`
 `;
 
 export const SubTitle = styled.a`
-  color: #5cb85c;
+  color: ${(props) => props.theme.page.signup.colorAccent};
 `;
 
 export const SignUpForm = styled.form`
@@ -29,27 +30,44 @@ export const SignUpForm = styled.form`
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+`;
+
+export const FormInputContainer = styled.div`
+  position: relative;
 `;
 
 export const FormInput = styled.input`
   display: block;
   width: 100%;
   line-height: 1.25;
-  color: #55595c;
-  background-color: #fff;
+  color: ${(props) => props.theme.shared.input.textColor};
+  background-color: ${(props) => props.theme.shared.input.backgroundColor};
   background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid ${(props) => props.theme.shared.input.borderColor};
   padding: 0.75rem 1.5rem;
   font-size: 1.25rem;
   border-radius: 0.3rem;
+  margin-bottom: 1.2rem;
 
   &:focus {
-    border-color: #66afe9;
+    border-color: ${(props) => props.theme.shared.input.backgroundColorFocused};
     outline: none;
   }
 `;
 
+export const FormInputError = styled.span`
+  position: absolute;
+  bottom: 0.1rem;
+  left: 0;
+  color: ${(props) => props.theme.shared.input.errorColor};
+`;
+
 export const SignUpButtonContainer = styled.div`
-  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+
+  .SimpleButton {
+    max-width: 7.5rem;
+  }
 `;

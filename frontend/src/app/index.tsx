@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { ThemeVariantEnum } from "@/shared/types/theme.types";
+import { Toaster as ToastProvider } from "sonner";
 
 import { ReduxProvider } from "./providers/ReduxProvider";
 import { RouterProvider } from "./providers/RouterProvider";
@@ -14,6 +15,7 @@ root.render(
     <ReduxProvider>
       <ThemeProvider themeVariant={ThemeVariantEnum.Light}>
         <RouterProvider />
+        <ToastProvider position="top-center" />
       </ThemeProvider>
     </ReduxProvider>
   </StrictMode>,

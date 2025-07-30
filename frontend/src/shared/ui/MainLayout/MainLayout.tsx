@@ -15,13 +15,13 @@ export const MainLayout = () => {
 
           <nav>
             <S.HeaderNavList>
-              <S.HeaderNavItem isActive={pathname === "/"} onClick={() => navigate("/")}>
+              <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
                 Home
               </S.HeaderNavItem>
-              <S.HeaderNavItem isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
+              <S.HeaderNavItem $isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
                 Sign in
               </S.HeaderNavItem>
-              <S.HeaderNavItem isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
+              <S.HeaderNavItem $isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
                 Sign up
               </S.HeaderNavItem>
             </S.HeaderNavList>

@@ -22,9 +22,11 @@ import { AppThemeType } from "../theme.types";
 const commonKeys = {
   color: {
     text: {
-      c01: "#ffffff",
-      c02: "#111111",
+      c00: "#55595c",
+      c01: "#111111",
+      c02: "#ffffff",
       c03: "#5CB85B",
+      c04: "#449d44",
     },
   },
 };
@@ -36,6 +38,9 @@ export const DarkTheme: AppThemeType = {
       c02: commonKeys.color.text.c02,
       c03: commonKeys.color.text.c03,
     },
+    signup: {
+      colorAccent: commonKeys.color.text.c03,
+    },
   },
 
   mainLayout: {
@@ -43,7 +48,7 @@ export const DarkTheme: AppThemeType = {
     c02: commonKeys.color.text.c02,
     header: {
       c01: commonKeys.color.text.c03,
-      c02: "#111111",
+      c02: "#ffffff",
     },
     footer: {
       c01: "#ffffff",
@@ -52,10 +57,18 @@ export const DarkTheme: AppThemeType = {
   },
 
   shared: {
+    input: {
+      textColor: commonKeys.color.text.c00,
+      borderColor: "rgba(0, 0, 0, 0.15)",
+      backgroundColor: "#ffffff",
+      backgroundColorFocused: "#66afe9",
+      errorColor: "#ff0000",
+    },
     button: {
       c01: commonKeys.color.text.c01,
       c02: commonKeys.color.text.c02,
-      c03: "#cfcfcf",
+      c03: commonKeys.color.text.c03,
+      c04: commonKeys.color.text.c04,
     },
   },
 };

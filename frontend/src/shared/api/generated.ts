@@ -14,14 +14,14 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     registerUser: build.mutation<RegisterUserApiResponse, RegisterUserApiArg>({
       query: (queryArg) => ({
-        url: `/api/user`,
+        url: `/api/users`,
         method: "POST",
         body: queryArg.userPayloadRegistration,
       }),
     }),
     login: build.mutation<LoginApiResponse, LoginApiArg>({
       query: (queryArg) => ({
-        url: `/api/user/login`,
+        url: `/api/users/login`,
         method: "POST",
         body: queryArg.userPayloadLogin,
       }),

@@ -21,6 +21,7 @@
 const commonKeys = {
   color: {
     text: {
+      c00: "#55595c",
       c01: "#111111",
       c02: "#ffffff",
       c03: "#5CB85B",
@@ -35,6 +36,9 @@ export const LightTheme = {
       c01: commonKeys.color.text.c01,
       c02: commonKeys.color.text.c02,
       c03: commonKeys.color.text.c03,
+    },
+    signup: {
+      colorAccent: commonKeys.color.text.c03,
     },
   },
 
@@ -52,6 +56,13 @@ export const LightTheme = {
   },
 
   shared: {
+    input: {
+      textColor: commonKeys.color.text.c00,
+      borderColor: "rgba(0, 0, 0, 0.15)",
+      backgroundColor: "#ffffff",
+      backgroundColorFocused: "#66afe9",
+      errorColor: "#ff0000",
+    },
     button: {
       c01: commonKeys.color.text.c01,
       c02: commonKeys.color.text.c02,

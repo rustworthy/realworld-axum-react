@@ -5,5 +5,5 @@ export interface IButton {
   className?: string;
   children?: ReactNode;
   isDisabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }

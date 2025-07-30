@@ -40,9 +40,9 @@ export const HeaderNavList = styled.ul`
   gap: 16px;
 `;
 
-export const HeaderNavItem = styled.li<{ isActive?: boolean }>`
+export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`
   cursor: pointer;
-  color: ${(props) => (props.isActive ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.3)")};
+  color: ${(props) => (props.$isActive ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.3)")};
 `;
 
 export const ChildrenContainer = styled.main`
