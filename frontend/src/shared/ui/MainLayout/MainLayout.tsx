@@ -1,10 +1,11 @@
 import { Suspense } from "react";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 
 import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   return (
     <S.Wrapper>
@@ -14,9 +15,15 @@ export const MainLayout = () => {
 
           <nav>
             <S.HeaderNavList>
-              <li onClick={() => navigate("/")}>Home</li>
-              <li onClick={() => navigate("/singin")}>Sing in</li>
-              <li onClick={() => navigate("/singup")}>Sing up</li>
+              <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
+                Home
+              </S.HeaderNavItem>
+              <S.HeaderNavItem $isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
+                Sign in
+              </S.HeaderNavItem>
+              <S.HeaderNavItem $isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
+                Sign up
+              </S.HeaderNavItem>
             </S.HeaderNavList>
           </nav>
         </S.HeaderContainer>

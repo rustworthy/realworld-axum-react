@@ -10,7 +10,7 @@ where
     let origins = RegexSet::new(allowed_origins).expect("valid expressions");
     CorsLayer::new()
         .allow_methods([Method::GET, Method::PATCH, Method::PUT])
-        .allow_headers([header::AUTHORIZATION, header::ACCEPT])
+        .allow_headers([header::AUTHORIZATION, header::ACCEPT, header::CONTENT_TYPE])
         .allow_credentials(true)
         .allow_origin(AllowOrigin::predicate(move |origin, _| {
             origin.to_str().is_ok_and(|o| origins.is_match(o))
