@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const SignInLink = styled.a`
   color: ${(props) => props.theme.page.signup.colorAccent};

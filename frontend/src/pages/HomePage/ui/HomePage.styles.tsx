@@ -1,5 +1,6 @@
+import styled from "@emotion/styled";
+
 import { LayoutContainer } from "@/shared/styles/globalStyledComponents";
-import styled from "styled-components";
 
 export const PageWrapper = styled.div`
   width: 100%;

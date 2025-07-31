@@ -72,6 +72,8 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.0",
     "@reduxjs/toolkit": "^2.8.2",
     "mui-one-time-password-input": "^5.0.0",
@@ -81,7 +83,6 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.6.3",
     "sonner": "^2.0.6",
-    "styled-components": "^6.1.19",
     "zod": "^4.0.10"
   }
 }

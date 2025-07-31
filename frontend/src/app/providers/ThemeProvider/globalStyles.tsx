@@ -1,7 +1,10 @@
-import { createGlobalStyle } from "styled-components";
+import { Global, css } from "@emotion/react";
 
-export const GlobalStyles = createGlobalStyle`
-   * {
+export const GlobalStyles = () => {
+  return (
+    <Global
+      styles={css`
+        * {
           box-sizing: border-box;
           ::-webkit-scrollbar {
             width: 14px;
@@ -34,7 +37,9 @@ export const GlobalStyles = createGlobalStyle`
           padding: 0;
         }
 
-        ul, li, a { 
+        ul,
+        li,
+        a {
           color: inherit;
           text-decoration: none;
         }
@@ -42,4 +47,7 @@ export const GlobalStyles = createGlobalStyle`
         ul {
           list-style: none;
         }
-`;
+      `}
+    />
+  );
+};

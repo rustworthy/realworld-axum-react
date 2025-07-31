@@ -1,5 +1,6 @@
+import styled from "@emotion/styled";
+
 import { MuiOtpInput } from "mui-one-time-password-input";
-import styled from "styled-components";
 
 export const OtpInput = styled(MuiOtpInput)`
   display: flex;
