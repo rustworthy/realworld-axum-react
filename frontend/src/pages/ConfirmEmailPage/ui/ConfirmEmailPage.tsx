@@ -7,7 +7,7 @@ import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import * as S from "./ConfirmEmailPage.styles";
-import { TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./schema";
+import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./schema";
 
 export const ConfirmEmailPage = () => {
   const _navigate = useNavigate();
@@ -35,7 +35,7 @@ export const ConfirmEmailPage = () => {
           render={({ field }) => (
             <OTPInput
               {...field}
-              length={8}
+              length={OTP_LENGTH}
               required
               label="One time code for email confirmation"
               id="confirm_email_otp"

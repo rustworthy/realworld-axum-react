@@ -1,11 +1,16 @@
 import styled from "@emotion/styled";
 
+import { SX_MOBILE_WIDTH } from "@/shared/constants/styles.constants";
+
 export const SlotGroupsWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
   padding-bottom: 1.5rem;
+
+
+}
 `;
 
 export const SlotGroup = styled.div`
@@ -31,6 +36,10 @@ export const Slot = styled.div<{ isActive?: boolean }>`
   &:last-of-type {
     border-top-right-radius: 0.3rem;
     border-bottom-right-radius: 0.3rem;
+  }
+
+  @media (max-width: ${SX_MOBILE_WIDTH}px) {
+    width: 2.25rem;
   }
 `;
 
