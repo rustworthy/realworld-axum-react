@@ -4,29 +4,29 @@ import { useNavigate } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
-import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
-import { PasswordInput } from "@/shared/ui/AuthPage/PasswordInput";
-import { TextInput } from "@/shared/ui/AuthPage/TextInput";
-import { Button } from "@/shared/ui/Button";
+import { AuthPageLayout } from "@/shared/ui/layouts";
+import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
+import { Button } from "@/shared/ui/controls/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import * as S from "./SignUpPage.styles";
-import { TSignup, signupDefaultValues, signupSchema } from "./schema";
+import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(signupSchema),
-    defaultValues: signupDefaultValues,
+    resolver: zodResolver(signUpPageSchema),
+    defaultValues: signUpDefaultValues,
   });
 
-  const onSubmit = async (data: TSignup) => {
+  const onSubmit = async (data: TSignUpPageSchema): Promise<void> => {
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
@@ -45,7 +45,7 @@ export const SignUpPage = () => {
   };
 
   return (
-    <AuthPage title="Sign up">
+    <AuthPageLayout title="Sign up">
       <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
       <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -54,7 +54,7 @@ export const SignUpPage = () => {
           name="username"
           render={({ field }) => (
             <TextInput
-              {...field}
+              field={field}
               required
               id="signup_username"
               label="Username"
@@ -68,7 +68,7 @@ export const SignUpPage = () => {
           name="email"
           render={({ field }) => (
             <TextInput
-              {...field}
+              field={field}
               required
               id="signup_email"
               label="Email"
@@ -82,7 +82,7 @@ export const SignUpPage = () => {
           name="password"
           render={({ field }) => (
             <PasswordInput
-              {...field}
+              field={field}
               required
               id="signup_password"
               label="Password"
@@ -90,12 +90,13 @@ export const SignUpPage = () => {
             />
           )}
         />
+
         <Controller
           control={control}
           name="confirmPassword"
           render={({ field }) => (
             <PasswordInput
-              {...field}
+              field={field}
               required
               id="signup_password_confirm"
               label="Confirm Password"
@@ -110,6 +111,6 @@ export const SignUpPage = () => {
           </Button>
         </S.SignUpButtonContainer>
       </S.SignUpForm>
-    </AuthPage>
+    </AuthPageLayout>
   );
 };

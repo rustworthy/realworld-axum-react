@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const signupSchema = z
+export const signUpPageSchema = z
   .object({
     username: z.string().nonempty({ error: "Cannot be empty." }),
     email: z.email({ error: "Valid email address required." }),
@@ -12,11 +12,11 @@ export const signupSchema = z
     path: ["confirmPassword"],
   });
 
-export const signupDefaultValues = {
+export const signUpDefaultValues = {
   username: "",
   email: "",
   password: "",
   confirmPassword: "",
 };
 
-export type TSignup = z.infer<typeof signupSchema>;
+export type TSignUpPageSchema = z.infer<typeof signUpPageSchema>;

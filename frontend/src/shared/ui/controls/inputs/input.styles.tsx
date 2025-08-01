@@ -33,6 +33,7 @@ export const PasswordRevealToggle = styled.div`
   position: absolute;
   width: fit-content;
   height: fit-content;
+
   svg {
     width: 20px;
     height: 20px;

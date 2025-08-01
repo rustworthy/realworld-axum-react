@@ -1,12 +1,12 @@
 import { FC, PropsWithChildren } from "react";
 
-import * as S from "./AuthPage.styles";
+import * as S from "./AuthPageLayout.styles";
 
 /**
  * Wrapper for authentication related pages: signin, signup,
  * password reset, email confirmation, etc.
  */
-export const AuthPage: FC<PropsWithChildren<{ title: string }>> = (props) => {
+export const AuthPageLayout: FC<PropsWithChildren<{ title: string }>> = (props) => {
   return (
     <S.PageWrapper>
       <S.Title>{props.title}</S.Title>
