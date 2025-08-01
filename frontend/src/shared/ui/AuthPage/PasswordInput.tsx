@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
@@ -6,7 +6,7 @@ import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import * as S from "./AuthInput.styles";
 import { InputProps } from "./types";
 
-export const PasswordInput = ({ id, label, required, placeholder, error, ...rest }: InputProps) => {
+export const PasswordInput: FC<InputProps> = ({ id, label, required, placeholder, error, ...rest }) => {
   const [isPasswordRevealed, setIsPasswordRevealed] = useState<boolean>(false);
   return (
     <S.FormInputContainer>

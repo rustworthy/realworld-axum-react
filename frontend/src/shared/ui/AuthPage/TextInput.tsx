@@ -1,9 +1,11 @@
+import { FC } from "react";
+
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 
 import * as S from "./AuthInput.styles";
 import { InputProps } from "./types";
 
-export const TextInput = ({ id, label, required, placeholder, error, ...rest }: InputProps) => {
+export const TextInput: FC<InputProps> = ({ id, label, required, placeholder, error, ...rest }) => {
   return (
     <S.FormInputContainer>
       <SrOnlyLabel htmlFor="signup_email">Email</SrOnlyLabel>
