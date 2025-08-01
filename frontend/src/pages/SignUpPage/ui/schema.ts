@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const registrationSchema = z
+export const signupSchema = z
   .object({
     username: z.string().nonempty({ error: "Cannot be empty." }),
     email: z.email({ error: "Valid email address required." }),
@@ -12,4 +12,11 @@ export const registrationSchema = z
     path: ["confirmPassword"],
   });
 
-export type Registration = z.infer<typeof registrationSchema>;
+export const signupDefaultValues = {
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
+
+export type TSignup = z.infer<typeof signupSchema>;

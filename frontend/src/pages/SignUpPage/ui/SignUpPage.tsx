@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import * as S from "./SignUpPage.styles";
-import { Registration, registrationSchema } from "./schema";
+import { TSignup, signupDefaultValues, signupSchema } from "./schema";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
@@ -22,16 +22,11 @@ export const SignUpPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(registrationSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    resolver: zodResolver(signupSchema),
+    defaultValues: signupDefaultValues,
   });
 
-  const onSubmit = async (data: Registration) => {
+  const onSubmit = async (data: TSignup) => {
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
