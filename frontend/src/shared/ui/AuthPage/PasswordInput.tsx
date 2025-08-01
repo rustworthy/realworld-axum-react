@@ -16,7 +16,7 @@ export const PasswordInput = ({
   id: string;
   label: string;
   required: boolean;
-  placeholder: string;
+  placeholder?: string;
   error?: string;
 }) => {
   const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
@@ -28,7 +28,7 @@ export const PasswordInput = ({
         required={required}
         id={id}
         type={isPasswordRevealed ? "text" : "password"}
-        placeholder={placeholder}
+        placeholder={placeholder ?? label}
         autoComplete="off"
         aria-invalid={!!error}
         aria-errormessage={`${id}_error`}

@@ -11,36 +11,6 @@ export const SignUpForm = styled.form`
   flex-direction: column;
 `;
 
-export const FormInputContainer = styled.div`
-  position: relative;
-`;
-
-export const FormInput = styled.input`
-  display: block;
-  width: 100%;
-  line-height: 1.25;
-  color: ${(props) => props.theme.shared.input.textColor};
-  background-color: ${(props) => props.theme.shared.input.backgroundColor};
-  background-clip: padding-box;
-  border: 1px solid ${(props) => props.theme.shared.input.borderColor};
-  padding: 1rem 1.5rem;
-  font-size: 1.25rem;
-  border-radius: 0.3rem;
-  margin-bottom: 1.2rem;
-
-  &:focus {
-    border-color: ${(props) => props.theme.shared.input.backgroundColorFocused};
-    outline: none;
-  }
-`;
-
-export const FormInputError = styled.span`
-  position: absolute;
-  bottom: 0.1rem;
-  left: 0;
-  color: ${(props) => props.theme.shared.input.errorColor};
-`;
-
 export const SignUpButtonContainer = styled.div`
   display: flex;
   flex-direction: column;

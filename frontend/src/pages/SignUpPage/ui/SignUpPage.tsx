@@ -4,9 +4,9 @@ import { useNavigate } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
-import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
 import { PasswordInput } from "@/shared/ui/AuthPage/PasswordInput";
+import { TextInput } from "@/shared/ui/AuthPage/TextInput";
 import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -25,7 +25,6 @@ export const SignUpPage = () => {
   const [registerUser, { isLoading }] = useRegisterUserMutation();
   const {
     control,
-    register,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -60,33 +59,33 @@ export const SignUpPage = () => {
       <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
       <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)}>
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_username">Username</SrOnlyLabel>
-          <S.FormInput
-            {...register("username")}
-            required
-            id="signup_username"
-            placeholder="Username"
-            autoComplete="off"
-            aria-invalid={!!errors.username}
-            aria-errormessage="username_error"
-          />
-          {errors.username ? <S.FormInputError id="username_error">{errors.username.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="username"
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              required
+              id="signup_username"
+              label="Username"
+              error={errors.username ? errors.username.message : undefined}
+            />
+          )}
+        />
 
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_email">Email</SrOnlyLabel>
-          <S.FormInput
-            {...register("email")}
-            required
-            id="signup_email"
-            placeholder="Email"
-            autoComplete="off"
-            aria-invalid={!!errors.email}
-            aria-errormessage="email_error"
-          />
-          {errors.email ? <S.FormInputError id="email_error">{errors.email.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="email"
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              required
+              id="signup_email"
+              label="Email"
+              error={errors.email ? errors.email.message : undefined}
+            />
+          )}
+        />
 
         <Controller
           control={control}
@@ -97,7 +96,6 @@ export const SignUpPage = () => {
               required
               id="signup_password"
               label="Password"
-              placeholder="Password"
               error={errors.password ? errors.password.message : undefined}
             />
           )}
