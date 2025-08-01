@@ -10,21 +10,9 @@ import { TextInput } from "@/shared/ui/AuthPage/TextInput";
 import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import * as z from "zod";
 
 import * as S from "./SignUpPage.styles";
-
-const schema = z
-  .object({
-    username: z.string().nonempty({ error: "Cannot be empty." }),
-    email: z.email({ error: "Valid email address required." }),
-    password: z.string().nonempty({ error: "Cannot be empty." }),
-    confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
-  })
-  .refine((data) => data.confirmPassword === data.password, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+import { Registration, registrationSchema } from "./schema";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
@@ -34,7 +22,7 @@ export const SignUpPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(registrationSchema),
     defaultValues: {
       username: "",
       email: "",
@@ -43,7 +31,7 @@ export const SignUpPage = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
+  const onSubmit = async (data: Registration) => {
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
