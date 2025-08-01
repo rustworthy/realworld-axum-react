@@ -2,8 +2,8 @@ import { FC } from "react";
 
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 
-import * as S from "../input.styles";
-import { IInputProps } from "../input.types";
+import * as S from "../inputs.styles";
+import { IInputProps } from "../inputs.types";
 
 export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, error, field }) => {
   return (
