@@ -7,7 +7,7 @@ import * as S from "./AuthInput.styles";
 import { InputProps } from "./types";
 
 export const PasswordInput = ({ id, label, required, placeholder, error, ...rest }: InputProps) => {
-  const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
+  const [isPasswordRevealed, setIsPasswordRevealed] = useState<boolean>(false);
   return (
     <S.FormInputContainer>
       <SrOnlyLabel htmlFor={id}>{label}</SrOnlyLabel>
