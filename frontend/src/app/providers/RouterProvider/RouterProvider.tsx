@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
-import { ForbiddenPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
+import { ConfirmEmailPage, ForbiddenPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
 import { MainLayout } from "@/shared/ui/MainLayout";
 
 const isAuth = true;
@@ -20,6 +20,7 @@ export const RouterProvider = () => {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forbidden" element={<ForbiddenPage />} />
+          <Route path="/confirm-email" element={<ConfirmEmailPage />} />
 
           <Route element={<ProtectedRoutes />}>{/* <Route path="/protectedroute" element={<ProtectedElement />} /> */}</Route>
 

@@ -1,7 +1,7 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const Button = styled.button`
-  height: 50px;
+  height: 54px;
   width: 100%;
   padding: 12px 24px;
   color: ${({ theme }) => theme.shared.button.c02};
@@ -20,6 +20,7 @@ export const Button = styled.button`
   line-height: 24px;
   text-transform: none;
   cursor: pointer;
+  user-select: none;
 
   &:active,
   &:hover {

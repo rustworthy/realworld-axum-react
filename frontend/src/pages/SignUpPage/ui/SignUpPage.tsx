@@ -1,33 +1,32 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
-import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
+import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
+import { PasswordInput } from "@/shared/ui/AuthPage/PasswordInput";
+import { TextInput } from "@/shared/ui/AuthPage/TextInput";
 import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import * as z from "zod";
 
 import * as S from "./SignUpPage.styles";
-
-const schema = z.object({
-  username: z.string().nonempty({ error: "Username cannot be empty." }),
-  email: z.email({ error: "Valid email address required." }),
-  password: z.string().nonempty({ error: "Password cannot be empty." }),
-});
+import { TSignup, signupDefaultValues, signupSchema } from "./schema";
 
 export const SignUpPage = () => {
+  const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(signupSchema),
+    defaultValues: signupDefaultValues,
   });
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
+  const onSubmit = async (data: TSignup) => {
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
@@ -42,56 +41,68 @@ export const SignUpPage = () => {
     }
 
     toast.success("Great! Let's confirm your email address. Please check your inbox.");
+    navigate("/confirm-email");
   };
 
   return (
-    <S.PageWrapper>
-      <S.Title>Sign up</S.Title>
-      <S.SubTitle href="/signin">Have an account?</S.SubTitle>
+    <AuthPage title="Sign up">
+      <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
       <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)}>
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_username">Username</SrOnlyLabel>
-          <S.FormInput
-            {...register("username")}
-            required
-            id="signup_username"
-            placeholder="Username"
-            autoComplete="off"
-            aria-invalid={!!errors.username}
-            aria-errormessage="username_error"
-          />
-          {errors.username ? <S.FormInputError id="username_error">{errors.username.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="username"
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              required
+              id="signup_username"
+              label="Username"
+              error={errors.username ? errors.username.message : undefined}
+            />
+          )}
+        />
 
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_email">Email</SrOnlyLabel>
-          <S.FormInput
-            {...register("email")}
-            required
-            id="signup_email"
-            placeholder="Email"
-            autoComplete="off"
-            aria-invalid={!!errors.email}
-            aria-errormessage="email_error"
-          />
-          {errors.email ? <S.FormInputError id="email_error">{errors.email.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="email"
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              required
+              id="signup_email"
+              label="Email"
+              error={errors.email ? errors.email.message : undefined}
+            />
+          )}
+        />
 
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_password">Password</SrOnlyLabel>
-          <S.FormInput
-            {...register("password")}
-            required
-            id="signup_password"
-            type="password"
-            placeholder="Password"
-            autoComplete="off"
-            aria-invalid={!!errors.password}
-            aria-errormessage="password_error"
-          />
-          {errors.password ? <S.FormInputError id="password_error">{errors.password.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field }) => (
+            <PasswordInput
+              {...field}
+              required
+              id="signup_password"
+              label="Password"
+              error={errors.password ? errors.password.message : undefined}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <PasswordInput
+              {...field}
+              required
+              id="signup_password_confirm"
+              label="Confirm Password"
+              error={errors.confirmPassword ? errors.confirmPassword.message : undefined}
+            />
+          )}
+        />
 
         <S.SignUpButtonContainer>
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
@@ -99,6 +110,6 @@ export const SignUpPage = () => {
           </Button>
         </S.SignUpButtonContainer>
       </S.SignUpForm>
-    </S.PageWrapper>
+    </AuthPage>
   );
 };

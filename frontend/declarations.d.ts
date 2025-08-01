@@ -1,6 +1,6 @@
 import { AppThemeType } from "./src/app/providers/ThemeProvider";
 
-declare module "styled-components" {
+declare module "@emotion/react" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  export interface DefaultTheme extends AppThemeType {}
+  export interface Theme extends AppThemeType {}
 }
