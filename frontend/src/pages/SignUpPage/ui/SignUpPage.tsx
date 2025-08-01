@@ -4,14 +4,14 @@ import { useNavigate } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
-import { AuthPageLayout } from "@/shared/ui/layouts";
-import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
 import { Button } from "@/shared/ui/controls/Button";
+import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
+import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import * as S from "./SignUpPage.styles";
 import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
+import * as S from "./SignUpPage.styles";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
-import { AuthPageLayout } from "@/shared/ui/layouts";
 import { Button } from "@/shared/ui/controls/Button";
+import { AuthPageLayout } from "@/shared/ui/layouts";
 
 import * as S from "./ConfirmEmailPage.styles";
 

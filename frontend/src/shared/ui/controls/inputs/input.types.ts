@@ -1,6 +1,8 @@
-import {  UseControllerReturn } from "react-hook-form";
+import { UseControllerReturn } from "react-hook-form";
 
-type RHFFieldProps = Partial<UseControllerReturn<any>['field']>;
+import { ANY_TODO } from "@/shared/types/theme.types";
+
+type RHFFieldProps = Partial<UseControllerReturn<ANY_TODO>["field"]>;
 
 export interface IInputProps {
   id: string;
