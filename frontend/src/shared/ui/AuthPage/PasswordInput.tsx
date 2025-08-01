@@ -4,27 +4,15 @@ import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 import * as S from "./AuthInput.styles";
+import { InputProps } from "./types";
 
-export const PasswordInput = ({
-  id,
-  label,
-  required,
-  placeholder,
-  error,
-  ...field
-}: {
-  id: string;
-  label: string;
-  required: boolean;
-  placeholder?: string;
-  error?: string;
-}) => {
+export const PasswordInput = ({ id, label, required, placeholder, error, ...rest }: InputProps) => {
   const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
   return (
     <S.FormInputContainer>
       <SrOnlyLabel htmlFor={id}>{label}</SrOnlyLabel>
       <S.PasswordInput
-        {...field}
+        {...rest}
         required={required}
         id={id}
         type={isPasswordRevealed ? "text" : "password"}
@@ -35,9 +23,9 @@ export const PasswordInput = ({
       />
       <S.PasswordRevealToggle>
         {isPasswordRevealed ? (
-          <EyeNoneIcon aria-role="button" aria-label="reveal password symbols" onClick={() => setIsPasswordRevealed(false)} />
+          <EyeNoneIcon role="button" aria-label="reveal password symbols" onClick={() => setIsPasswordRevealed(false)} />
         ) : (
-          <EyeOpenIcon aria-role="button" aria-label="hide password symbols" onClick={() => setIsPasswordRevealed(true)} />
+          <EyeOpenIcon role="button" aria-label="hide password symbols" onClick={() => setIsPasswordRevealed(true)} />
         )}
       </S.PasswordRevealToggle>
       {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}

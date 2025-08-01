@@ -14,11 +14,17 @@ import * as z from "zod";
 
 import * as S from "./SignUpPage.styles";
 
-const schema = z.object({
-  username: z.string().nonempty({ error: "Username cannot be empty." }),
-  email: z.email({ error: "Valid email address required." }),
-  password: z.string().nonempty({ error: "Password cannot be empty." }),
-});
+const schema = z
+  .object({
+    username: z.string().nonempty({ error: "Cannot be empty." }),
+    email: z.email({ error: "Valid email address required." }),
+    password: z.string().nonempty({ error: "Cannot be empty." }),
+    confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
+  })
+  .refine((data) => data.confirmPassword === data.password, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
@@ -33,6 +39,7 @@ export const SignUpPage = () => {
       username: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -97,6 +104,19 @@ export const SignUpPage = () => {
               id="signup_password"
               label="Password"
               error={errors.password ? errors.password.message : undefined}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <PasswordInput
+              {...field}
+              required
+              id="signup_password_confirm"
+              label="Confirm Password"
+              error={errors.confirmPassword ? errors.confirmPassword.message : undefined}
             />
           )}
         />

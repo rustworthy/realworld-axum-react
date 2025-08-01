@@ -1,26 +1,14 @@
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 
 import * as S from "./AuthInput.styles";
+import { InputProps } from "./types";
 
-export const TextInput = ({
-  id,
-  label,
-  required,
-  placeholder,
-  error,
-  ...field
-}: {
-  id: string;
-  label: string;
-  required: boolean;
-  placeholder?: string;
-  error?: string;
-}) => {
+export const TextInput = ({ id, label, required, placeholder, error, ...rest }: InputProps) => {
   return (
     <S.FormInputContainer>
       <SrOnlyLabel htmlFor="signup_email">Email</SrOnlyLabel>
       <S.FormInput
-        {...field}
+        {...rest}
         required={required}
         id={id}
         type="text"
