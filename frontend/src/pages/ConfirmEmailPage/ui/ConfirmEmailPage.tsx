@@ -1,17 +1,18 @@
-import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
-import { Button } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/controls/Button";
+import { AuthPageLayout } from "@/shared/ui/layouts";
 
 import * as S from "./ConfirmEmailPage.styles";
 
 export const ConfirmEmailPage = () => {
   return (
-    <AuthPage title="Let's confirm your email">
+    <AuthPageLayout title="Let's confirm your email">
       <p>Please insert a one-time code we've sent to you via email.</p>
+
       <S.ButtonContainer>
         <Button dataTestId="confirm_email_button" isDisabled={false}>
           Submit
         </Button>
       </S.ButtonContainer>
-    </AuthPage>
+    </AuthPageLayout>
   );
 };
