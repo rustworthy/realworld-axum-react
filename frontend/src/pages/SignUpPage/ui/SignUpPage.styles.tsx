@@ -34,23 +34,6 @@ export const FormInput = styled.input`
   }
 `;
 
-export const PasswordInput = styled(FormInput)`
-  padding-right: 3rem;
-`;
-
-export const PasswordRevealToggle = styled.div`
-  right: 1rem;
-  top: 1.125rem;
-  position: absolute;
-  width: fit-content;
-  height: fit-content;
-  svg {
-    width: 20px;
-    height: 20px;
-    color: ${(props) => props.theme.shared.input.textColor};
-  }
-`;
-
 export const FormInputError = styled.span`
   position: absolute;
   bottom: 0.1rem;

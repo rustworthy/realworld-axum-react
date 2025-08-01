@@ -20,6 +20,7 @@ export const Button = styled.button`
   line-height: 24px;
   text-transform: none;
   cursor: pointer;
+  user-select: none;
 
   &:active,
   &:hover {

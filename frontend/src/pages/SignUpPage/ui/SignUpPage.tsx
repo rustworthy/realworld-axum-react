@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -7,9 +6,9 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
 import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
+import { PasswordInput } from "@/shared/ui/AuthPage/PasswordInput";
 import { Button } from "@/shared/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -24,13 +23,18 @@ const schema = z.object({
 export const SignUpPage = () => {
   const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
-  const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
@@ -84,27 +88,20 @@ export const SignUpPage = () => {
           {errors.email ? <S.FormInputError id="email_error">{errors.email.message}</S.FormInputError> : null}
         </S.FormInputContainer>
 
-        <S.FormInputContainer>
-          <SrOnlyLabel htmlFor="signup_password">Password</SrOnlyLabel>
-          <S.PasswordInput
-            {...register("password")}
-            required
-            id="signup_password"
-            type={isPasswordRevealed ? "text" : "password"}
-            placeholder="Password"
-            autoComplete="off"
-            aria-invalid={!!errors.password}
-            aria-errormessage="password_error"
-          />
-          <S.PasswordRevealToggle>
-            {isPasswordRevealed ? (
-              <EyeNoneIcon aria-role="button" aria-label="reveal password symbols" onClick={() => setIsPasswordRevealed(false)} />
-            ) : (
-              <EyeOpenIcon aria-role="button" aria-label="hide password symbols" onClick={() => setIsPasswordRevealed(true)} />
-            )}
-          </S.PasswordRevealToggle>
-          {errors.password ? <S.FormInputError id="password_error">{errors.password.message}</S.FormInputError> : null}
-        </S.FormInputContainer>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field }) => (
+            <PasswordInput
+              {...field}
+              required
+              id="signup_password"
+              label="Password"
+              placeholder="Password"
+              error={errors.password ? errors.password.message : undefined}
+            />
+          )}
+        />
 
         <S.SignUpButtonContainer>
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>

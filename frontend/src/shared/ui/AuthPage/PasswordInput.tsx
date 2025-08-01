@@ -8,25 +8,27 @@ import * as S from "./AuthInput.styles";
 export const PasswordInput = ({
   id,
   label,
-  error,
   required,
+  placeholder,
+  error,
   ...field
 }: {
   id: string;
   label: string;
   required: boolean;
-  error: string;
+  placeholder: string;
+  error?: string;
 }) => {
   const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
   return (
     <S.FormInputContainer>
-      <SrOnlyLabel htmlFor={id}>Password</SrOnlyLabel>;
+      <SrOnlyLabel htmlFor={id}>{label}</SrOnlyLabel>
       <S.PasswordInput
         {...field}
         required={required}
         id={id}
         type={isPasswordRevealed ? "text" : "password"}
-        placeholder="Password"
+        placeholder={placeholder}
         autoComplete="off"
         aria-invalid={!!error}
         aria-errormessage={`${id}_error`}
