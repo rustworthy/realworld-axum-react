@@ -6,3 +6,7 @@ export interface IInputProps {
   error?: string;
   [K: string]: unknown;
 }
+
+export interface IOTPInputProps extends IInputProps {
+  length: number;
+}

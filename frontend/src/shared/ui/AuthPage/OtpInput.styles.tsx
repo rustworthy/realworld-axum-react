@@ -5,6 +5,7 @@ export const SlotGroupsWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  padding-bottom: 1.5rem;
 `;
 
 export const SlotGroup = styled.div`

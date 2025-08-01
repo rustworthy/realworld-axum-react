@@ -1,6 +1,10 @@
+import { FC } from "react";
+
 import { OTPInput as OTPInputHeadless, SlotProps } from "input-otp";
 
+import { FormInputContainer, FormInputError } from "./AuthInput.styles";
 import * as S from "./OtpInput.styles";
+import { IOTPInputProps } from "./types";
 
 const FakeCaret = () => {
   return (
@@ -19,26 +23,35 @@ const Slot = (props: SlotProps) => {
   );
 };
 
-export const OTPInput = () => {
+export const OTPInput: FC<IOTPInputProps> = ({ id, length, error, label, ...rest }) => {
+  const splitGroupsAt = Math.floor(length / 2);
   return (
-    <OTPInputHeadless
-      maxLength={8}
-      containerClassName="group"
-      render={({ slots }) => (
-        <S.SlotGroupsWrapper>
-          <S.SlotGroup>
-            {slots.slice(0, 4).map((slot, idx) => (
-              <Slot key={idx} {...slot} />
-            ))}
-          </S.SlotGroup>
-          <S.DashLine />
-          <S.SlotGroup>
-            {slots.slice(4).map((slot, idx) => (
-              <Slot key={idx} {...slot} />
-            ))}
-          </S.SlotGroup>
-        </S.SlotGroupsWrapper>
-      )}
-    />
+    <FormInputContainer>
+      <OTPInputHeadless
+        {...rest}
+        id={id}
+        aria-label={label}
+        maxLength={length}
+        containerClassName="group"
+        aria-invalid={!!error}
+        aria-errormessage={`${id}_error`}
+        render={({ slots }) => (
+          <S.SlotGroupsWrapper>
+            <S.SlotGroup>
+              {slots.slice(0, splitGroupsAt).map((slot, idx) => (
+                <Slot key={idx} {...slot} />
+              ))}
+            </S.SlotGroup>
+            <S.DashLine />
+            <S.SlotGroup>
+              {slots.slice(splitGroupsAt).map((slot, idx) => (
+                <Slot key={idx} {...slot} />
+              ))}
+            </S.SlotGroup>
+          </S.SlotGroupsWrapper>
+        )}
+      />
+      {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
+    </FormInputContainer>
   );
 };
