@@ -2,6 +2,9 @@ use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
+use crate::services::mailer::ResendMailer;
+use crate::templates::{OTPEmailHtml, OTPEmailText};
+use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
@@ -59,6 +62,8 @@ pub(crate) async fn register_user(
     // @Dzmitry as if db engine returned this UUID to us
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
 
+    send_email_confirmation_letter(&user.email, &ctx.mailer).await?;
+
     // @Dzmitry and we issued a token for the newly created user
     let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
 
@@ -73,4 +78,14 @@ pub(crate) async fn register_user(
     };
 
     Ok(Json(payload))
+}
+
+#[instrument(name = "EMAIL CONFIRMATION LETTER", skip(mailer))]
+async fn send_email_confirmation_letter(to: &str, mailer: &ResendMailer) -> anyhow::Result<()> {
+    let html = OTPEmailHtml::new("1a2b3c4d").to_string();
+    let text = OTPEmailText::new("1a2b3c4d").to_string();
+    mailer
+        .send_email(to, "Let's confirm your email", &html, &text)
+        .await
+        .context("Failed to send OTP for email confirmation")
 }

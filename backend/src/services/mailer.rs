@@ -47,7 +47,7 @@ impl ResendMailer {
         html: &str,
         text: &str,
     ) -> Result<(), anyhow::Error> {
-        let email = CreateEmailBaseOptions::new(&*self.sender, [to.to_string()], subject)
+        let email = CreateEmailBaseOptions::new(&*self.sender, [to], subject)
             .with_html(html)
             .with_text(text);
 
