@@ -87,7 +87,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 
     // ------------------------ ATTACH DOCUMENTATION ---------------------------
     let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().unwrap().leak());
-    let app = app.merge(
+    let mut app = app.merge(
         Router::new()
             .route(
                 "/openapi.json",
@@ -103,6 +103,19 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
                 get(|| async { ([(header::CONTENT_TYPE, "text/html")], SCALAR_HTML) }),
             ),
     );
+
+    // -------------------------- ATTACH DEBUG ROUTES --------------------------
+    #[cfg(debug_assertions)]
+    {
+        app = app.merge(
+            Router::new()
+                .route(
+                    "/dev/preview/otp_email",
+                    get(routes::dev::preview_otp_email),
+                )
+                .with_state(Arc::clone(&ctx)),
+        );
+    }
 
     // -------------------------- RUN MIGRATIONS -------------------------------
     sqlx::migrate!()

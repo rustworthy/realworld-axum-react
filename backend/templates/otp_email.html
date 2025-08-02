@@ -67,10 +67,6 @@
             }
 
             td[class="OtpCell"] {
-                font-size: 20px !important;
-                letter-spacing: 2px !important;
-                padding: 15px 0 !important;
-                width: 120px !important;
             }
 
             .HeaderLink {
@@ -123,7 +119,7 @@
                                 <!-- Greeting -->
                                 <tr>
                                     <td class="Greeting"
-                                        style="font-size: 24px; font-weight: bold; color: #111111; padding-bottom: 20px;">
+                                        style="font-size: 24px; font-weight: bold; color: #222222; padding-bottom: 20px;">
                                         Hello and welcome!
                                     </td>
                                 </tr>
@@ -139,28 +135,25 @@
 
                                 <!-- OTP Code -->
                                 <tr>
-                                    <td style="text-align: center; padding: 30px 0;">
+                                    <td style="text-align: center; padding-bottom: 30px;">
                                         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                                             <tr>
                                                 <!-- OTP Code Group One -->
                                                 <td class="OtpCell"
                                                     style="
-                                                        font-size: 32px; font-weight: bold; 
+                                                        font-size: 26px;
+                                                        font-weight: bold; 
                                                         letter-spacing: 4px; 
                                                         color: #111111;
                                                         background-color: #f8f9fa; 
-                                                        padding: 20px 10px; 
+                                                        padding: 10px 5px; 
                                                         border-radius: 8px; 
                                                         border: 2px solid #e9ecef; 
                                                         text-align: center; 
-                                                        width: 150px;
+                                                        width: 130px;
                                                     "
                                                     >
-                                                    {% for char in otp_code.chars() %}
-                                                        {% if loop.index0 < 4 %}
-                                                            {{ char }}
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    {% for char in otp_code.chars() %}{% if loop.index0 < 4 %}{{- char -}}{% endif %}{% endfor %}
                                                 </td>
 
                                                 <!-- OTP Code Group Separator -->
@@ -176,22 +169,19 @@
                                                 <!-- OTP Code Group Two -->
                                                 <td class="OtpCell"
                                                     style="
-                                                        font-size: 32px; font-weight: bold; 
+                                                        font-size: 26px;
+                                                        font-weight: bold; 
                                                         letter-spacing: 4px; 
                                                         color: #111111;
                                                         background-color: #f8f9fa; 
-                                                        padding: 20px 10px; 
+                                                        padding: 10px 5px; 
                                                         border-radius: 8px; 
                                                         border: 2px solid #e9ecef; 
                                                         text-align: center; 
-                                                        width: 150px;
+                                                        width: 130px;
                                                     "
                                                     >
-                                                    {% for char in otp_code.chars() %}
-                                                        {% if loop.index0 >= 4 %}
-                                                            {{ char }}
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    {% for char in otp_code.chars() %}{% if loop.index0 >= 4 %}{{- char -}}{% endif %}{% endfor %}
                                                 </td>
                                             </tr>
                                         </table>
@@ -201,7 +191,7 @@
                                 <!-- Link -->
                                 <tr>
                                     <td class="LinkText"
-                                        style="padding: 20px 0 0; font-size: 16px; line-height: 24px; color: #111111;">
+                                        style="padding: 0; font-size: 16px; line-height: 24px; color: #111111;">
                                         You can use the code above on the email confirmation page in the application.
                                         You can alternatively use <a
                                             href="{{ app_url }}confirm-email?otp={{ otp_code }}"
