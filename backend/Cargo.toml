@@ -73,6 +73,7 @@ rand = "0.8"
 secrecy = { version = "0.10.3", features = ["serde"] }
 async-trait = "0.1.88"
 url = { version = "2.5.4", features = ["serde"] }
+askama = { version = "0.12", features = ["with-axum"] }
 
 [dependencies.resend-rs]
 version = "0.15.1-rc.0"

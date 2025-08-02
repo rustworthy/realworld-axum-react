@@ -10,6 +10,7 @@ mod http;
 mod services;
 mod state;
 mod telemetry;
+mod templates;
 mod utils;
 
 use crate::http::cors;
