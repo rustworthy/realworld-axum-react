@@ -1,4 +1,4 @@
-conduit
+visit conduit at {{ app_url }}
 
 ---
 
@@ -8,8 +8,9 @@ We're excited to have you join our community! Please verify your email address b
 
 {{otp_code}}
 
-You can use the code above on the email confirmation page in the application. You can alternatively use this link to get to the application:
-http://localhost:8005/confirm-email?otp={{otp_code}}
+You can use the code above on the email confirmation page in the application.
+You can alternatively use this link to get to the application:
+{{ app_url }}confirm-email?otp={{ otp_code }}
 
 Faithfully yours,
 The Conduit Team

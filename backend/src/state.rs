@@ -4,12 +4,14 @@ use anyhow::Context;
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use secrecy::ExposeSecret;
 use sqlx::{PgPool, postgres::PgPoolOptions};
+use url::Url;
 
 pub(crate) struct AppContext {
     pub enc_key: EncodingKey,
     pub dec_key: DecodingKey,
     pub db: PgPool,
     pub mailer: ResendMailer,
+    pub frontend_url: Url,
 }
 
 impl AppContext {
@@ -31,6 +33,7 @@ impl AppContext {
             dec_key: DecodingKey::from_base64_secret(secret)?,
             db: pool.clone(),
             mailer: resend,
+            frontend_url: config.frontend_url.clone(),
         };
         Ok(ctx)
     }

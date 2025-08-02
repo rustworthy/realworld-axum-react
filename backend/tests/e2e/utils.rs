@@ -13,6 +13,7 @@ use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::task::JoinHandle;
+use url::Url;
 use uuid::Uuid;
 use wiremock::{
     Mock, MockServer, ResponseTemplate,
@@ -26,7 +27,7 @@ const TESTRUN_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct TestContext {
     #[allow(unused)]
-    pub backend_url: String,
+    pub backend_url: Url,
 
     pub mailer_server: MockServer,
 
@@ -34,7 +35,7 @@ pub struct TestContext {
     pub http_client: reqwest::Client,
 
     #[cfg(feature = "browser-test")]
-    pub frontend_url: String,
+    pub frontend_url: Url,
 
     #[cfg(feature = "browser-test")]
     pub client: fantoccini::Client,
@@ -56,7 +57,7 @@ fn gen_b64_secret_key() -> String {
     BASE64_STANDARD.encode(secret_bytes)
 }
 
-async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, String) {
+async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, Url) {
     // prepare a channel to receive the assigned port from
     let (tx, rx) = tokio::sync::oneshot::channel();
     // launch app on any available port (OS will assign one for us)
@@ -75,7 +76,9 @@ async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, String) {
         .expect("test setup to not have timed out")
         .expect("port to have been received from the channel");
     // we now know the app's address
-    let url = format!("http://localhost:{}", port);
+    let url = format!("http://localhost:{}", port)
+        .parse()
+        .expect("valid url");
 
     (handle, url)
 }
@@ -115,7 +118,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     let mut allowed_origins = Vec::with_capacity(1);
 
     #[cfg(feature = "browser-test")]
-    allowed_origins.push(fe_url.clone());
+    allowed_origins.push(fe_url.to_string());
 
     // create a mock mailer server, i.e. our local instance of Resend,
     // which just intercepts requests and allows us to inspect them
@@ -136,6 +139,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
         docs_ui_path: Some("/scalar".to_string()),
+        frontend_url: fe_url.clone(),
         allowed_origins,
         mailer_transport: MailerTransport::Http,
         mailer_token: SecretString::from("re_"),

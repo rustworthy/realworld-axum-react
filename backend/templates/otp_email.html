@@ -32,7 +32,7 @@
                                 <!-- Header -->
                                 <tr>
                                     <td style="text-align: center; padding-bottom: 30px;">
-                                        <span style="font-size: 28px; font-weight: bold; color: #5CB85B;">conduit</span>
+                                        <a href="{{ app_url }}" style="font-size: 28px; font-weight: bold; color: #5CB85B; text-decoration: none;">conduit</a>
                                     </td>
                                 </tr>
                                 
@@ -62,7 +62,11 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                 </td>
-                                                <td style="width: 1rem;"></td>
+                                                <td style="width: 8px;"></td>
+                                                <td style="width: 8px; padding: 0; text-align: center; vertical-align: middle;">
+                                                    <div style="width: 8px; height: 2px; background-color: #5CB85B; margin: 0 auto;"></div>
+                                                </td>
+                                                <td style="width: 8px;"></td>
                                                 <td class="otp-cell" style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111111; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef; text-align: center;">
                                                     {% for char in otp_code.chars() %}
                                                         {% if loop.index0 >= 4 %}
@@ -78,7 +82,7 @@
                                 <!-- Link -->
                                 <tr>
                                     <td style="padding: 20px 0 0; font-size: 16px; line-height: 24px; color: #111111;">
-                                        You can use the code above on the email confirmation page in the application. You can alternatively use <a href="http://localhost:8005/confirm-email?otp={{ otp_code }}" style="color: #5CB85B; text-decoration: none; font-weight: bold;">this link</a> to get to the application.
+                                        You can use the code above on the email confirmation page in the application. You can alternatively use <a href="{{ app_url }}confirm-email?otp={{ otp_code }}" style="color: #5CB85B; text-decoration: none; font-weight: bold;">this link</a> to get to the application.
                                     </td>
                                 </tr>
                                 
@@ -86,7 +90,7 @@
                                 <tr>
                                     <td style="font-size: 16px; color: #111111; padding-top: 30px; padding-bottom: 30px;">
                                         Faithfully yours,<br>
-                                        <strong style="color: #5CB85B;">The Conduit Team</strong>
+                                        <strong style="color: #111111;">The Conduit Team</strong>
                                     </td>
                                 </tr>
                                 

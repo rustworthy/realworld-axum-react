@@ -21,7 +21,7 @@ pub struct Config {
     pub mailer_token: SecretString,
     pub mailer_endpoint: Url,
     pub mailer_from: String,
-
+    pub frontend_url: Url,
     pub migrate: bool,
     pub allowed_origins: Vec<String>,
     pub ip: IpAddr,
@@ -31,7 +31,7 @@ pub struct Config {
 
 impl Config {
     pub fn try_build() -> anyhow::Result<Self> {
-        let config = Figment::new()
+        let config: Config = Figment::new()
             .merge(Env::raw())
             .extract()
             .context("Could not read configuration!")?;
