@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
 import { ConfirmEmailPage, ForbiddenPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
-import { MainLayout } from "@/shared/ui/MainLayout";
+import { MainLayout } from "@/shared/ui/layouts";
 
 const isAuth = true;
 

@@ -1,9 +1,9 @@
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
-import { AuthPage } from "@/shared/ui/AuthPage/AuthPage";
-import { OTPInput } from "@/shared/ui/AuthPage/OtpInput";
-import { Button } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/controls/Button";
+import { OTPInput } from "@/shared/ui/controls/inputs/OTPInput";
+import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import * as S from "./ConfirmEmailPage.styles";
@@ -26,7 +26,7 @@ export const ConfirmEmailPage = () => {
   });
 
   return (
-    <AuthPage title="Let's confirm your email">
+    <AuthPageLayout title="Let's confirm your email">
       <S.OTPInstruction>Please insert a one-time code we've sent to you via email.</S.OTPInstruction>
       <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -50,6 +50,6 @@ export const ConfirmEmailPage = () => {
           </Button>
         </S.ButtonContainer>
       </S.OTPForm>
-    </AuthPage>
+    </AuthPageLayout>
   );
 };
