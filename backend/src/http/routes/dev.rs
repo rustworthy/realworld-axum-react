@@ -13,7 +13,6 @@ use crate::{
     utils::gen_alphanum_string,
 };
 
-/// GET /dev/emails/otp_email.html?otp_code=abcd1234&app_url=http://localhost:8005/
 pub async fn preview_otp_email(
     Query(params): Query<HashMap<String, String>>,
     State(ctx): State<Arc<AppContext>>,
