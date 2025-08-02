@@ -1,30 +1,108 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Email Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP For Email Verification</title>
     <style type="text/css">
-        @media screen and (max-width: 600px) {
+        /* Force Outlook to provide a "view in browser" menu link. */
+        #outlook a {
+            padding: 0;
+        }
+
+        /* Force Hotmail to display emails at full width */
+        .ReadMsgBody {
+            width: 100%;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        /* Force Hotmail to display normal line spacing. */
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        /* Prevent WebKit and Windows mobile from changing default text sizes. */
+        body,
+        table,
+        td,
+        p,
+        a,
+        li,
+        blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* Remove spacing between tables in Outlook 2007 and up. */
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        /* Allow smoother rendering of resized image in Internet Explorer. */
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* Mobile styles */
+        @media only screen and (max-width: 640px) {
             table[class="main"] {
                 width: 100% !important;
+                min-width: 320px !important;
             }
+
             td[class="padding"] {
                 padding: 20px !important;
             }
+
             td[class="otp-cell"] {
-                font-size: 28px !important;
-                letter-spacing: 6px !important;
-                padding: 15px !important;
+                font-size: 24px !important;
+                letter-spacing: 2px !important;
+                padding: 15px 10px !important;
+            }
+
+            .header-link {
+                font-size: 24px !important;
+            }
+
+            .greeting {
+                font-size: 20px !important;
+            }
+
+            .message {
+                font-size: 14px !important;
+                line-height: 20px !important;
+            }
+
+            .link-text {
+                font-size: 14px !important;
+                line-height: 20px !important;
+            }
+
+            .closing {
+                font-size: 14px !important;
             }
         }
     </style>
 </head>
+
 <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, sans-serif;">
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5;">
         <tr>
             <td style="padding: 20px 0;">
-                <table border="0" cellpadding="0" cellspacing="0" width="600" class="main" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" class="main"
+                    style="margin: 0 auto; background-color: #ffffff; border-radius: 8px;">
                     <!-- Main Content -->
                     <tr>
                         <td class="padding" style="padding: 40px;">
@@ -32,45 +110,63 @@
                                 <!-- Header -->
                                 <tr>
                                     <td style="text-align: center; padding-bottom: 30px;">
-                                        <a href="{{ app_url }}" style="font-size: 28px; font-weight: bold; color: #5CB85B; text-decoration: none;">conduit</a>
+                                        <a href="{{ app_url }}" class="header-link"
+                                            style="font-size: 28px; font-weight: bold; color: #5CB85B; text-decoration: none;">conduit</a>
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Greeting -->
                                 <tr>
-                                    <td style="font-size: 24px; font-weight: bold; color: #111111; padding-bottom: 20px;">
+                                    <td class="greeting"
+                                        style="font-size: 24px; font-weight: bold; color: #111111; padding-bottom: 20px;">
                                         Hello and welcome!
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Message -->
                                 <tr>
-                                    <td style="font-size: 16px; line-height: 24px; color: #111111; padding-bottom: 30px;">
-                                        We're excited to have you join our community! Please verify your email address by using the verification code below:
+                                    <td class="message"
+                                        style="font-size: 16px; line-height: 24px; color: #111111; padding-bottom: 30px;">
+                                        We're excited to have you join our community!
+                                        Please verify your email address by using the verification code below:
                                     </td>
                                 </tr>
-                                
+
                                 <!-- OTP Code -->
                                 <tr>
                                     <td style="text-align: center; padding: 30px 0;">
                                         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                                             <tr>
-                                                <td class="otp-cell" style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111111; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef; text-align: center;">
+                                                <!-- OTP Code Group One -->
+                                                <td class="otp-cell"
+                                                    style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111111; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef; text-align: center;">
                                                     {% for char in otp_code.chars() %}
                                                         {% if loop.index0 < 4 %}
-                                                            {{ char }}
+                                                            <span style="width: 6px">
+                                                                {{ char }}
+                                                            </span>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </td>
-                                                <td style="width: 8px;"></td>
-                                                <td style="width: 8px; padding: 0; text-align: center; vertical-align: middle;">
-                                                    <div style="width: 8px; height: 2px; background-color: #5CB85B; margin: 0 auto;"></div>
+
+                                                <!-- OTP Code Group Separator -->
+                                                <td class="separator-gap" style="width: 8px;"></td>
+                                                <td class="separator-container"
+                                                    style="width: 12px; padding: 0; text-align: center; vertical-align: middle;">
+                                                    <div class="separator-bar"
+                                                        style="width: 12px; height: 3px; background-color: #5CB85B; margin: 0 auto;">
+                                                    </div>
                                                 </td>
-                                                <td style="width: 8px;"></td>
-                                                <td class="otp-cell" style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111111; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef; text-align: center;">
+                                                <td class="separator-gap" style="width: 8px;"></td>
+
+                                                <!-- OTP Code Group Two -->
+                                                <td class="otp-cell"
+                                                    style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111111; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef; text-align: center;">
                                                     {% for char in otp_code.chars() %}
                                                         {% if loop.index0 >= 4 %}
-                                                            {{ char }}
+                                                            <span style="width: 6px">
+                                                                {{ char }}
+                                                            </span>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </td>
@@ -78,25 +174,32 @@
                                         </table>
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Link -->
                                 <tr>
-                                    <td style="padding: 20px 0 0; font-size: 16px; line-height: 24px; color: #111111;">
-                                        You can use the code above on the email confirmation page in the application. You can alternatively use <a href="{{ app_url }}confirm-email?otp={{ otp_code }}" style="color: #5CB85B; text-decoration: none; font-weight: bold;">this link</a> to get to the application.
+                                    <td class="link-text"
+                                        style="padding: 20px 0 0; font-size: 16px; line-height: 24px; color: #111111;">
+                                        You can use the code above on the email confirmation page in the application.
+                                        You can alternatively use <a
+                                            href="{{ app_url }}confirm-email?otp={{ otp_code }}"
+                                            style="color: #5CB85B; text-decoration: none; font-weight: bold;">this
+                                            link</a> to get to the application.
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Closing -->
                                 <tr>
-                                    <td style="font-size: 16px; color: #111111; padding-top: 30px; padding-bottom: 30px;">
+                                    <td class="closing"
+                                        style="font-size: 16px; color: #111111; padding-top: 30px; padding-bottom: 30px;">
                                         Faithfully yours,<br>
                                         <strong style="color: #111111;">The Conduit Team</strong>
                                     </td>
                                 </tr>
-                                
+
                                 <!-- Footer -->
                                 <tr>
-                                    <td style="font-size: 14px; color: #666666; text-align: center; padding-top: 40px; border-top: 1px solid #e9ecef;">
+                                    <td
+                                        style="font-size: 14px; color: #666666; text-align: center; padding-top: 40px; border-top: 1px solid #e9ecef;">
                                         If you didn't request this verification, you can safely ignore this email.
                                     </td>
                                 </tr>
@@ -104,13 +207,17 @@
                         </td>
                     </tr>
                 </table>
-                
-                <!-- Project Footer -->
-                <table border="0" cellpadding="0" cellspacing="0" width="600" class="main" style="margin: 20px auto 0 auto;">
+
+                <!-- Project Details Footer -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" class="main"
+                    style="margin: 20px auto 0 auto;">
                     <tr>
-                        <td style="text-align: center; padding: 20px; font-size: 12px; color: #999999; line-height: 18px;">
+                        <td
+                            style="text-align: center; padding: 20px; font-size: 12px; color: #999999; line-height: 18px;">
                             This email was sent from the <strong>realworld-axum-react.org</strong> project.<br>
-                            <a href="https://github.com/rustworthy/realworld-axum-react/tree/main" style="color: #5CB85B; text-decoration: none;">Learn more about the project on GitHub</a>
+                            <a href="https://github.com/rustworthy/realworld-axum-react/tree/main"
+                                style="color: #5CB85B; text-decoration: none;">Learn more about the project on
+                                GitHub</a>
                         </td>
                     </tr>
                 </table>
@@ -118,4 +225,5 @@
         </tr>
     </table>
 </body>
+
 </html>
