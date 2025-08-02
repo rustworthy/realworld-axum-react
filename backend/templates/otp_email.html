@@ -156,7 +156,11 @@
                                                         width: 150px;
                                                     "
                                                     >
-                                                    jG3k
+                                                    {% for char in otp_code.chars() %}
+                                                        {% if loop.index0 < 4 %}
+                                                            {{ char }}
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 </td>
 
                                                 <!-- OTP Code Group Separator -->
@@ -183,7 +187,11 @@
                                                         width: 150px;
                                                     "
                                                     >
-                                                    pB7q
+                                                    {% for char in otp_code.chars() %}
+                                                        {% if loop.index0 >= 4 %}
+                                                            {{ char }}
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 </td>
                                             </tr>
                                         </table>
