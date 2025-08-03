@@ -12,6 +12,7 @@ pub(crate) struct AppContext {
     pub db: PgPool,
     pub mailer: ResendMailer,
     pub frontend_url: Url,
+    pub skip_email_verification: bool,
 }
 
 impl AppContext {
@@ -34,6 +35,7 @@ impl AppContext {
             db: pool.clone(),
             mailer: resend,
             frontend_url: config.frontend_url.clone(),
+            skip_email_verification: config.skip_email_verification.unwrap_or_default(),
         };
         Ok(ctx)
     }

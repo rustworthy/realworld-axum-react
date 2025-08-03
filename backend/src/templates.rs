@@ -2,7 +2,7 @@ use askama::Template;
 use url::Url;
 
 /// HTML template for email confirmation letter.
-/// 
+///
 /// see <https://github.com/leemunroe/responsive-html-email-template>
 #[derive(Template)]
 #[template(path = "email_otp.html")]

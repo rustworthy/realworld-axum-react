@@ -87,6 +87,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 
     // ------------------------ ATTACH DOCUMENTATION ---------------------------
     let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().unwrap().leak());
+    #[allow(unused_mut)]
     let mut app = app.merge(
         Router::new()
             .route(
@@ -118,10 +119,13 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     }
 
     // -------------------------- RUN MIGRATIONS -------------------------------
-    sqlx::migrate!()
-        .run(&ctx.db)
-        .await
-        .context("failed to run migrations")?;
+    if config.migrate {
+        info!("Applying database migrations");
+        sqlx::migrate!()
+            .run(&ctx.db)
+            .await
+            .context("failed to run migrations")?;
+    }
 
     Ok(app)
 }
@@ -130,6 +134,7 @@ pub async fn serve(config: Config) -> anyhow::Result<()> {
     let addr = SocketAddr::from((config.ip, config.port));
     let listener = TcpListener::bind(addr).await?;
     let app = api(config).await?;
+    info!("Launching application at {:?}", &addr);
     Ok(axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?)
