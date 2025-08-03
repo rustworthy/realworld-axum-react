@@ -76,7 +76,7 @@ url = { version = "2.5.4", features = ["serde"] }
 askama = { version = "0.13" }
 
 [dependencies.resend-rs]
-version = "0.15.1-rc.0"
+version = "0.16"
 features = ["rustls-tls"]
 default-features = false
 
