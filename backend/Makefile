@@ -42,16 +42,16 @@ db/start:
 	--name ${POSTGRES_CONTAINER_NAME} \
 	postgres:17
 
-.PHONY: db/migrate/new
-db/migrate/new:
+.PHONY: db/migrate/add
+db/migrate/add:
 	sqlx migrate add -rs $(name)
 
-.PHONY: db/migrate/up
-db/migrate/up:
+.PHONY: db/migrate/run
+db/migrate/run:
 	sqlx migrate run --database-url=${POSTGRES_URL}
 
-.PHONY: db/migrate/down
-db/migrate/down:
+.PHONY: db/migrate/revert
+db/migrate/revert:
 	sqlx migrate revert --database-url=${POSTGRES_URL}
 
 .PHONY: db/reset
@@ -147,7 +147,7 @@ test/e2e/spec:
 .PHONY: watch
 watch: db/start prepare
 	fuser -k ${APP_PORT}/tcp || true
-	cargo watch --clear --exec "run" 
+	cargo watch --clear --exec "run" --no-dot-ignores
 
 .PHONY: fmt
 fmt:
