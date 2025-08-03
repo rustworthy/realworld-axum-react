@@ -29,6 +29,7 @@ pub struct TestContext {
     #[allow(unused)]
     pub backend_url: Url,
 
+    #[allow(unused)]
     pub mailer_server: MockServer,
 
     #[cfg(feature = "api-test")]
@@ -68,7 +69,9 @@ async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, Url) {
             .expect("port to be available");
         let assigned_addr = listener.local_addr().unwrap();
         tx.send(assigned_addr.port()).unwrap();
-        axum::serve(listener, app.into_make_service()).await.ok();
+        axum::serve(listener, app.into_make_service())
+            .await
+            .expect("turned app to service");
     });
     // wait for the app's port
     let port = tokio::time::timeout(TESTRUN_SETUP_TIMEOUT, rx)
@@ -105,12 +108,16 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         host_port, test_name
     );
 
+    #[allow(unused)]
+    let frontend_url: Url = "http://localhost".parse().expect("value url");
     // launch front-end application (if browser test)
     #[cfg(feature = "browser-test")]
     let (fe_handle, fe_url) = serve_on_available_port(
         axum::Router::new().fallback_service(ServeDir::new("../frontend/build")),
     )
     .await;
+    #[cfg(feature = "browser-test")]
+    let frontend_url = fe_url;
 
     // create app's configuration for testing purposes, making sure to specify
     // our front-end's domain in allowed origins (if browser test)
@@ -118,7 +125,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     let mut allowed_origins = Vec::with_capacity(1);
 
     #[cfg(feature = "browser-test")]
-    allowed_origins.push(fe_url.to_string());
+    allowed_origins.push(frontend_url.to_string());
 
     // create a mock mailer server, i.e. our local instance of Resend,
     // which just intercepts requests and allows us to inspect them
@@ -139,12 +146,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
         docs_ui_path: Some("/scalar".to_string()),
-        frontend_url: fe_url.clone(),
+        frontend_url: frontend_url.clone(),
         allowed_origins,
         mailer_transport: MailerTransport::Http,
         mailer_token: SecretString::from("re_"),
         mailer_endpoint: mailer_server.uri().parse().unwrap(),
-        mailer_from: "hello@realworld-axum-react".to_string(),
+        mailer_from: "hello@realworld-axum-react.org".to_string(),
+        skip_email_verification: None,
     };
 
     // launch back-end application
@@ -171,7 +179,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         backend_url: be_url,
         mailer_server,
         #[cfg(feature = "browser-test")]
-        frontend_url: fe_url,
+        frontend_url: frontend_url.clone(),
         #[cfg(feature = "browser-test")]
         client: client.clone(),
         #[cfg(feature = "api-test")]
