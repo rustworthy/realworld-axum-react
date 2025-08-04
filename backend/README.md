@@ -89,11 +89,31 @@ then revert it as a sanity check, and then re-apply it.
 
 <!-- -------------------------------- LINKS -------------------------------- -->
 
-[1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml
-[2]: https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/
-[3]: https://testcontainers.com/?language=rust
-[4]: https://doc.rust-lang.org/cargo/getting-started/installation.html
-[5]: https://www.gnu.org/software/make/
-[6]: https://docs.docker.com/engine/install/
-[7]: https://www.google.com/chrome/
-[8]: https://googlechromelabs.github.io/chrome-for-testing/#stable
+### Links
+
+<ol>
+    <li> 
+        <a href="https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml" target="_blank">RealWorld OPENAPI doc</a> 
+    </li>
+    <li> 
+        <a href="https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman" target="_blank">POSTMAN CLI</a> 
+    </li>
+    <li> 
+        <a href="https://testcontainers.com/?language=rust" target="_blank">testcontainers Rust</a> 
+    </li>
+    <li> 
+        <a href="https://doc.rust-lang.org/cargo/getting-started/installation.html" target="_blank">Rust get started</a> 
+    </li>
+    <li> 
+        <a href="https://www.gnu.org/software/make" target="_blank">GNU, Make file</a> 
+    </li>
+    <li> 
+        <a href="https://docs.docker.com/engine/install" target="_blank">Docker install</a> 
+    </li>
+    <li> 
+        <a href="https://www.google.com/chrome" target="_blank">Browser Google Chrome</a> 
+    </li>
+    <li> 
+        <a href="https://googlechromelabs.github.io/chrome-for-testing/#stable" target="_blank">Google Chrome labs, versions</a> 
+    </li>
+</ol>
