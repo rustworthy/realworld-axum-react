@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     email TEXT COLLATE "case_insensitive" UNIQUE NOT NULL,
     bio TEXT NOT NULL DEFAULT '',
     image TEXT,
-    status TEXT,
+    status TEXT NOT NULL,
     password_hash TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ
