@@ -1,0 +1,23 @@
+visit conduit at {{ app_url }}
+
+---
+
+Hello and welcome!
+
+We're excited to have you join our community! Please verify your email address by using the verification code below:
+
+{{otp_code}}
+
+You can use the code above on the email confirmation page in the application.
+You can alternatively use this link to get to the application:
+{{ app_url }}confirm-email?otp={{ otp_code }}
+
+Faithfully yours,
+The Conduit Team
+
+If you didn't request this verification, you can safely ignore this email.
+
+---
+
+This email was sent from the realworld-axum-react.org project.
+Learn more about the project on GitHub: https://github.com/rustworthy/realworld-axum-react/tree/main

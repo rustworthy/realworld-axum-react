@@ -12,3 +12,7 @@ export interface IInputProps {
   error?: string;
   field?: RHFFieldProps;
 }
+
+export interface IOTPInputProps extends IInputProps {
+  length: number;
+}

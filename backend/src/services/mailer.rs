@@ -1,5 +1,5 @@
 use crate::config::MailerTransport;
-use resend_rs::types::CreateEmailBaseOptions;
+use resend_rs::types::{CreateEmailBaseOptions, EmailId};
 use resend_rs::{Config, Resend, Result};
 use std::time::Duration;
 use url::Url;
@@ -46,20 +46,22 @@ impl ResendMailer {
         subject: &str,
         html: &str,
         text: &str,
-    ) -> Result<(), anyhow::Error> {
-        let email = CreateEmailBaseOptions::new(&*self.sender, [to.to_string()], subject)
+    ) -> Result<EmailId, anyhow::Error> {
+        let email = CreateEmailBaseOptions::new(&*self.sender, [to], subject)
             .with_html(html)
             .with_text(text);
 
         #[cfg(debug_assertions)]
         if let MailerTransport::Stdout = self.transport {
+            use crate::utils::gen_alphanum_string;
+
             dbg!(&email);
-            return Ok(());
+            return Ok(EmailId::new(&gen_alphanum_string(8)));
         }
 
         let resp = self.client.emails.send(email).await?;
         tracing::info!(email_id = resp.id.to_string());
-        Ok(())
+        Ok(resp.id)
     }
 }
 

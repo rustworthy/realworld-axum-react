@@ -6,7 +6,7 @@ use crate::utils::TestContext;
 const WAIT_TIMEOUT: Duration = Duration::from_secs(5);
 
 async fn has_link_to_github_repo(ctx: TestContext) {
-    ctx.client.goto(&ctx.frontend_url).await.unwrap();
+    ctx.client.goto(ctx.frontend_url.as_str()).await.unwrap();
     let elem = ctx
         .client
         .wait()
@@ -23,7 +23,7 @@ async fn has_link_to_github_repo(ctx: TestContext) {
 }
 
 async fn homepage_contains_project_name(ctx: TestContext) {
-    ctx.client.goto(&ctx.frontend_url).await.unwrap();
+    ctx.client.goto(ctx.frontend_url.as_str()).await.unwrap();
     let h1 = ctx
         .client
         .wait()

@@ -22,12 +22,18 @@ pub(crate) struct Validation {
 pub(crate) enum Error {
     Unprocessable(Validation),
     Unauthorized,
+    Internal(String),
 }
 
 impl From<JsonRejection> for Error {
     fn from(value: JsonRejection) -> Self {
         let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
         Self::Unprocessable(Validation { errors })
+    }
+}
+impl From<anyhow::Error> for Error {
+    fn from(value: anyhow::Error) -> Self {
+        Self::Internal(value.to_string())
     }
 }
 
@@ -41,6 +47,10 @@ impl IntoResponse for Error {
                 .into_response(),
             Self::Unprocessable(validation) => {
                 (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
+            }
+            Self::Internal(reason) => {
+                error!(reason);
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
         }
     }

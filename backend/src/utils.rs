@@ -4,7 +4,16 @@ use argon2::PasswordHash;
 use argon2::PasswordHasher as _;
 use argon2::PasswordVerifier;
 use argon2::password_hash::SaltString;
+use rand::Rng as _;
+use rand::distributions::Alphanumeric;
 use rand::rngs::OsRng;
+
+pub fn gen_alphanum_string(length: usize) -> String {
+    let mut rng = rand::thread_rng();
+    std::iter::repeat_with(|| rng.sample(Alphanumeric) as char)
+        .take(length)
+        .collect()
+}
 
 #[allow(unused)]
 pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {

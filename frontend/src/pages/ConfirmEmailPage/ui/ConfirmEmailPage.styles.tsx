@@ -11,3 +11,14 @@ export const ButtonContainer = styled.div`
     max-width: 7.5rem;
   }
 `;
+
+export const OTPInstruction = styled.p`
+  padding-bottom: 1rem;
+`;
+
+export const OTPForm = styled.form`
+  max-width: 25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;

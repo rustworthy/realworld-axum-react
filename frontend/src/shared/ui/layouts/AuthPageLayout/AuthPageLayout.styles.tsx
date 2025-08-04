@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 export const PageWrapper = styled.div`
-  padding-top: 3rem;
+  padding: 3rem 0.5rem 0;
   width: 100%;
   height: 100%;
   overflow-x: hidden;

@@ -46,6 +46,47 @@ $ make test/e2e/browser
 $ HEADLESS=1 make test/e2e/browser # to run in headless mode
 ```
 
+## Development
+
+### Code changes
+Make sure the database application is running (`make db/start`) and use `make watch`
+to automatically restart the backend application once there is a file change.
+
+### Database migrations
+To add new migrations files, hit:
+
+```console
+$ make db/migrate/add name=<you_migration_name>
+
+For example, adding confirmation tokens will resemble:
+```console
+$ make db/migrate/add name="confirmation_tokens"
+sqlx migrate add -rs confirmation_tokens
+Creating migrations/0004_confirmation_tokens.up.sql
+Creating migrations/0004_confirmation_tokens.down.sql
+```
+
+In development mode, the default is to apply migrations whenever the application
+starts, but you can opt out of it by providing `MIGRATE=false` environment variable.
+In this case you will need to apply migrations yourself which can be achieved with:
+
+```console
+$ make db/migrate/run
+```
+
+The above command will apply all pending migrations.
+To revert the latest migration, hit:
+
+```console
+$ make db/migrate/revert
+```
+
+Note that those `make` commands are thin wrappers over the `sqlx` CLI commands,
+that just make sure to provide the correct connection string (see [`Makefile](./Makefile)).
+I.e. you can achieve all of that and even more - if needed - using the `sqlx` tool
+directly. Most of the time, though, we want to create a new migration file, apply it,
+then revert it as a sanity check, and then re-apply it.
+
 <!-- -------------------------------- LINKS -------------------------------- -->
 
 [1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml

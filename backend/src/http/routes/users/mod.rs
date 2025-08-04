@@ -51,7 +51,8 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
         // `routes!` create a method router internally, and since we already
         // got `POST` user registration, this route should be attached via
         // a separate `routes!` call: https://stackoverflow.com/a/79303329
-        .routes(routes!(auth::login));
+        .routes(routes!(auth::login))
+        .routes(routes!(register::confirm_email));
 
     OpenApiRouter::new()
         .nest("/user", user_router)

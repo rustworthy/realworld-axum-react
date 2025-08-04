@@ -19,6 +19,13 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.userPayloadRegistration,
       }),
     }),
+    confirmEmail: build.mutation<ConfirmEmailApiResponse, ConfirmEmailApiArg>({
+      query: (queryArg) => ({
+        url: `/api/users/confirm-email`,
+        method: "POST",
+        body: queryArg.userPayloadEmailConfirmation,
+      }),
+    }),
     login: build.mutation<LoginApiResponse, LoginApiArg>({
       query: (queryArg) => ({
         url: `/api/users/login`,
@@ -39,6 +46,10 @@ export type UpdateCurrentUserApiArg = {
 export type RegisterUserApiResponse = /** status 201 User successfully created */ UserPayloadUser;
 export type RegisterUserApiArg = {
   userPayloadRegistration: UserPayloadRegistration;
+};
+export type ConfirmEmailApiResponse = /** status 201 User's email address confirmed */ UserPayloadUser;
+export type ConfirmEmailApiArg = {
+  userPayloadEmailConfirmation: UserPayloadEmailConfirmation;
 };
 export type LoginApiResponse = /** status 200 User successfully logged in */ UserPayloadUser;
 export type LoginApiArg = {
@@ -100,6 +111,14 @@ export type UserPayloadRegistration = {
     username: string;
   };
 };
+export type UserPayloadEmailConfirmation = {
+  user: {
+    /** One-time password.
+        
+        An alphanumeric code that has been sent to them upon registration. */
+    otp: string;
+  };
+};
 export type UserPayloadLogin = {
   user: {
     /** User's email, e.g. `rob.pike@gmail.com`.
@@ -110,5 +129,10 @@ export type UserPayloadLogin = {
     password: string;
   };
 };
-export const { useReadCurrentUserQuery, useUpdateCurrentUserMutation, useRegisterUserMutation, useLoginMutation } =
-  injectedRtkApi;
+export const {
+  useReadCurrentUserQuery,
+  useUpdateCurrentUserMutation,
+  useRegisterUserMutation,
+  useConfirmEmailMutation,
+  useLoginMutation,
+} = injectedRtkApi;
