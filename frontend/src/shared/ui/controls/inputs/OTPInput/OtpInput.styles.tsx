@@ -8,9 +8,6 @@ export const SlotGroupsWrapper = styled.div`
   justify-content: center;
   gap: 1rem;
   padding-bottom: 1.5rem;
-
-
-}
 `;
 
 export const SlotGroup = styled.div`

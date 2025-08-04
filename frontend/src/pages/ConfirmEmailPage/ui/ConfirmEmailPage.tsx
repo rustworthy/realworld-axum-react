@@ -2,12 +2,12 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { Button } from "@/shared/ui/controls/Button";
-import { OTPInput } from "@/shared/ui/controls/inputs/OTPInput";
+import { OTPInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./ConfirmEmailPage.schema";
 import * as S from "./ConfirmEmailPage.styles";
-import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./schema";
 
 export const ConfirmEmailPage = () => {
   const _navigate = useNavigate();

@@ -23,12 +23,12 @@ const Slot = (props: SlotProps) => {
   );
 };
 
-export const OTPInput: FC<IOTPInputProps> = ({ id, length, error, label, ...rest }) => {
+export const OTPInput: FC<IOTPInputProps> = ({ id, length, error, label, ...field }) => {
   const splitGroupsAt = Math.floor(length / 2);
   return (
     <FormInputContainer>
       <OTPInputHeadless
-        {...rest}
+        {...field}
         id={id}
         aria-label={label}
         maxLength={length}
