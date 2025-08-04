@@ -90,9 +90,3 @@ jobs:
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
         run: kamal setup -c .kamal/deploy.yaml
 
-
-
-
-
-
-
