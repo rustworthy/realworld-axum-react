@@ -82,4 +82,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
-        run: kamal deploy -c .kamal/deploy.yaml
+        run: kamal setup -c .kamal/deploy.yaml

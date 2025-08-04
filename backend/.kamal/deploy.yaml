@@ -1,5 +1,5 @@
-service: realworld-rocket-react
-image: rustworthy/realworld-rocket-react
+service: realworld-axum-react
+image: rustworthy/realworld-axum-react
 registry:
   server: ghcr.io
   username: rustworthy
@@ -18,10 +18,10 @@ env:
   clear:
     IP: 0.0.0.0
     PORT: 8000
-    OTEL_EXPORTER_OTLP_ENDPOINT: http://realworld-rocket-react-otel-collector:4317
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://realworld-axum-react-otel-collector:4317
     RUST_LOG: "realworld_axum_react=info,axum=error"
-    FRONTEND_URL: "https://app.realworld-rocket-react.com"
-    ALLOWED_ORIGINS: '["^https://app.realworld-rocket-react.com"]'
+    FRONTEND_URL: "https://app.realworld-axum-react.org"
+    ALLOWED_ORIGINS: '["^https://app.realworld-axum-react.org"]'
     MIGRATE: false
     MAILER_FROM: info@realworld-axum-react.org
     MAILER_ENDPOINT: https://api.resend.com
@@ -40,7 +40,7 @@ env:
 # Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
 proxy:
   ssl: true
-  host: api.realworld-rocket-react.com
+  host: api.realworld-axum-react.org
   app_port: 8000 # see `PORT`
   healthcheck:
     interval: 3
