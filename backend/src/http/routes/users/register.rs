@@ -9,7 +9,7 @@ use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use resend_rs::types::EmailId;
 use std::sync::Arc;
 use std::time::Duration;
@@ -109,9 +109,11 @@ pub(crate) async fn register_user(
     let expires_at = Utc::now() + EMAIL_CONFIRMATION_TOKEN_TTL;
 
     sqlx::query!(
-        r#"insert into "confirmation_tokens" (token, purpose, user_id, expires_at) values ($1, $2, null, $3)"#,
+        r#"
+            insert into "confirmation_tokens" (token, purpose, user_id, expires_at)
+            values ($1, 'EMAIL_CONFIRMATION', null, $2)
+        "#,
         &otp,
-        "EMAIL_CONFIRMATION",
         &expires_at
     )
     .execute(&ctx.db)
@@ -136,6 +138,84 @@ pub(crate) async fn register_user(
     Ok(Json(payload))
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct EmailConfirmation {
+    /// One-time password.
+    ///
+    /// An alphanumeAn alphanumeric code that has been sent to them upon registration.
+    #[schema(min_length = 8, max_length = 8, example = "Aj23MpUI")]
+    otp: String,
+}
+
+/// Confirm email address.
+#[utoipa::path(
+    post,
+    path = "/confirm-email",
+    tags = ["Users"],
+    responses(
+        (status = 201, description = "User's email address confirmed", body = UserPayload<User>),
+        (status = 422, description = "Missing or invalid email confirmation details", body = Validation),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(/* authentication NOT required */),
+)]
+#[instrument(
+    name = "REGISTER USER",
+    fields(email_id = tracing::field::Empty)
+    skip_all,
+)]
+pub(crate) async fn confirm_email(
+    ctx: State<Arc<AppContext>>,
+    input: Result<Json<UserPayload<EmailConfirmation>>, JsonRejection>,
+) -> Result<Json<UserPayload<User>>, Error> {
+    let Json(UserPayload { user }) = input?;
+
+    // @Dzmitry once the users table is ready, we will be able to fetch the user,
+    // in the meantime let's mock the user the way we are doing in other endpoints
+    {
+        #[allow(unused)]
+        #[derive(Debug)]
+        struct Otp {
+            id: i64,
+            token: String,
+            created_at: DateTime<Utc>,
+            purpose: Option<String>,
+            user_id: Option<Uuid>,
+            expires_at: Option<DateTime<Utc>>,
+        }
+        let otp = sqlx::query_as!(
+            Otp,
+            r#"
+                delete from "confirmation_tokens" 
+                where
+                    token = $1 and 
+                    purpose = 'EMAIL_CONFIRMATION' and
+                    expires_at > now()
+                returning *
+            "#,
+            &user.otp
+        )
+        .fetch_optional(&ctx.db)
+        .await
+        .map_err(|e| Error::Internal(e.to_string()))?;
+        dbg!(otp);
+    }
+
+    let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
+    let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
+    let payload = UserPayload {
+        user: User {
+            email: "rob.pike@gmail.com".to_string(),
+            token: jwt_string,
+            username: "rob.pike".to_string(),
+            bio: "".into(),
+            image: None,
+        },
+    };
+    Ok(Json(payload))
+}
+
+// ------------------------------ UTILITIES -----------------------------------
 #[instrument(name = "EMAIL CONFIRMATION LETTER", skip(mailer, otp_code))]
 async fn send_confirm_email_letter(
     otp_code: &str,
