@@ -1,19 +1,38 @@
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+import { useConfirmEmailMutation } from "@/shared/api/generated";
 import { Button } from "@/shared/ui/controls/Button";
 import { OTPInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./ConfirmEmailPage.schema";
 import * as S from "./ConfirmEmailPage.styles";
 
 export const ConfirmEmailPage = () => {
-  const _navigate = useNavigate();
+  const navigate = useNavigate();
+  const [confirmEmail, { isLoading }] = useConfirmEmailMutation();
+
   const onSubmit = async (data: TConfirmEmail) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
+    const result = await confirmEmail({
+      userPayloadEmailConfirmation: {
+        user: data,
+      },
+    });
+
+    if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
+        toast.error("Failed to confirm the email address. Please check your internet connection and retry.");
+      }
+      return;
+    }
+
+    toast.success("Welcome! Let's update your profile.");
+    navigate("/settings");
   };
 
   const {
@@ -28,7 +47,7 @@ export const ConfirmEmailPage = () => {
   return (
     <AuthPageLayout title="Let's confirm your email">
       <S.OTPInstruction>Please insert a one-time code we've sent to you via email.</S.OTPInstruction>
-      <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)}>
+      <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
         <Controller
           control={control}
           name="otp"
@@ -45,7 +64,7 @@ export const ConfirmEmailPage = () => {
         />
 
         <S.ButtonContainer>
-          <Button dataTestId="confirm_email_button" isDisabled={false}>
+          <Button dataTestId="confirm_email_button" isDisabled={isLoading}>
             Submit
           </Button>
         </S.ButtonContainer>

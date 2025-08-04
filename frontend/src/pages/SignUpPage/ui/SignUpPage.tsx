@@ -48,7 +48,7 @@ export const SignUpPage = () => {
     <AuthPageLayout title="Sign up">
       <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
-      <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)}>
+      <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
         <Controller
           control={control}
           name="username"
