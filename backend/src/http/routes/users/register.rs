@@ -160,7 +160,7 @@ pub struct EmailConfirmation {
     security(/* authentication NOT required */),
 )]
 #[instrument(
-    name = "REGISTER USER",
+    name = "CONFIRM EMAIL ADDRESS",
     fields(email_id = tracing::field::Empty)
     skip_all,
 )]
