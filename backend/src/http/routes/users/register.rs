@@ -183,7 +183,7 @@ pub(crate) async fn confirm_email(
             user_id: Option<Uuid>,
             expires_at: Option<DateTime<Utc>>,
         }
-        let otp = sqlx::query_as!(
+        let _otp = sqlx::query_as!(
             Otp,
             r#"
                 delete from "confirmation_tokens" 
@@ -198,7 +198,6 @@ pub(crate) async fn confirm_email(
         .fetch_optional(&ctx.db)
         .await
         .map_err(|e| Error::Internal(e.to_string()))?;
-        dbg!(otp);
     }
 
     let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
