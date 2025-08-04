@@ -79,7 +79,20 @@ jobs:
       - name: setup accessories, build and publish image, and deploy application
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          # accessories secrets; once the database is deployed on a dedicated server,
+          # these can be removed from here, while `DATABASE_URL` should stay
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          # app runtime secrets:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
         run: kamal setup -c .kamal/deploy.yaml
+
+
+
+
+
+
+
