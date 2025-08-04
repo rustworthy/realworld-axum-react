@@ -88,5 +88,15 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
+          # note how we are using the `setup` comamand over `deploy`; this is 
+          # to ensure that the accessories (including the otlp sidecar) are
+          # launched if they are not already running, while if they are running,
+          # Kamal will not restart them, rather just skip that step and proceed
+          # with the applicaiton deploymentl this is equivalent to running:
+          # ```console
+          # $ kamal proxy boot -c .kamal/deploy.yaml
+          # $ kamal accessory boot all -c .kamal/deploy.yaml
+          # $ kamal deploy -c .kamal/deploy.yaml
+          # ```
         run: kamal setup -c .kamal/deploy.yaml
 
