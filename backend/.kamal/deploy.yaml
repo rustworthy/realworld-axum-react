@@ -23,7 +23,7 @@ env:
     FRONTEND_URL: "https://app.realworld-rocket-react.com"
     ALLOWED_ORIGINS: '["^https://app.realworld-rocket-react.com"]'
     MIGRATE: false
-    MAILER_FROM: onboarding@resend.dev
+    MAILER_FROM: info@realworld-axum-react.org
     MAILER_ENDPOINT: https://api.resend.com
   secret:
     - DATABASE_URL
