@@ -39,7 +39,7 @@ pub struct Config {
 
 impl Config {
     pub fn try_build() -> anyhow::Result<Self> {
-        let config: Config = Figment::new()
+        let config = Figment::new()
             .merge(Env::raw())
             .extract()
             .context("Could not read configuration!")?;
