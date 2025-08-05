@@ -3,11 +3,13 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { base } from "@/shared/api";
 
+import { authReducer } from "./user";
+
 export const store = configureStore({
   reducer: {
     [base.reducerPath]: base.reducer,
+    auth: authReducer,
   },
-
   // this way we are enabling caching, invalidation, polling,
   // and other feature of `rtk-query`
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(base.middleware),
