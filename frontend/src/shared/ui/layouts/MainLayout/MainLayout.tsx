@@ -1,10 +1,13 @@
 import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
+import { useAuth } from "@/shared/auth";
+
 import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const { pathname } = useLocation();
 
   return (
@@ -12,20 +15,41 @@ export const MainLayout = () => {
       <S.Header>
         <S.HeaderContainer>
           <S.HeaderLink href="#">conduit</S.HeaderLink>
-
-          <nav>
-            <S.HeaderNavList>
-              <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
-                Home
-              </S.HeaderNavItem>
-              <S.HeaderNavItem $isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
-                Sign in
-              </S.HeaderNavItem>
-              <S.HeaderNavItem $isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
-                Sign up
-              </S.HeaderNavItem>
-            </S.HeaderNavList>
-          </nav>
+          {isAuthenticated ? (
+            <nav>
+              <S.HeaderNavList>
+                <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
+                  Home
+                </S.HeaderNavItem>
+                <S.HeaderNavItem $isActive={pathname === "/editor"} onClick={() => navigate("/editor")}>
+                  New Article
+                </S.HeaderNavItem>
+                <S.HeaderNavItem $isActive={pathname === "/settings"} onClick={() => navigate("/settings")}>
+                  Settings
+                </S.HeaderNavItem>
+                <S.HeaderNavItem
+                  $isActive={pathname === `/profile/${user!.username}`}
+                  onClick={() => navigate(`/settings/${user!.username}`)}
+                >
+                  {user!.username}
+                </S.HeaderNavItem>
+              </S.HeaderNavList>
+            </nav>
+          ) : (
+            <nav>
+              <S.HeaderNavList>
+                <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
+                  Home
+                </S.HeaderNavItem>
+                <S.HeaderNavItem $isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
+                  Sign in
+                </S.HeaderNavItem>
+                <S.HeaderNavItem $isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
+                  Sign up
+                </S.HeaderNavItem>
+              </S.HeaderNavList>
+            </nav>
+          )}
         </S.HeaderContainer>
       </S.Header>
 
