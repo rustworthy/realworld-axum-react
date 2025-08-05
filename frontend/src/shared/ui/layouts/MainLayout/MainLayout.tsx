@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "@/shared/auth";
+import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
 import * as S from "./MainLayout.styles";
 
@@ -22,15 +23,21 @@ export const MainLayout = () => {
                   Home
                 </S.HeaderNavItem>
                 <S.HeaderNavItem $isActive={pathname === "/editor"} onClick={() => navigate("/editor")}>
+                  <Pencil2Icon />
                   New Article
                 </S.HeaderNavItem>
                 <S.HeaderNavItem $isActive={pathname === "/settings"} onClick={() => navigate("/settings")}>
+                  <GearIcon />
                   Settings
                 </S.HeaderNavItem>
                 <S.HeaderNavItem
                   $isActive={pathname === `/profile/${user!.username}`}
-                  onClick={() => navigate(`/settings/${user!.username}`)}
+                  onClick={() => navigate(`/profile/${user!.username}`)}
                 >
+                  <S.HeaderAvatar
+                    src={user!.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
+                    alt="User's avatar"
+                  />
                   {user!.username}
                 </S.HeaderNavItem>
               </S.HeaderNavList>
