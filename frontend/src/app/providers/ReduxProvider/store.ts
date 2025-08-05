@@ -2,8 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { base } from "@/shared/api";
-
-import { authReducer } from "./user";
+import { authReducer } from "@/shared/auth";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +13,8 @@ export const store = configureStore({
   // and other feature of `rtk-query`
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(base.middleware),
 });
+
+export type AppState = ReturnType<typeof store.getState>;
 
 // required for `refetchOnFocus/refetchOnReconnect` functionality, see:
 // https://redux-toolkit.js.org/rtk-query/api/setupListeners
