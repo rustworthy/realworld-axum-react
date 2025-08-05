@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import { useConfirmEmailMutation } from "@/shared/api/generated";
+import { useAuth } from "@/shared/auth";
 import { Button } from "@/shared/ui/controls/Button";
 import { OTPInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
@@ -15,7 +15,7 @@ import * as S from "./ConfirmEmailPage.styles";
 
 export const ConfirmEmailPage = () => {
   const navigate = useNavigate();
-  const [confirmEmail, { isLoading }] = useConfirmEmailMutation();
+  const { confirmEmail, isConfirmEmailLoading } = useAuth();
 
   const onSubmit = async (data: TConfirmEmail) => {
     const result = await confirmEmail({
@@ -47,7 +47,7 @@ export const ConfirmEmailPage = () => {
   return (
     <AuthPageLayout title="Let's confirm your email">
       <S.OTPInstruction>Please insert a one-time code we've sent to you via email.</S.OTPInstruction>
-      <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
+      <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isConfirmEmailLoading}>
         <Controller
           control={control}
           name="otp"
@@ -64,7 +64,7 @@ export const ConfirmEmailPage = () => {
         />
 
         <S.ButtonContainer>
-          <Button dataTestId="confirm_email_button" isDisabled={isLoading}>
+          <Button dataTestId="confirm_email_button" isDisabled={isConfirmEmailLoading}>
             Submit
           </Button>
         </S.ButtonContainer>
