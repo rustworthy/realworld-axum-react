@@ -1,5 +1,6 @@
 use reqwest::{StatusCode, header};
 use serde_json::{Value, json};
+use sqlx::Row as _;
 use url::Url;
 
 use crate::utils::TestContext;
@@ -41,7 +42,22 @@ async fn confirm_email_address(ctx: TestContext) {
         .expect("valid JSON in response");
 
     // @Dzmitry let's check here that the user has been created in the database
-    // but their status is pending email confirmation
+    // but their status is pending email confirmation; for this we can utilize
+    // the db pool from the test's context, and use simple queries, e.g.:
+    // `sqlx::query("query here")`, rather than those macros `sqlx::query!`
+    // we do not need extra type safety with this regard here in the test suite;
+    // and so we can just inspect the the PgRow without deserialzing into structs;
+    // I am leaving an example below.
+
+    // let's make sure there is now one entry in db and it stores an OTP, but
+    let otp_rows = sqlx::query(r#"select * from "confirmation_tokens""#)
+        .fetch_all(&ctx.db_pool)
+        .await
+        .expect("valid query");
+    assert_eq!(otp_rows.len(), 1);
+    let purpose: &str = otp_rows[0].get("purpose");
+    assert_eq!(purpose, "EMAIL_CONFIRMATION");
+    let otp_stored: &str = otp_rows[0].get("token");
 
     // intercept the malier requests and ...
     let otp_email_request: Value = ctx
@@ -77,11 +93,14 @@ async fn confirm_email_address(ctx: TestContext) {
     let finder = linkify::LinkFinder::new();
     let links: Vec<_> = finder.links(html).collect();
     let otp_link: Url = links[1].as_str().parse().expect("value URL");
-    let otp = otp_link
+    let otp_sent = otp_link
         .query_pairs()
         .find(|(key, _)| key == "otp")
         .map(|(_, otp)| otp)
         .expect("OTP as query string parameter");
+
+    // let's see if the code we've sent to them is the one we peristed
+    assert_eq!(otp_sent, otp_stored);
 
     // now that we got our OTP, let's confirm the email
     let url = ctx.backend_url.join("/api/users/confirm-email").unwrap();
@@ -90,7 +109,7 @@ async fn confirm_email_address(ctx: TestContext) {
         .post(url)
         .json(&json!({
             "user": {
-                "otp": otp
+                "otp": otp_sent
             }
         }))
         .send()
