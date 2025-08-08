@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { config } from "@/config";
-import { AppState } from "declarations";
+
+import { AppState } from "../providers/ReduxProvider/store";
 
 export type Article = {
   id: number;

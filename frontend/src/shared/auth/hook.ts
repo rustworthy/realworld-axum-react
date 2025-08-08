@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "declarations";
-
 import { ConfirmEmailApiArg, LoginApiArg, useConfirmEmailMutation, useLoginMutation } from "../api/generated";
+import { AppState } from "../providers/ReduxProvider/store";
 import { type AuthSliceState, setLoggedIn, setLoggedOut } from "./slice";
 
 export const useAuth = () => {
