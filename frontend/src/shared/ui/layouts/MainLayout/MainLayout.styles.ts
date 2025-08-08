@@ -18,7 +18,6 @@ export const Header = styled.header`
   width: 100%;
   height: 56px;
   padding: 8px 16px;
-  background-color: ${({ theme }) => theme.mainLayout.header.c02};
 `;
 
 export const HeaderContainer = styled(LayoutContainer)`

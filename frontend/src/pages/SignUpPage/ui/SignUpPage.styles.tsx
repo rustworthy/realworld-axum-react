@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 export const SignInLink = styled.a`
-  color: ${(props) => props.theme.page.signup.colorAccent};
+  color: ${({ theme }) => theme.page.signup.c01};
 `;
 
 export const SignUpForm = styled.form`
