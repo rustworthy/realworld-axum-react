@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "@/shared/auth";
+import { ROUTES } from "@/shared/constants/routes.constants";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
 import * as S from "./MainLayout.styles";
@@ -15,24 +16,24 @@ export const MainLayout = () => {
     <S.Wrapper>
       <S.Header>
         <S.HeaderContainer>
-          <S.HeaderLink href="#">conduit</S.HeaderLink>
+          <S.HeaderLink href={ROUTES.HOME}>conduit</S.HeaderLink>
           {isAuthenticated ? (
             <nav>
               <S.HeaderNavList>
-                <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
                   Home
                 </S.HeaderNavItem>
-                <S.HeaderNavItem $isActive={pathname === "/editor"} onClick={() => navigate("/editor")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.EDITOR} onClick={() => navigate(ROUTES.EDITOR)}>
                   <Pencil2Icon />
                   New Article
                 </S.HeaderNavItem>
-                <S.HeaderNavItem $isActive={pathname === "/settings"} onClick={() => navigate("/settings")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.SETTINGS} onClick={() => navigate(ROUTES.SETTINGS)}>
                   <GearIcon />
                   Settings
                 </S.HeaderNavItem>
                 <S.HeaderNavItem
-                  $isActive={pathname === `/profile/${user!.username}`}
-                  onClick={() => navigate(`/profile/${user!.username}`)}
+                  $isActive={pathname === `${ROUTES.PROFILE}/${user!.username}`}
+                  onClick={() => navigate(`${ROUTES.PROFILE}/${user!.username}`)}
                 >
                   <S.HeaderAvatar
                     src={user!.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
@@ -45,13 +46,13 @@ export const MainLayout = () => {
           ) : (
             <nav>
               <S.HeaderNavList>
-                <S.HeaderNavItem $isActive={pathname === "/"} onClick={() => navigate("/")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
                   Home
                 </S.HeaderNavItem>
-                <S.HeaderNavItem $isActive={pathname === "/signin"} onClick={() => navigate("/signin")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNIN} onClick={() => navigate(ROUTES.SIGNIN)}>
                   Sign in
                 </S.HeaderNavItem>
-                <S.HeaderNavItem $isActive={pathname === "/signup"} onClick={() => navigate("/signup")}>
+                <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNUP} onClick={() => navigate(ROUTES.SIGNUP)}>
                   Sign up
                 </S.HeaderNavItem>
               </S.HeaderNavList>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/shared/auth";
+import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
 import { OTPInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
@@ -32,7 +33,7 @@ export const ConfirmEmailPage = () => {
     }
 
     toast.success("Welcome! Let's update your profile.");
-    navigate("/settings");
+    navigate(ROUTES.SETTINGS);
   };
 
   const {
