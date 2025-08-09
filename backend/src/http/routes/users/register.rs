@@ -142,8 +142,8 @@ pub(crate) async fn register_user(
 pub struct EmailConfirmation {
     /// One-time password.
     ///
-    /// An alphanumeAn alphanumeric code that has been sent to them upon registration.
-    #[schema(min_length = 8, max_length = 8, example = "Aj23MpUI")]
+    /// An numeric code that has been sent to them upon registration.
+    #[schema(min_length = 8, max_length = 8, example = "01234567")]
     otp: String,
 }
 
