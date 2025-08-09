@@ -4,7 +4,7 @@ use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
 use crate::services::mailer::ResendMailer;
 use crate::templates::{OTPEmailHtml, OTPEmailText};
-use crate::utils::gen_alphanum_string;
+use crate::utils::gen_numeric_string;
 use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
@@ -105,7 +105,7 @@ pub(crate) async fn register_user(
     let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
 
     // generate an OTP for them and persist it
-    let otp = gen_alphanum_string(EMAIL_CONFIRMATION_TOKEN_LEN);
+    let otp = gen_numeric_string(EMAIL_CONFIRMATION_TOKEN_LEN);
     let expires_at = Utc::now() + EMAIL_CONFIRMATION_TOKEN_TTL;
 
     sqlx::query!(
@@ -142,8 +142,8 @@ pub(crate) async fn register_user(
 pub struct EmailConfirmation {
     /// One-time password.
     ///
-    /// An alphanumeAn alphanumeric code that has been sent to them upon registration.
-    #[schema(min_length = 8, max_length = 8, example = "Aj23MpUI")]
+    /// An numeric code that has been sent to them upon registration.
+    #[schema(min_length = 8, max_length = 8, example = "01234567")]
     otp: String,
 }
 
