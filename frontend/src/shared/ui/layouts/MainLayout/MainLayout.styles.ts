@@ -42,8 +42,22 @@ export const HeaderNavList = styled.ul`
 `;
 
 export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
   color: ${(props) => (props.$isActive ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.3)")};
+  &:hover {
+    color: ${(props) => (props.$isActive ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)")};
+  }
+`;
+
+export const HeaderAvatar = styled.img`
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 50%;
 `;
 
 export const ChildrenContainer = styled.main`

@@ -76,10 +76,27 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: build image, publish image, and deploy application
+      - name: setup accessories, build and publish image, and deploy application
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          # accessories secrets; once the database is deployed on a dedicated server,
+          # these can be removed from here, while `DATABASE_URL` should stay
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          # app runtime secrets:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
-        run: kamal deploy -c .kamal/deploy.yaml
+          # note how we are using the `setup` comamand over `deploy`; this is 
+          # to ensure that the accessories (including the otlp sidecar) are
+          # launched if they are not already running, while if they are running,
+          # Kamal will not restart them, rather just skip that step and proceed
+          # with the applicaiton deploymentl this is equivalent to running:
+          # ```console
+          # $ kamal proxy boot -c .kamal/deploy.yaml
+          # $ kamal accessory boot all -c .kamal/deploy.yaml
+          # $ kamal deploy -c .kamal/deploy.yaml
+          # ```
+        run: kamal setup -c .kamal/deploy.yaml
+

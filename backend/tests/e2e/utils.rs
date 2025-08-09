@@ -7,6 +7,7 @@ use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
 use realworld_axum_react::{Config, MailerTransport};
 use secrecy::SecretString;
+use sqlx::PgPool;
 use std::time::Duration;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
@@ -29,6 +30,8 @@ pub struct TestContext {
     #[allow(unused)]
     pub backend_url: Url,
 
+    pub db_pool: PgPool,
+
     #[allow(unused)]
     pub mailer_server: MockServer,
 
@@ -43,7 +46,8 @@ pub struct TestContext {
 }
 
 pub struct TestRunContext {
-    pub container: ContainerAsync<Postgres>,
+    pub db_container: ContainerAsync<Postgres>,
+    pub db_pool: PgPool,
     pub ctx: TestContext,
     pub backend_handle: JoinHandle<()>,
     #[cfg(feature = "browser-test")]
@@ -93,13 +97,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // however, we are giving a database exactly the same name as the test has
     // so that if we were to leave containers behind for debugging purposes it
     // would be easier to relate a container with a test;
-    let container = postgres::Postgres::default()
+    let pg_container = postgres::Postgres::default()
         .with_db_name(test_name)
         .with_tag("17")
         .start()
         .await
         .expect("successfully launched PostgreSQL container");
-    let host_port = container
+    let host_port = pg_container
         .get_host_port_ipv4(5432)
         .await
         .expect("port to has been assigned on the host");
@@ -107,6 +111,9 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         "postgres://postgres:postgres@localhost:{}/{}",
         host_port, test_name
     );
+    let pg_pool = PgPool::connect(&database_url)
+        .await
+        .expect("creds to be correct and db to be accepting connections already");
 
     #[allow(unused)]
     let frontend_url: Url = "http://localhost".parse().expect("value url");
@@ -177,6 +184,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // receive as its argument and use to perform test actions
     let ctx = TestContext {
         backend_url: be_url,
+        db_pool: pg_pool.clone(),
         mailer_server,
         #[cfg(feature = "browser-test")]
         frontend_url: frontend_url.clone(),
@@ -190,7 +198,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     // after the test execution, such as stopping the database container, closing
     // the webdriver session, killing our web application
     TestRunContext {
-        container,
+        db_container: pg_container,
+        db_pool: pg_pool,
         ctx,
         backend_handle: be_handle,
         #[cfg(feature = "browser-test")]
@@ -247,7 +256,12 @@ macro_rules! async_test {
             testrun_ctx.client.close().await.ok();
 
             testrun_ctx.backend_handle.abort();
-            testrun_ctx.container.stop_with_timeout(Some(0)).await.ok();
+            testrun_ctx.db_pool.close().await;
+            testrun_ctx
+                .db_container
+                .stop_with_timeout(Some(0))
+                .await
+                .ok();
 
             // unwind
             if let Err(e) = handle {

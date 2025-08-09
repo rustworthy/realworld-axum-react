@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
+import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
@@ -41,7 +42,7 @@ export const SignUpPage = () => {
     }
 
     toast.success("Great! Let's confirm your email address. Please check your inbox.");
-    navigate("/confirm-email");
+    navigate(ROUTES.CONFIRM_EMAIL);
   };
 
   return (
