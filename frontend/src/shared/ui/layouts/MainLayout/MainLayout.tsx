@@ -71,7 +71,7 @@ export const MainLayout = () => {
 
       <S.Footer>
         <S.FooterContainer>
-          <S.ThemeSwitch aria-role="button" aria-label="switch color scheme" onClick={toggleTernaryDarkMode} />
+          <S.ThemeSwitch role="button" aria-label="switch color scheme" onClick={toggleTernaryDarkMode} />
           <S.FooterLink href="https://github.com/rustworthy/realworld-axum-react" target="_blank">
             Fork on GitHub
           </S.FooterLink>
