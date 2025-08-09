@@ -80,6 +80,12 @@ db/purge: db/stop
 	docker rm ${POSTGRES_CONTAINER_NAME} || true
 	@docker volume rm --force ${POSTGRES_CONTAINER_NAME}-data
 
+.PHONY: db/show
+db/show: 
+	docker exec -it ${POSTGRES_CONTAINER_NAME} \
+		psql -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE} \
+		-x -c "SELECT * FROM $(table)"
+
 # ---------------------------- UTILITY SERVICES --------------------------------
 .PHONY: jaeger/start
 jaeger/start:
