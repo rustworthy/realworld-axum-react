@@ -44,7 +44,7 @@ export const ConfirmEmailPage = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(confirmEmailSchema),
-    defaultValues: { ...confirmEmailDefaultValues, otp: initialOTP }
+    defaultValues: { ...confirmEmailDefaultValues, otp: initialOTP },
   });
 
   return (
