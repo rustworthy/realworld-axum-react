@@ -4,9 +4,9 @@ export const Button = styled.button`
   height: 54px;
   width: 100%;
   padding: 12px 24px;
-  color: ${({ theme }) => theme.shared.button.c02};
-  background-color: ${({ theme }) => theme.shared.button.c03};
-  border: 1px solid ${({ theme }) => theme.shared.button.c03};
+  color: ${({ theme }) => theme.shared.button.textColor};
+  background-color: ${({ theme }) => theme.shared.button.backgroundColor};
+  border: 1px solid ${({ theme }) => theme.shared.button.borderColor};
   border-radius: 5px;
 
   display: flex;
@@ -24,6 +24,6 @@ export const Button = styled.button`
 
   &:active,
   &:hover {
-    background-color: ${({ theme }) => theme.shared.button.c04};
+    background-color: ${({ theme }) => theme.shared.button.backgroundColorActive};
   }
 `;

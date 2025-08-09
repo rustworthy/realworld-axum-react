@@ -24,6 +24,8 @@ export const Slot = styled.div<{ isActive?: boolean }>`
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  color: ${(props) => props.theme.shared.input.textColor};
+  background-color: ${(props) => props.theme.shared.input.backgroundColor};
   border: 1px solid ${(props) => props.theme.shared.input.borderColor};
 
   &:first-of-type {
@@ -78,5 +80,5 @@ export const DashLine = styled.div`
   width: 0.75rem;
   height: 0.126rem;
   border-radius: 9999px;
-  background-color: ${({ theme }) => theme.page.signup.colorAccent};
+  background-color: ${({ theme }) => theme.shared.input.otp.separator.backgroundColor};
 `;
