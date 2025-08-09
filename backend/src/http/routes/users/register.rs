@@ -4,13 +4,14 @@ use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
 use crate::services::mailer::ResendMailer;
 use crate::templates::{OTPEmailHtml, OTPEmailText};
-use crate::utils::gen_alphanum_string;
+use crate::utils::{gen_alphanum_string, hash_password};
 use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use chrono::{DateTime, Utc};
 use resend_rs::types::EmailId;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::Span;
@@ -70,22 +71,71 @@ pub(crate) async fn register_user(
     // we already got hashing function in the codebase, but we do not have
     // `user` table, neither sqlx query. It is the database engine that will
     // issue uuid and return it back to us.
-    drop(user.password);
+    if user.password.trim().is_empty() {
+        let mut errors = BTreeMap::new();
+        errors.insert("email".to_string(), vec!["Email is required".to_string()]);
+        return Err(Error::Unprocessable(Validation { errors }));
+    }
+
+    let exists = sqlx::query_scalar!(
+        r#"
+        SELECT EXISTS (
+            SELECT 1 FROM users WHERE email = $1 OR username = $2
+        )
+        "#,
+        &user.email,
+        &user.username
+    )
+    .fetch_one(&ctx.db)
+    .await
+    .map_err(|e| Error::Internal(e.to_string()))?;
+
+    if exists.unwrap_or(false) {
+        let mut errors = BTreeMap::new();
+        errors.insert(
+            "email_or_username".to_string(),
+            vec!["Email or username already taken".to_string()],
+        );
+        return Err(Error::Unprocessable(Validation { errors }));
+    }
+
+    let password_hash = hash_password(&user.password).map_err(|e| Error::Internal(e.to_string()))?;
+
+    let status = if ctx.skip_email_verification {
+        "ACTIVE"
+    } else {
+        "EMAIL_CONFIRMATION_PENDING"
+    };
+
+    let record = sqlx::query!(
+        r#"
+        INSERT INTO "users" (email, username, password_hash, status) VALUES ($1, $2, $3, $4) RETURNING user_id 
+        "#,
+        &user.email,
+        &user.username,
+        &password_hash,
+        status
+    )
+    .fetch_one(&ctx.db)
+    .await
+    .map_err(|e| Error::Internal(e.to_string()))?;
+
+    let user_uuid = record.user_id;
 
     if ctx.skip_email_verification {
         // @Dzmitry as if db engine returned this UUID to us;
         //  also - since we are skipping email verification here - let's
         //  make sure to set user status to "ACTIVE" (rather than, say,
         //  "EMAIL_CONFIRMATION_PENDING")
-        let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
+        let _uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
 
         // let's issue a JWT for them to adhere to the Realworld project's spec;
         // this jwt could also be used as nonce in case we wanted to go sticter about
         // the email confirmation process: we could be expecting not only an OTP,
-        // but also that nonce, meaining to confirm their email, they would need to use
+        // but also that nonce, meaning to confirm their email, they would need to use
         // the same browser app they've used to register (the client-side script then
         // would need to make sure to persist that token in their local storage)
-        let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
+        let jwt_string = issue_token(user_uuid, &ctx.enc_key).unwrap();
 
         let payload = UserPayload {
             user: User {
@@ -98,11 +148,11 @@ pub(crate) async fn register_user(
         };
 
         return Ok(Json(payload));
-    }
+    };
 
     // create user with  "EMAIL_CONFIRMATION_PENDING" status
-    let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
-    let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
+    let _uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
+    let jwt_string = issue_token(user_uuid, &ctx.enc_key).unwrap();
 
     // generate an OTP for them and persist it
     let otp = gen_alphanum_string(EMAIL_CONFIRMATION_TOKEN_LEN);
@@ -124,6 +174,7 @@ pub(crate) async fn register_user(
     // the id of the sent email to the current span debugging (should it be needed)
     let email_id =
         send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
+
     Span::current().record("email_id", &*email_id);
 
     let payload = UserPayload {
