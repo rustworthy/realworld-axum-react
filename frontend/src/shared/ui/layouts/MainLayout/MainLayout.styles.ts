@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import { LayoutContainer } from "@/shared/styles/globalStyledComponents";
+import { LayoutContainer } from "@/shared/ui/Container";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export const Wrapper = styled.div`

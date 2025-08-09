@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
+import { SrOnly } from "@/shared/ui/SrOnly";
 import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 import * as S from "../inputs.styles";
@@ -11,7 +11,9 @@ export const PasswordInput: FC<IInputProps> = ({ id, label, required, placeholde
 
   return (
     <S.FormInputContainer>
-      <SrOnlyLabel htmlFor={id}>{label}</SrOnlyLabel>
+      <SrOnly>
+        <label htmlFor={id}>{label}</label>
+      </SrOnly>
       <S.PasswordInput
         {...field}
         required={required}
