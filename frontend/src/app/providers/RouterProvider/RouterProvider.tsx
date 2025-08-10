@@ -10,7 +10,7 @@ const ProtectedRoutes = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  return isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.SIGNIN} state={{ from: location.pathname }} replace />;
+  return !isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.SIGNIN} state={{ from: location.pathname }} replace />;
 };
 
 export const RouterProvider = () => {

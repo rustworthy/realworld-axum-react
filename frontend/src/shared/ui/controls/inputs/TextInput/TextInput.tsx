@@ -9,7 +9,7 @@ export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, e
   return (
     <S.FormInputContainer>
       <SrOnly>
-        <label htmlFor={id}>Email</label>
+        <label htmlFor={id}>{label}</label>
       </SrOnly>
       <S.FormInput
         {...field}

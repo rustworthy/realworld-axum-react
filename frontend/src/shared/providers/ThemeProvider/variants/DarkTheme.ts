@@ -6,7 +6,8 @@ const palette = {
   c02: "#ffffff",
   c03: "#5CB85B",
   c04: "#449d44",
-  c05: "#EFEFEF",
+  c05: "#B85C5C",
+  c06: "#EFEFEF",
 };
 
 export const DarkTheme: AppThemeType = {
@@ -27,7 +28,7 @@ export const DarkTheme: AppThemeType = {
     logo: {
       textColor: palette.c03,
     },
-    textColor: palette.c05,
+    textColor: palette.c06,
     backgroundColor: palette.c01,
     footer: {
       textColor: palette.c02,
@@ -36,7 +37,7 @@ export const DarkTheme: AppThemeType = {
   },
   shared: {
     input: {
-      textColor: palette.c05,
+      textColor: palette.c06,
       borderColor: "#00000026",
       borderColorFocused: "#66afe9",
       backgroundColor: "#222222",
@@ -52,6 +53,15 @@ export const DarkTheme: AppThemeType = {
       borderColor: palette.c03,
       backgroundColor: palette.c03,
       backgroundColorActive: palette.c04,
+      danger: {
+        textColor: palette.c05,
+        borderColor: palette.c05,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c05,
+        },
+      },
     },
   },
 };

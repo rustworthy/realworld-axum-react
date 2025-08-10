@@ -4,6 +4,7 @@ const palette = {
   c02: "#ffffff",
   c03: "#5CB85B",
   c04: "#449d44",
+  c05: "#B85C5C",
 };
 
 export const LightTheme = {
@@ -51,6 +52,16 @@ export const LightTheme = {
       borderColor: palette.c03,
       backgroundColor: palette.c03,
       backgroundColorActive: palette.c04,
+
+      danger: {
+        textColor: palette.c05,
+        borderColor: palette.c05,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c05,
+        },
+      },
     },
   },
 };

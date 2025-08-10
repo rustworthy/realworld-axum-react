@@ -1,22 +1,26 @@
 import * as z from "zod";
 
-export const signUpPageSchema = z
-  .object({
-    username: z.string().nonempty({ error: "Cannot be empty." }),
-    email: z.email({ error: "Valid email address required." }),
-    password: z.string().nonempty({ error: "Cannot be empty." }),
-    confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
-  })
-  .refine((data) => data.confirmPassword === data.password, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export const settingsPageSchema = z.object({
+  email: z.email({ error: "Valid email address required." }),
 
-export const signUpDefaultValues = {
+  username: z.string().nonempty({ error: "Cannot be empty." }),
+
+  // leaving password blank, simply means not setting new password
+  password: z.string().optional().nullable(),
+
+  // setting bio will wipe the existing biography (if any)
+  bio: z.string().optional().nullable(),
+
+  // setting image URL to an empty string implies wiping it (if any existed)
+  image: z.string().optional().nullable(),
+});
+
+export const settingsPageDefaultValues: TSettingsPageSchema = {
+  image: "",
   username: "",
+  bio: "",
   email: "",
   password: "",
-  confirmPassword: "",
 };
 
-export type TSignUpPageSchema = z.infer<typeof signUpPageSchema>;
+export type TSettingsPageSchema = z.infer<typeof settingsPageSchema>;
