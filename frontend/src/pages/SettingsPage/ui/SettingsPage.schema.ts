@@ -5,7 +5,7 @@ export const settingsPageSchema = z.object({
   username: z.string().nonempty({ error: "Cannot be empty." }),
   password: z.string(),
   bio: z.string(),
-  image: z.preprocess(val => val === "" ? null : val, z.url({ message: "Valid URL required." }).nullable()),
+  image: z.preprocess((val) => (val === "" ? null : val), z.url({ message: "Valid URL required." }).nullable()),
 });
 
 export const settingsPageDefaultValues: TSettingsPageSchema = {
