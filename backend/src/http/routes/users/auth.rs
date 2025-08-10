@@ -58,7 +58,7 @@ pub(crate) async fn login(
             token: jwt_string,
             username: "rob.pike".into(),
             bio: "Co-author Go programming language".into(),
-            image: Some("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_ySzB8CjQ85dLtvWXX8K1F4RlxbPEzjgfgKNTwneiPUCyfixt4edM8Nc&s".into()),
+            image: Some("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_ySzB8CjQ85dLtvWXX8K1F4RlxbPEzjgfgKNTwneiPUCyfixt4edM8Nc&s".parse().expect("valie URL")),
         },
     };
 

@@ -7,6 +7,7 @@ use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use std::sync::Arc;
+use url::Url;
 use utoipa::ToSchema;
 
 /// Read current user.
@@ -55,8 +56,16 @@ pub struct UserUpdate {
 
     /// User's biography.
     ///
-    /// Empty string means biography has never been provided.
+    /// Empty string will override the existing biography.
     bio: Option<String>,
+
+    /// New password.
+    password: Option<String>,
+
+    /// New image.
+    ///
+    /// Empty string means image should be wiped.
+    image: Option<Url>,
 }
 
 /// Update current user.
@@ -82,13 +91,14 @@ pub(crate) async fn update_current_user(
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
+    drop(user.password);
     let payload = UserPayload {
         user: User {
             email: user.email.unwrap_or("pavel@mikhalkevich.com".into()),
             token: jwt_string,
             username: user.username.unwrap_or("pavel.mikhalkevich".into()),
-            bio: user.bio.unwrap_or("".into()),
-            image: None,
+            bio: user.bio.unwrap_or_default(),
+            image: user.image,
         },
     };
     Ok(Json(payload))

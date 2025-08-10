@@ -1,5 +1,6 @@
 use crate::AppContext;
 use std::sync::Arc;
+use url::Url;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 
@@ -28,7 +29,7 @@ pub(crate) struct User {
     bio: String,
 
     /// Location of user's image (if any).
-    image: Option<String>,
+    image: Option<Url>,
 }
 
 /// Container for all user management related endpoints.
