@@ -35,4 +35,3 @@ export const Textarea = styled.textarea`
   &::-webkit-scrollbar-thumb {
   }
 `;
-

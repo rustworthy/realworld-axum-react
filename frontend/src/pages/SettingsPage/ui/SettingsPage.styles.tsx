@@ -45,4 +45,4 @@ export const Separator = styled.hr`
   margin: 1rem 0;
   border-top: 2px solid;
   opacity: 0.1;
-`
+`;

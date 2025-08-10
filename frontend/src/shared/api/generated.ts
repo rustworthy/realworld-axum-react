@@ -83,21 +83,21 @@ export type UserPayloadUserUpdate = {
   user: {
     /** User's biography.
         
-        Empty string will override the existing biography. */
-    bio?: string | null;
+        Note that Empty string will override the existing biography. */
+    bio?: string;
     /** User's email, e.g. `rob.pike@gmail.com`. */
-    email?: string | null;
-    /** New image.
+    email?: string;
+    /** New image URL.
         
-        Empty string means image should be wiped. */
+        Specifying `null` means removing the image altogether. */
     image?: string | null;
     /** New password. */
-    password?: string | null;
+    password?: string;
     /** User's name or nickname.
         
         This is  - just like the user's `email` - case-insensitively unique
         in the system. */
-    username?: string | null;
+    username?: string;
   };
 };
 export type UserPayloadRegistration = {

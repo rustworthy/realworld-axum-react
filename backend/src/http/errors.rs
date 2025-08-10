@@ -18,6 +18,18 @@ pub(crate) struct Validation {
     pub errors: BTreeMap<String, Vec<String>>,
 }
 
+impl Validation {
+    pub fn single<F, M>(field: F, message: M) -> Self
+    where
+        F: Into<String>,
+        M: Into<String>,
+    {
+        Self {
+            errors: BTreeMap::from([(field.into(), vec![message.into()])]),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum Error {
     Unprocessable(Validation),
