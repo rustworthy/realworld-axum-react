@@ -13,7 +13,7 @@ import { TSettingsPageSchema, settingsPageDefaultValues, settingsPageSchema } fr
 import * as S from "./SettingsPage.styles";
 
 export const SettingsPage = () => {
-  const { update, isUpdateLoading, user } = useAuth();
+  const { update, isUpdateLoading, user, logout } = useAuth();
 
   const {
     control,
@@ -21,7 +21,7 @@ export const SettingsPage = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(settingsPageSchema),
-    defaultValues: { ...settingsPageDefaultValues, ...user },
+    defaultValues: { ...settingsPageDefaultValues, ...user, image: user!.image ?? "" },
   });
 
   const onSubmit = async (data: TSettingsPageSchema): Promise<void> => {
@@ -42,129 +42,92 @@ export const SettingsPage = () => {
   };
 
   return (
-    <>
-      <AuthPageLayout title="Your Settings">
-        <S.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
-          <Controller
-            control={control}
-            name="image"
-            render={({ field }) => (
-              <TextInput
-                field={field}
-                required
-                id="settings_image"
-                label="URL of profile picture"
-                error={errors.image ? errors.image.message : undefined}
-              />
-            )}
-          />
+    <AuthPageLayout title="Your Settings">
+      <S.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
+        <Controller
+          control={control}
+          name="image"
+          render={({ field }) => (
+            <TextInput
+              field={field}
+              required
+              id="settings_image"
+              label="URL of profile picture"
+              error={errors.image ? errors.image.message : undefined}
+            />
+          )}
+        />
 
-          <Controller
-            control={control}
-            name="username"
-            render={({ field }) => (
-              <TextInput
-                field={field}
-                required
-                id="settings_username"
-                label="Username"
-                error={errors.username ? errors.username.message : undefined}
-              />
-            )}
-          />
+        <Controller
+          control={control}
+          name="username"
+          render={({ field }) => (
+            <TextInput
+              field={field}
+              required
+              id="settings_username"
+              label="Username"
+              error={errors.username ? errors.username.message : undefined}
+            />
+          )}
+        />
 
-          <Controller
-            control={control}
-            name="bio"
-            render={({ field }) => (
-              <Textarea
-                rows={8}
-                field={field}
-                required
-                id="settings_bio"
-                label="Short bio about you"
-                error={errors.bio ? errors.bio.message : undefined}
-              />
-            )}
-          />
+        <Controller
+          control={control}
+          name="bio"
+          render={({ field }) => (
+            <Textarea
+              rows={8}
+              field={field}
+              required
+              id="settings_bio"
+              label="Short bio about you"
+              error={errors.bio ? errors.bio.message : undefined}
+            />
+          )}
+        />
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <TextInput
-                field={field}
-                required
-                id="signup_email"
-                label="Email"
-                error={errors.email ? errors.email.message : undefined}
-              />
-            )}
-          />
+        <Controller
+          control={control}
+          name="email"
+          render={({ field }) => (
+            <TextInput
+              field={field}
+              required
+              id="signup_email"
+              label="Email"
+              error={errors.email ? errors.email.message : undefined}
+            />
+          )}
+        />
 
-          <Controller
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <PasswordInput
-                field={field}
-                required
-                id="settings_password"
-                label="New Password"
-                error={errors.password ? errors.password.message : undefined}
-              />
-            )}
-          />
-          <S.ButtonContainer>
-            <Button dataTestId="settings_submit_button" isDisabled={isUpdateLoading}>
-              Update Settings
-            </Button>
-          </S.ButtonContainer>
-        </S.Form>
-        <S.Separator />
-
-        <S.LogoutButtonContainer>
-          <Button dataTestId="settings_logout_button">
-            Or click here to logout.
+        <Controller
+          control={control}
+          name="password"
+          render={({ field }) => (
+            <PasswordInput
+              field={field}
+              required
+              id="settings_password"
+              label="New Password"
+              error={errors.password ? errors.password.message : undefined}
+            />
+          )}
+        />
+        <S.SubmitButtonContainer>
+          <Button dataTestId="settings_submit_button" isDisabled={isUpdateLoading}>
+            Update Settings
           </Button>
-        </S.LogoutButtonContainer>
-      </AuthPageLayout>
-      <div className="settings-page">
-        <div className="container page">
-          <div className="row">
-            <div className="col-md-6 offset-md-3 col-xs-12">
-              <h1 className="text-xs-center">Your Settings</h1>
+        </S.SubmitButtonContainer>
+      </S.Form>
 
-              <ul className="error-messages">
-                <li>That name is required</li>
-              </ul>
+      <S.Separator />
 
-              <form>
-                <fieldset>
-                  <fieldset className="form-group">
-                    <input className="form-control" type="text" placeholder="URL of profile picture" />
-                  </fieldset>
-                  <fieldset className="form-group">
-                    <input className="form-control form-control-lg" type="text" placeholder="Your Name" />
-                  </fieldset>
-                  <fieldset className="form-group">
-                    <textarea className="form-control form-control-lg" rows={8} placeholder="Short bio about you" />
-                  </fieldset>
-                  <fieldset className="form-group">
-                    <input className="form-control form-control-lg" type="text" placeholder="Email" />
-                  </fieldset>
-                  <fieldset className="form-group">
-                    <input className="form-control form-control-lg" type="password" placeholder="New Password" />
-                  </fieldset>
-                  <button className="btn btn-lg btn-primary pull-xs-right">Update Settings</button>
-                </fieldset>
-              </form>
-              <hr />
-              <button className="btn btn-outline-danger">Or click here to logout.</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+      <S.LogoutButtonContainer>
+        <Button dataTestId="settings_logout_button" onClick={logout}>
+          Or click here to logout.
+        </Button>
+      </S.LogoutButtonContainer>
+    </AuthPageLayout>
   );
 };

@@ -47,6 +47,10 @@ export const GlobalStyles = () => {
         ul {
           list-style: none;
         }
+
+        body {
+          overflow-x: hidden;
+        }
       `}
     />
   );

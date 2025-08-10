@@ -1,8 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { ReduxProvider, ThemeProvider } from "@/shared/providers";
-import { Toaster as ToastProvider } from "sonner";
+import { ReduxProvider, ThemeProvider, ToastProvider } from "@/shared/providers";
 
 import { RouterProvider } from "./providers/RouterProvider";
 
@@ -13,7 +12,7 @@ root.render(
     <ReduxProvider>
       <ThemeProvider>
         <RouterProvider />
-        <ToastProvider position="top-center" />
+        <ToastProvider />
       </ThemeProvider>
     </ReduxProvider>
   </StrictMode>,

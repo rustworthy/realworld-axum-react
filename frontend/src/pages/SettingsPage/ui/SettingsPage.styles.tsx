@@ -6,7 +6,7 @@ export const Form = styled.form`
   flex-direction: column;
 `;
 
-export const ButtonContainer = styled.div`
+export const SubmitButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -39,8 +39,6 @@ export const LogoutButtonContainer = styled.div`
     }
   }
 `;
-
-
 
 export const Separator = styled.hr`
   width: 100%;

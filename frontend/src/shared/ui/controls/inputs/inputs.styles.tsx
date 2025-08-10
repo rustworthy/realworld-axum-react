@@ -7,6 +7,13 @@ export const FormInputContainer = styled.div`
 
 export const InoutCSS = css``;
 
+/**
+ *
+ * WibKit autofill properties are set to prevent the browser from overriding
+ * our styles (those default styles look especially ugly in dark mode)
+ *
+ * @see https://stackoverflow.com/a/14205976
+ */
 export const FormInput = styled.input`
   display: block;
   width: 100%;
@@ -27,6 +34,20 @@ export const FormInput = styled.input`
   &::placeholder {
     opacity: 0.8;
   }
+  &:is(
+      :autofill,
+      :-webkit-autofill,
+      :-webkit-autofill:hover,
+      :-webkit-autofill:active,
+      :-webkit-autofill:focus
+  ) {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: ${(props) => props.theme.shared.input.textColor};
+    transition: background-color 5000000s ease-in-out 0s;
+    transition: color 5000000s ease-in-out 0s;
+    box-shadow: inset 0 0 2rem 2rem ${(props) => props.theme.shared.input.backgroundColor};
+  }
+}
 `;
 
 export const PasswordInput = styled(FormInput)`
