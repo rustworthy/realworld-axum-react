@@ -189,7 +189,7 @@ pub(crate) async fn confirm_email(
         token: String,
         created_at: DateTime<Utc>,
         purpose: Option<String>,
-        user_id: Option<Uuid>,
+        user_id: Uuid,
         expires_at: Option<DateTime<Utc>>,
     }
 
@@ -210,7 +210,6 @@ pub(crate) async fn confirm_email(
     .map_err(|e| Error::Internal(e.to_string()))?;
 
     let otp = otp.ok_or_else(|| Error::unprocessable_entity([("otp", "Invalid or expired OTP")]))?;
-    let user_id = otp.user_id.ok_or_else(|| Error::Internal("OTP does not have associated user_id".into()))?;
 
     let user_row = sqlx::query!(
         r#"
@@ -219,13 +218,13 @@ pub(crate) async fn confirm_email(
             WHERE user_id = $1
             RETURNING email, username
         "#,
-        &user_id
+        &otp.user_id
     )
     .fetch_one(&ctx.db)
     .await
     .map_err(|e| Error::Internal(e.to_string()))?;
 
-    let jwt_string = issue_token(user_id, &ctx.enc_key).unwrap();
+    let jwt_string = issue_token(otp.user_id, &ctx.enc_key).unwrap();
 
     let payload = UserPayload {
         user: User {
