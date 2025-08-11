@@ -66,11 +66,7 @@ pub(crate) async fn register_user(
     input: Result<Json<UserPayload<Registration>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
-    // @Dzmitry, we of course should not be just dropping user's password,
-    // rather should verify it's not empty, hash, and store it in the database
-    // we already got hashing function in the codebase, but we do not have
-    // `user` table, neither sqlx query. It is the database engine that will
-    // issue uuid and return it back to us.
+
     if user.password.trim().is_empty() {
         let mut errors = BTreeMap::new();
         errors.insert("password".to_string(), vec!["password cannot be empty".to_string()]);
