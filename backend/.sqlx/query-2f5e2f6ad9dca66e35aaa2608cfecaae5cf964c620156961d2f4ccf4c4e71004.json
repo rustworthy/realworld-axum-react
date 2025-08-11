@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                delete from \"confirmation_tokens\" \n                where\n                    token = $1 and \n                    purpose = 'EMAIL_CONFIRMATION' and\n                    expires_at > now()\n                returning *\n            ",
+  "query": "\n            DELETE FROM \"confirmation_tokens\" \n            WHERE\n                token = $1 and \n                purpose = 'EMAIL_CONFIRMATION' and\n                expires_at > now()\n            RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       true
     ]
   },
-  "hash": "1b73d84a3c6c40f47eec0c1ae186eee4d9d1e27308e784a5980025b34446d359"
+  "hash": "2f5e2f6ad9dca66e35aaa2608cfecaae5cf964c620156961d2f4ccf4c4e71004"
 }

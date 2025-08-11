@@ -90,3 +90,13 @@ that just make sure to provide the correct connection string (see [`Makefile](./
 I.e. you can achieve all of that and even more - if needed - using the `sqlx` tool
 directly. Most of the time, though, we want to create a new migration file, apply it,
 then revert it as a sanity check, and then re-apply it.
+
+<!-- -------------------------------- LINKS -------------------------------- -->
+[1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml
+[2]: https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/
+[3]: https://testcontainers.com/?language=rust
+[4]: https://doc.rust-lang.org/cargo/getting-started/installation.html
+[5]: https://www.gnu.org/software/make/
+[6]: https://docs.docker.com/engine/install/
+[7]: https://www.google.com/chrome/
+[8]: https://googlechromelabs.github.io/chrome-for-testing/#stable
