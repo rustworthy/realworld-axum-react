@@ -25,17 +25,20 @@ pub struct Registration {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.
+    #[schema(example = "rob.pike@gmail.com", format = "email")]
     email: String,
 
     /// User's name or nickname.
     ///
-    /// This is  - just like the user's `email` - case-insensitively unique
+    /// This is - just like the user's `email` - case-insensitively unique
     /// in the system.
+    #[schema(example = "rob.pike1984")]
     username: String,
 
     /// User's password.
     ///
     /// There are currently no limitations on password strength.
+    #[schema(min_length = 1, example = "Whoami@g00gle")]
     password: String,
 }
 
