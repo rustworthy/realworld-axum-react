@@ -5,7 +5,7 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export const Wrapper = styled.div`
   width: 100dvw;
-  height: 100dvh;
+  min-height: 100dvh;
   background-color: ${({ theme }) => theme.mainLayout.backgroundColor};
   color: ${({ theme }) => theme.mainLayout.textColor};
   font-family: "Source Sans Pro", sans-serif;

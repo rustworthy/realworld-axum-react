@@ -73,6 +73,7 @@ export const SignUpPage = () => {
               required
               id="signup_email"
               label="Email"
+              autoComplete="email"
               error={errors.email ? errors.email.message : undefined}
             />
           )}

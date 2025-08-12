@@ -1,9 +1,19 @@
+import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 export const FormInputContainer = styled.div`
   position: relative;
 `;
 
+export const InoutCSS = css``;
+
+/**
+ *
+ * WibKit autofill properties are set to prevent the browser from overriding
+ * our styles (those default styles look especially ugly in dark mode)
+ *
+ * @see https://stackoverflow.com/a/14205976
+ */
 export const FormInput = styled.input`
   display: block;
   width: 100%;
@@ -15,12 +25,29 @@ export const FormInput = styled.input`
   padding: 1rem 1.5rem;
   font-size: 1.25rem;
   border-radius: 0.3rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
 
   &:focus {
     border-color: ${(props) => props.theme.shared.input.borderColorFocused};
     outline: none;
   }
+  &::placeholder {
+    opacity: 0.8;
+  }
+  &:is(
+      :autofill,
+      :-webkit-autofill,
+      :-webkit-autofill:hover,
+      :-webkit-autofill:active,
+      :-webkit-autofill:focus
+  ) {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: ${(props) => props.theme.shared.input.textColor};
+    transition: background-color 5000000s ease-in-out 0s;
+    transition: color 5000000s ease-in-out 0s;
+    box-shadow: inset 0 0 2rem 2rem ${(props) => props.theme.shared.input.backgroundColor};
+  }
+}
 `;
 
 export const PasswordInput = styled(FormInput)`
@@ -42,6 +69,7 @@ export const PasswordRevealToggle = styled.div`
 `;
 
 export const FormInputError = styled.span`
+  line-height: 1;
   position: absolute;
   bottom: 0.1rem;
   left: 0;

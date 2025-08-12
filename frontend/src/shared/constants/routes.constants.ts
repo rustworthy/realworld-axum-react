@@ -1,7 +1,6 @@
 export const ROUTES = {
   CONFIRM_EMAIL: "/confirm-email",
   EDITOR: "/editor",
-  FORBIDDEN: "/forbidden",
   HOME: "/",
   PROFILE: "/profile",
   SIGNIN: "/signin",

@@ -83,15 +83,21 @@ export type UserPayloadUserUpdate = {
   user: {
     /** User's biography.
         
-        Empty string means biography has never been provided. */
-    bio?: string | null;
+        Note that Empty string will override the existing biography. */
+    bio?: string;
     /** User's email, e.g. `rob.pike@gmail.com`. */
-    email?: string | null;
+    email?: string;
+    /** New image URL.
+        
+        Specifying `null` means removing the image altogether. */
+    image?: string | null;
+    /** New password. */
+    password?: string;
     /** User's name or nickname.
         
         This is  - just like the user's `email` - case-insensitively unique
         in the system. */
-    username?: string | null;
+    username?: string;
   };
 };
 export type UserPayloadRegistration = {
@@ -115,7 +121,7 @@ export type UserPayloadEmailConfirmation = {
   user: {
     /** One-time password.
         
-        An alphanumeric code that has been sent to them upon registration. */
+        An numeric code that has been sent to them upon registration. */
     otp: string;
   };
 };

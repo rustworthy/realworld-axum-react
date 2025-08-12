@@ -5,11 +5,11 @@ import { SrOnly } from "@/shared/ui/SrOnly";
 import * as S from "../inputs.styles";
 import { IInputProps } from "../inputs.types";
 
-export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, error, field }) => {
+export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, autoComplete, error, field }) => {
   return (
     <S.FormInputContainer>
       <SrOnly>
-        <label htmlFor={id}>Email</label>
+        <label htmlFor={id}>{label}</label>
       </SrOnly>
       <S.FormInput
         {...field}
@@ -17,7 +17,7 @@ export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, e
         id={id}
         type="text"
         placeholder={placeholder ?? label}
-        autoComplete="off"
+        autoComplete={autoComplete ?? "off"}
         aria-invalid={!!error}
         aria-errormessage={`${id}_error`}
       />

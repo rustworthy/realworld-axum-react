@@ -8,6 +8,7 @@ export interface IInputProps {
   label: string;
   required: boolean;
   placeholder?: string;
+  autoComplete?: string;
   error?: string;
   field?: RHFFieldProps;
 }

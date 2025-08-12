@@ -7,6 +7,7 @@ use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use std::sync::Arc;
+use url::Url;
 use utoipa::ToSchema;
 
 /// Read current user.
@@ -45,18 +46,34 @@ pub(crate) async fn read_current_user(
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct UserUpdate {
     /// User's email, e.g. `rob.pike@gmail.com`.
+    #[schema(nullable = false, example = "rob.pike@gmail.com", format = "email")]
     email: Option<String>,
 
     /// User's name or nickname.
     ///
     /// This is  - just like the user's `email` - case-insensitively unique
     /// in the system.
+    #[schema(nullable = false, example = "rob.pike1984")]
     username: Option<String>,
 
     /// User's biography.
     ///
-    /// Empty string means biography has never been provided.
+    /// Note that Empty string will override the existing biography.
+    #[schema(
+        nullable = false,
+        example = "In 2007, while working at Google, I designed Go together with Robert Griesemer and Ken Thompson"
+    )]
     bio: Option<String>,
+
+    /// New password.
+    #[schema(nullable = false, example = "Whoami@g00gle")]
+    password: Option<String>,
+
+    /// New image URL.
+    ///
+    /// Specifying `null` means removing the image altogether.
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    image: Option<Option<Url>>,
 }
 
 /// Update current user.
@@ -81,14 +98,33 @@ pub(crate) async fn update_current_user(
     input: Result<Json<UserPayload<UserUpdate>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
+    drop(user.password);
+    let (email, username, image, bio) = if let Some(image_url) = user.image {
+        // TODO: let's include image URL update into the user update query
+        (
+            user.email.unwrap_or("r.pike@gmail.com".to_string()),
+            user.username.unwrap_or("r.pike1994".into()),
+            image_url,
+            user.bio.unwrap_or_default(),
+        )
+    } else {
+        // TODO: without image update;
+        (
+            user.email.unwrap_or("r.pike@gmail.com".to_string()),
+            user.username.unwrap_or("r.pike10984".into()),
+            None,
+            user.bio.unwrap_or_default(),
+        )
+    };
+
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
     let payload = UserPayload {
         user: User {
-            email: user.email.unwrap_or("pavel@mikhalkevich.com".into()),
+            email,
             token: jwt_string,
-            username: user.username.unwrap_or("pavel.mikhalkevich".into()),
-            bio: user.bio.unwrap_or("".into()),
-            image: None,
+            username,
+            bio,
+            image,
         },
     };
     Ok(Json(payload))
