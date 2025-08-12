@@ -18,7 +18,7 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -39,7 +39,7 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
