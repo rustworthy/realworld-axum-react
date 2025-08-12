@@ -87,6 +87,7 @@ impl Error {
     }
 }
 
+// https://github.com/launchbadge/realworld-axum-sqlx/blob/f1b25654773228297e35c292f357d33b7121a101/src/http/error.rs#L173-L222
 pub(crate) trait ResultExt<T> {
     fn on_constraint(
         self,
