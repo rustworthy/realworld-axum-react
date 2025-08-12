@@ -1,6 +1,6 @@
 use super::{User, UserPayload};
 use crate::AppContext;
-use crate::http::errors::{Error, Validation, ResultExt};
+use crate::http::errors::{Error, ResultExt, Validation};
 use crate::http::jwt::issue_token;
 use crate::services::mailer::ResendMailer;
 use crate::templates::{OTPEmailHtml, OTPEmailText};
@@ -9,15 +9,13 @@ use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use resend_rs::types::EmailId;
-use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::Span;
 use url::Url;
 use utoipa::ToSchema;
-use uuid::Uuid;
 
 const EMAIL_CONFIRMATION_TOKEN_LEN: usize = 8;
 const EMAIL_CONFIRMATION_TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
@@ -68,12 +66,14 @@ pub(crate) async fn register_user(
     let Json(UserPayload { user }) = input?;
 
     if user.password.trim().is_empty() {
-        let mut errors = BTreeMap::new();
-        errors.insert("password".to_string(), vec!["password cannot be empty".to_string()]);
-        return Err(Error::Unprocessable(Validation { errors }));
+        return Err(Error::unprocessable_entity([(
+            "password",
+            "password cannot be empty",
+        )]));
     }
 
-    let password_hash = hash_password(&user.password).map_err(|e| Error::Internal(e.to_string()))?;
+    let password_hash =
+        hash_password(&user.password).map_err(|e| Error::Internal(e.to_string()))?;
 
     let status = if ctx.skip_email_verification {
         "ACTIVE"
@@ -182,34 +182,22 @@ pub(crate) async fn confirm_email(
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
 
-    #[allow(unused)]
-    #[derive(Debug)]
-    struct Otp {
-        id: i64,
-        token: String,
-        created_at: DateTime<Utc>,
-        purpose: Option<String>,
-        user_id: Uuid,
-        expires_at: Option<DateTime<Utc>>,
-    }
-
-    let otp = sqlx::query_as!(
-        Otp,
+    let user_id = sqlx::query_scalar!(
         r#"
             DELETE FROM "confirmation_tokens" 
             WHERE
                 token = $1 and 
                 purpose = 'EMAIL_CONFIRMATION' and
                 expires_at > now()
-            RETURNING *
+            RETURNING user_id
         "#,
         &user.otp
     )
     .fetch_optional(&ctx.db)
-    .await
-    .map_err(|e| Error::Internal(e.to_string()))?;
+    .await?;
 
-    let otp = otp.ok_or_else(|| Error::unprocessable_entity([("otp", "Invalid or expired OTP")]))?;
+    let user_id =
+        user_id.ok_or_else(|| Error::unprocessable_entity([("otp", "Invalid or expired OTP")]))?;
 
     let user_row = sqlx::query!(
         r#"
@@ -218,13 +206,13 @@ pub(crate) async fn confirm_email(
             WHERE user_id = $1
             RETURNING email, username
         "#,
-        &otp.user_id
+        &user_id
     )
     .fetch_one(&ctx.db)
     .await
     .map_err(|e| Error::Internal(e.to_string()))?;
 
-    let jwt_string = issue_token(otp.user_id, &ctx.enc_key).unwrap();
+    let jwt_string = issue_token(user_id, &ctx.enc_key).unwrap();
 
     let payload = UserPayload {
         user: User {
