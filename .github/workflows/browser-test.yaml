@@ -22,7 +22,7 @@ jobs:
       WEBDRIVER_PORT: 4444
       NODE_VERSION: 22
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Launch web driver in background
         run: chromedriver --port=${{ env.WEBDRIVER_PORT}} &
       - name: Install Node.js
