@@ -4,11 +4,13 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { useTernaryDarkMode } from "usehooks-ts";
 
 import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
   const navigate = useNavigate();
+  const { toggleTernaryDarkMode } = useTernaryDarkMode();
   const { isAuthenticated, user } = useAuth();
   const { pathname } = useLocation();
 
@@ -69,6 +71,7 @@ export const MainLayout = () => {
 
       <S.Footer>
         <S.FooterContainer>
+          <S.ThemeSwitch role="button" aria-label="switch color scheme" onClick={toggleTernaryDarkMode} />
           <S.FooterLink href="https://github.com/rustworthy/realworld-axum-react" target="_blank">
             Fork on GitHub
           </S.FooterLink>

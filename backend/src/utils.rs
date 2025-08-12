@@ -8,9 +8,17 @@ use rand::Rng as _;
 use rand::distributions::Alphanumeric;
 use rand::rngs::OsRng;
 
+#[allow(unused)]
 pub fn gen_alphanum_string(length: usize) -> String {
     let mut rng = rand::thread_rng();
     std::iter::repeat_with(|| rng.sample(Alphanumeric) as char)
+        .take(length)
+        .collect()
+}
+
+pub fn gen_numeric_string(length: usize) -> String {
+    let mut rng = rand::thread_rng();
+    std::iter::repeat_with(|| rng.gen_range(0..10).to_string())
         .take(length)
         .collect()
 }

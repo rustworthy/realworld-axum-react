@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { SrOnlyLabel } from "@/shared/styles/globalStyledComponents";
+import { SrOnly } from "@/shared/ui/SrOnly";
 
 import * as S from "../inputs.styles";
 import { IInputProps } from "../inputs.types";
@@ -8,7 +8,9 @@ import { IInputProps } from "../inputs.types";
 export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, error, field }) => {
   return (
     <S.FormInputContainer>
-      <SrOnlyLabel htmlFor="signup_email">Email</SrOnlyLabel>
+      <SrOnly>
+        <label htmlFor={id}>Email</label>
+      </SrOnly>
       <S.FormInput
         {...field}
         required={required}

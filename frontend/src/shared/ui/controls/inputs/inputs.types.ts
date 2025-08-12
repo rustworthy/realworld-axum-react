@@ -1,8 +1,7 @@
 import { UseControllerReturn } from "react-hook-form";
 
-import { ANY_TODO } from "@/shared/types/theme.types";
-
-type RHFFieldProps = Partial<UseControllerReturn<ANY_TODO>["field"]>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RHFFieldProps = Partial<UseControllerReturn<any>["field"]>;
 
 export interface IInputProps {
   id: string;

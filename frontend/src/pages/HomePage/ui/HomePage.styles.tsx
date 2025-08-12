@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import { LayoutContainer } from "@/shared/styles/globalStyledComponents";
+import { LayoutContainer } from "@/shared/ui/Container";
 
 export const PageWrapper = styled.div`
   width: 100%;
@@ -10,7 +10,8 @@ export const PageWrapper = styled.div`
 
 export const Banner = styled.div`
   height: 170px;
-  background-color: ${({ theme }) => theme.page.home.c03};
+  color: ${({ theme }) => theme.page.home.bannner.textColor};
+  background-color: ${({ theme }) => theme.page.home.bannner.backgroundColor};
 `;
 
 export const BannerContainer = styled(LayoutContainer)`
@@ -25,12 +26,10 @@ export const BannerTitle = styled.h1`
   text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
   font-weight: 700;
   font-size: 56px;
-  color: ${({ theme }) => theme.page.home.c02};
 `;
 
 export const BannerDescription = styled.p`
   text-align: center;
   font-weight: 300;
   font-size: 24px;
-  color: ${({ theme }) => theme.page.home.c02};
 `;

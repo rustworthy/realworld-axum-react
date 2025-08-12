@@ -18,7 +18,7 @@ export const FormInput = styled.input`
   margin-bottom: 1.2rem;
 
   &:focus {
-    border-color: ${(props) => props.theme.shared.input.backgroundColorFocused};
+    border-color: ${(props) => props.theme.shared.input.borderColorFocused};
     outline: none;
   }
 `;

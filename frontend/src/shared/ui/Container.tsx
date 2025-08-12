@@ -1,4 +1,3 @@
-import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 import {
@@ -26,19 +25,4 @@ export const LayoutContainer = styled.div`
   @media (max-width: ${TABLET_WIDTH}px) {
     max-width: ${MOBILE_CONTAINER_WIDTH}px;
   }
-`;
-
-export const PositionAbsoluteHidden = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-`;
-
-export const SrOnlyLabel = styled.label`
-  ${PositionAbsoluteHidden};
 `;

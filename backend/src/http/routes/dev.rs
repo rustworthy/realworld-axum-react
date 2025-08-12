@@ -10,7 +10,7 @@ use url::Url;
 use crate::{
     state::AppContext,
     templates::{OTPEmailHtml, OTPEmailText},
-    utils::gen_alphanum_string,
+    utils::gen_numeric_string,
 };
 
 pub async fn preview_otp_email(
@@ -20,7 +20,7 @@ pub async fn preview_otp_email(
     let otp_code = params
         .get("otp_code")
         .map(|value| value.to_owned())
-        .unwrap_or_else(|| gen_alphanum_string(8));
+        .unwrap_or_else(|| gen_numeric_string(8));
     let app_url: Url = params
         .get("app_url")
         .map(|value| value.to_owned())

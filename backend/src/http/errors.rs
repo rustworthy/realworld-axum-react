@@ -38,7 +38,6 @@ impl From<anyhow::Error> for Error {
         Self::Internal(value.to_string())
     }
 }
-
 impl From<sqlx::Error> for Error {
     fn from(err: sqlx::Error) -> Self {
         Error::Sqlx(err)

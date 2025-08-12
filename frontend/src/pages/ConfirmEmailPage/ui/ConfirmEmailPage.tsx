@@ -1,5 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
@@ -16,6 +16,8 @@ import * as S from "./ConfirmEmailPage.styles";
 
 export const ConfirmEmailPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialOTP = (searchParams.get("otp") ?? "").slice(0, OTP_LENGTH);
   const { confirmEmail, isConfirmEmailLoading } = useAuth();
 
   const onSubmit = async (data: TConfirmEmail) => {
@@ -42,7 +44,7 @@ export const ConfirmEmailPage = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(confirmEmailSchema),
-    defaultValues: confirmEmailDefaultValues,
+    defaultValues: { ...confirmEmailDefaultValues, otp: initialOTP },
   });
 
   return (

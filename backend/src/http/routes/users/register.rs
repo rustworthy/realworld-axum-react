@@ -4,7 +4,7 @@ use crate::http::errors::{Error, ResultExt, Validation};
 use crate::http::jwt::issue_token;
 use crate::services::mailer::ResendMailer;
 use crate::templates::{OTPEmailHtml, OTPEmailText};
-use crate::utils::{gen_alphanum_string, hash_password};
+use crate::utils::{gen_numeric_string, hash_password};
 use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
@@ -115,7 +115,7 @@ pub(crate) async fn register_user(
         return Ok(Json(payload));
     };
 
-    let otp = gen_alphanum_string(EMAIL_CONFIRMATION_TOKEN_LEN);
+    let otp = gen_numeric_string(EMAIL_CONFIRMATION_TOKEN_LEN);
     let expires_at = Utc::now() + EMAIL_CONFIRMATION_TOKEN_TTL;
 
     sqlx::query!(
@@ -133,7 +133,6 @@ pub(crate) async fn register_user(
 
     let email_id =
         send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
-
     Span::current().record("email_id", &*email_id);
 
     let jwt_string = issue_token(user_uuid, &ctx.enc_key).unwrap();
@@ -154,8 +153,8 @@ pub(crate) async fn register_user(
 pub struct EmailConfirmation {
     /// One-time password.
     ///
-    /// An alphanumeAn alphanumeric code that has been sent to them upon registration.
-    #[schema(min_length = 8, max_length = 8, example = "Aj23MpUI")]
+    /// An numeric code that has been sent to them upon registration.
+    #[schema(min_length = 8, max_length = 8, example = "01234567")]
     otp: String,
 }
 
