@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO \"confirmation_tokens\" (token, purpose, user_id, expires_at)\n            VALUES ($1, 'EMAIL_CONFIRMATION', $2, $3)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "adf197efb97fc699d37e5f6c02f941e3e738c413d6767271475ec1f1d8f8b57e"
+}

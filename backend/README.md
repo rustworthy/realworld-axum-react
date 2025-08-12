@@ -87,9 +87,9 @@ make db/migrate/revert
 
 Note that those `make` commands are thin wrappers over the `sqlx` CLI commands,
 that just make sure to provide the correct connection string (see [`Makefile](./Makefile)).
-I.e. you can achieve all of that and even more - if needed - using the`sqlx` tool
-directly. Most of the time, though, we want to create a new migration file,
-apply it, then revert it as a sanity check, and then re-apply it.
+I.e. you can achieve all of that and even more - if needed - using the `sqlx` tool
+directly. Most of the time, though, we want to create a new migration file, apply it,
+then revert it as a sanity check, and then re-apply it.
 
 <!-- -------------------------------- LINKS -------------------------------- -->
 [1]: https://github.com/gothinkster/realworld/blob/09e8fa29ef0ee39fa5d1caecfa0b4e5f090bbe92/api/openapi.yml
