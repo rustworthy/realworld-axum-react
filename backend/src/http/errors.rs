@@ -24,10 +24,10 @@ pub(crate) enum Error {
     #[error("unprocessable entity")]
     Unprocessable(Validation),
 
-    #[error("unautherized")]
+    #[error("unauthorized")]
     Unauthorized,
 
-    #[error("unautherized")]
+    #[error("internal error")]
     Internal(#[from] anyhow::Error),
 
     #[error("database driver error")]
