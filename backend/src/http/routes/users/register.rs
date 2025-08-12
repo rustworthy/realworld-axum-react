@@ -72,8 +72,7 @@ pub(crate) async fn register_user(
         )]));
     }
 
-    let password_hash =
-        hash_password(&user.password).map_err(|e| Error::Internal(e.to_string()))?;
+    let password_hash = hash_password(&user.password)?;
 
     let status = if ctx.skip_email_verification {
         "ACTIVE"
@@ -128,8 +127,7 @@ pub(crate) async fn register_user(
         &expires_at
     )
     .execute(&ctx.db)
-    .await
-    .map_err(|e| Error::Internal(e.to_string()))?;
+    .await?;
 
     let email_id =
         send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
@@ -193,7 +191,8 @@ pub(crate) async fn confirm_email(
         &user.otp
     )
     .fetch_optional(&ctx.db)
-    .await?;
+    .await?
+    .flatten();
 
     let user_id =
         user_id.ok_or_else(|| Error::unprocessable_entity([("otp", "Invalid or expired OTP")]))?;
@@ -208,8 +207,7 @@ pub(crate) async fn confirm_email(
         &user_id
     )
     .fetch_one(&ctx.db)
-    .await
-    .map_err(|e| Error::Internal(e.to_string()))?;
+    .await?;
 
     let jwt_string = issue_token(user_id, &ctx.enc_key).unwrap();
 
