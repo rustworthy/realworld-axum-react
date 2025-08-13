@@ -1,0 +1,2 @@
+ALTER TABLE "confirmation_tokens" ADD CONSTRAINT token_user_fk FOREIGN KEY (user_id) REFERENCES users;
+

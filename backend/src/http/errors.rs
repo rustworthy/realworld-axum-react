@@ -19,40 +19,25 @@ pub(crate) struct Validation {
     pub errors: BTreeMap<String, Vec<String>>,
 }
 
-impl Validation {
-    pub fn single<F, M>(field: F, message: M) -> Self
-    where
-        F: Into<String>,
-        M: Into<String>,
-    {
-        Self {
-            errors: BTreeMap::from([(field.into(), vec![message.into()])]),
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(thiserror::Error, Debug)]
 pub(crate) enum Error {
+    #[error("unprocessable entity")]
     Unprocessable(Validation),
+
+    #[error("unauthorized")]
     Unauthorized,
-    Internal(String),
-    Sqlx(sqlx::Error),
+
+    #[error("internal error")]
+    Internal(#[from] anyhow::Error),
+
+    #[error("database driver error")]
+    Sqlx(#[from] sqlx::Error),
 }
 
 impl From<JsonRejection> for Error {
     fn from(value: JsonRejection) -> Self {
         let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
         Self::Unprocessable(Validation { errors })
-    }
-}
-impl From<anyhow::Error> for Error {
-    fn from(value: anyhow::Error) -> Self {
-        Self::Internal(value.to_string())
-    }
-}
-impl From<sqlx::Error> for Error {
-    fn from(err: sqlx::Error) -> Self {
-        Error::Sqlx(err)
     }
 }
 
@@ -67,12 +52,12 @@ impl IntoResponse for Error {
             Self::Unprocessable(validation) => {
                 (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
             }
-            Self::Internal(reason) => {
-                error!(reason);
+            Self::Internal(e) => {
+                error!(error = ?e, "innternal error occurred");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
             Error::Sqlx(e) => {
-                error!("Database error: {:?}", e);
+                error!(error = ?e, "database driver error");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
         }

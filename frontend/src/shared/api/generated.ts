@@ -112,7 +112,7 @@ export type UserPayloadRegistration = {
     password: string;
     /** User's name or nickname.
         
-        This is  - just like the user's `email` - case-insensitively unique
+        This is - just like the user's `email` - case-insensitively unique
         in the system. */
     username: string;
   };

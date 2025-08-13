@@ -25,17 +25,20 @@ pub struct Registration {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.
+    #[schema(example = "rob.pike@gmail.com", format = "email")]
     email: String,
 
     /// User's name or nickname.
     ///
-    /// This is  - just like the user's `email` - case-insensitively unique
+    /// This is - just like the user's `email` - case-insensitively unique
     /// in the system.
+    #[schema(example = "rob.pike1984")]
     username: String,
 
     /// User's password.
     ///
     /// There are currently no limitations on password strength.
+    #[schema(min_length = 1, example = "Whoami@g00gle")]
     password: String,
 }
 
@@ -72,8 +75,7 @@ pub(crate) async fn register_user(
         )]));
     }
 
-    let password_hash =
-        hash_password(&user.password).map_err(|e| Error::Internal(e.to_string()))?;
+    let password_hash = hash_password(&user.password)?;
 
     let status = if ctx.skip_email_verification {
         "ACTIVE"
@@ -128,8 +130,7 @@ pub(crate) async fn register_user(
         &expires_at
     )
     .execute(&ctx.db)
-    .await
-    .map_err(|e| Error::Internal(e.to_string()))?;
+    .await?;
 
     let email_id =
         send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
@@ -193,7 +194,8 @@ pub(crate) async fn confirm_email(
         &user.otp
     )
     .fetch_optional(&ctx.db)
-    .await?;
+    .await?
+    .flatten();
 
     let user_id =
         user_id.ok_or_else(|| Error::unprocessable_entity([("otp", "Invalid or expired OTP")]))?;
@@ -208,8 +210,7 @@ pub(crate) async fn confirm_email(
         &user_id
     )
     .fetch_one(&ctx.db)
-    .await
-    .map_err(|e| Error::Internal(e.to_string()))?;
+    .await?;
 
     let jwt_string = issue_token(user_id, &ctx.enc_key).unwrap();
 
