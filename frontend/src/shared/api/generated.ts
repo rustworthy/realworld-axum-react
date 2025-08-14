@@ -64,7 +64,7 @@ export type UserPayloadUser = {
     /** User's email, e.g. `rob.pike@gmail.com`. */
     email: string;
     /** Location of user's image (if any). */
-    image?: string | null;
+    image: string | null;
     /** Fresh JWT token. */
     token: string;
     /** User's name or nickname.
