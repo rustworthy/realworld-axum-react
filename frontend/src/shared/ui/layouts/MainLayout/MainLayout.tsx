@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "@/shared/auth";
-import { useAuthSnapshotRestoration } from "@/shared/auth/hook";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import * as S from "./MainLayout.styles";
+import { useAuthSnapshotRestoration } from "@/shared/auth/hook";
 
 export const MainLayout = () => {
   useAuthSnapshotRestoration();

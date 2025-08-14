@@ -1,9 +1,5 @@
 import styled from "@emotion/styled";
 
-export const SignUpLink = styled.a`
-  color: ${({ theme }) => theme.page.signup.signInLink.textColor};
-`;
-
 export const SignInForm = styled.form`
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -19,4 +15,8 @@ export const SignInButtonContainer = styled.div`
   .SimpleButton {
     max-width: 7.5rem;
   }
+`;
+
+export const SignUpLink = styled.a`
+  color: ${({ theme }) => theme.page.signin.signUpLink.textColor};
 `;
