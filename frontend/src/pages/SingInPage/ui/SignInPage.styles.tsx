@@ -1,5 +1,22 @@
 import styled from "@emotion/styled";
 
-export const Title = styled.h2`
-  font-size: 32px;
+export const SignUpLink = styled.a`
+  color: ${({ theme }) => theme.page.signup.signInLink.textColor};
+`;
+
+export const SignInForm = styled.form`
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const SignInButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+
+  .SimpleButton {
+    max-width: 7.5rem;
+  }
 `;

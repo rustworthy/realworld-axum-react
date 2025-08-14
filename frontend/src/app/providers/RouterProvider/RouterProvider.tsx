@@ -16,7 +16,7 @@ const ProtectedRoutes = () => {
 const AnonymRoutes = () => {
   const { isAuthenticated } = useAuth();
 
-  return isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.HOME} replace />;
+  return !isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.HOME} replace />;
 };
 
 export const RouterProvider = () => {
