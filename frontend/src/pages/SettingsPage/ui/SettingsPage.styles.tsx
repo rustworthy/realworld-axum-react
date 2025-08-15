@@ -1,10 +1,5 @@
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
-
-export const Form = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 export const SubmitButtonContainer = styled.div`
   display: flex;
@@ -14,6 +9,29 @@ export const SubmitButtonContainer = styled.div`
   .SimpleButton {
     max-width: 11.5rem;
   }
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.75rem;
+
+    .SimpleButton {
+      max-width: 100%;
+    }
+  }
+`;
+
+export const LogoutSectionWrapper = styled.div`
+  width: 100%;
+  max-width: 35rem;
+  padding: 0 0.75rem 1.5rem;
+`
+
+export const Separator = styled.hr`
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+  border-top: 2px solid;
+  opacity: 0.1;
 `;
 
 export const LogoutButtonContainer = styled.div`
@@ -40,9 +58,3 @@ export const LogoutButtonContainer = styled.div`
   }
 `;
 
-export const Separator = styled.hr`
-  width: 100%;
-  margin: 1rem 0;
-  border-top: 2px solid;
-  opacity: 0.1;
-`;

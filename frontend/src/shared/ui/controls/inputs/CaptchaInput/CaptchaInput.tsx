@@ -28,8 +28,8 @@ export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError,
     <S.CaptchaInputContainer>
       <S.CaptchaWidgetContainer>
         <Turnstile siteKey="1x00000000000000000000AA" onSuccess={onSuccess} onError={onError} options={{ theme }} />
-        {fieldErrors[name] ? <FormInputError>{fieldErrors[name]!.message as string}</FormInputError> : null}
       </S.CaptchaWidgetContainer>
+      {fieldErrors[name] ? <S.CaptchaError>{fieldErrors[name]!.message as string}</S.CaptchaError> : null}
     </S.CaptchaInputContainer>
   );
 };

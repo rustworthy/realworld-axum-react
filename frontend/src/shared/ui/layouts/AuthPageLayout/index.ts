@@ -1,1 +1,0 @@
-export { AuthPageLayout } from "./AuthPageLayout";

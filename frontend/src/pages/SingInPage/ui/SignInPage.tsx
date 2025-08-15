@@ -7,12 +7,12 @@ import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput, CaptchaInput } from "@/shared/ui/controls/inputs";
-import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { TSignInPageSchema, signInDefaultValues, signInPageSchema } from "./SignInPage.schema";
 import * as S from "./SignInPage.styles";
+import { FormPage } from "@/shared/ui/FormPage";
 
 export const SignInPage = () => {
   const navigate = useNavigate();
@@ -49,10 +49,10 @@ export const SignInPage = () => {
   };
 
   return (
-    <AuthPageLayout title="Sign in">
+    <FormPage.Container title="Sign in">
       <S.SignUpLink href="/signup">Need an account?</S.SignUpLink>
 
-      <S.SignInForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoginLoading}>
+      <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoginLoading}>
         <Controller
           control={control}
           name="email"
@@ -76,7 +76,7 @@ export const SignInPage = () => {
           )}
         />
 
-        <S.SubmissionSection>
+        <FormPage.FormSubmissionSection>
           <CaptchaInput
             name="captchaToken"
             setValue={setValue}
@@ -87,8 +87,8 @@ export const SignInPage = () => {
           <Button dataTestId="signin_submit_button" isDisabled={isLoginLoading}>
             Sign in
           </Button>
-        </S.SubmissionSection>
-      </S.SignInForm>
-    </AuthPageLayout>
+        </FormPage.FormSubmissionSection>
+      </FormPage.Form>
+    </FormPage.Container>
   );
 };

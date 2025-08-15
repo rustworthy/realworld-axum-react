@@ -7,12 +7,12 @@ import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
 import { OTPInput, CaptchaInput } from "@/shared/ui/controls/inputs";
-import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./ConfirmEmailPage.schema";
 import * as S from "./ConfirmEmailPage.styles";
+import { FormPage } from "@/shared/ui/FormPage";
 
 export const ConfirmEmailPage = () => {
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ export const ConfirmEmailPage = () => {
   });
 
   return (
-    <AuthPageLayout title="Let's confirm your email">
+    <FormPage.Container title="Let's confirm your email">
       <S.OTPInstruction>Please insert a one-time code we've sent to you via email.</S.OTPInstruction>
       <S.OTPForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isConfirmEmailLoading}>
         <Controller
@@ -62,12 +62,12 @@ export const ConfirmEmailPage = () => {
               required
               label="One time code for email confirmation"
               id="confirm_email_otp"
-              error={errors.otp ? errors.otp.message : undefined}
+              error={errors.otp?.message}
             />
           )}
         />
 
-        <S.SubmissionSection>
+        <FormPage.FormSubmissionSection>
           <CaptchaInput
             name="captchaToken"
             setValue={setValue}
@@ -78,8 +78,8 @@ export const ConfirmEmailPage = () => {
           <Button dataTestId="confirm_email_button" isDisabled={isConfirmEmailLoading}>
             Submit
           </Button>
-        </S.SubmissionSection>
+        </FormPage.FormSubmissionSection >
       </S.OTPForm>
-    </AuthPageLayout>
+    </FormPage.Container>
   );
 };

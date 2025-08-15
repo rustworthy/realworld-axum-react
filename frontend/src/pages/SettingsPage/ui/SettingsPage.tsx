@@ -5,12 +5,12 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useAuth } from "@/shared/auth";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput, Textarea } from "@/shared/ui/controls/inputs";
-import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { TSettingsPageSchema, settingsPageDefaultValues, settingsPageSchema } from "./SettingsPage.schema";
 import * as S from "./SettingsPage.styles";
+import { FormPage } from "@/shared/ui/FormPage";
 
 export const SettingsPage = () => {
   const { update, isUpdateLoading, user, logout } = useAuth();
@@ -42,8 +42,8 @@ export const SettingsPage = () => {
   };
 
   return (
-    <AuthPageLayout title="Your Settings">
-      <S.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
+    <FormPage.Container title="Your Settings">
+      <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
         <Controller
           control={control}
           name="image"
@@ -119,15 +119,17 @@ export const SettingsPage = () => {
             Update Settings
           </Button>
         </S.SubmitButtonContainer>
-      </S.Form>
+      </FormPage.Form>
 
-      <S.Separator />
+      <S.LogoutSectionWrapper>
+        <S.Separator />
+        <S.LogoutButtonContainer>
+          <Button dataTestId="settings_logout_button" onClick={logout}>
+            Or click here to logout.
+          </Button>
+        </S.LogoutButtonContainer>
+      </S.LogoutSectionWrapper>
 
-      <S.LogoutButtonContainer>
-        <Button dataTestId="settings_logout_button" onClick={logout}>
-          Or click here to logout.
-        </Button>
-      </S.LogoutButtonContainer>
-    </AuthPageLayout>
+    </FormPage.Container>
   );
 };

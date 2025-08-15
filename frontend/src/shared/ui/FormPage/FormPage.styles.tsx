@@ -1,3 +1,4 @@
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
 
 export const PageWrapper = styled.div`
@@ -20,21 +21,34 @@ export const Title = styled.h1`
   color: inherit;
 `;
 
-export const PageInner = styled.div`
+
+export const Form = styled.form<{ maxWidth?: string }>`
   width: 100%;
-  max-width: 35rem;
+  max-width: ${props => props.maxWidth ?? "35rem"};
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
 `;
 
-export const ButtonContainer = styled.div`
+export const FormSubmissionSection = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: end;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75rem 0.125rem;
+  gap: 1rem;
 
   .SimpleButton {
     max-width: 7.5rem;
   }
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.75rem;
+
+    .SimpleButton {
+      max-width: 100%;
+    }
+  }
 `;
+
