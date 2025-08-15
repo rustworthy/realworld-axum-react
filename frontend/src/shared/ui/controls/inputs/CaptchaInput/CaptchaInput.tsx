@@ -4,16 +4,16 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import { FormInputError } from "../inputs.styles";
-import { ITurnstileInputProps } from "../inputs.types";
-import * as S from "./TurnstileInput.styles";
+import { ICaptchaInputProps } from "../inputs.types";
+import * as S from "./CaptchaInput.styles";
 
-export const TurnstileInput: FC<ITurnstileInputProps> = ({ name, setValue, setError, clearErrors, fieldErrors }) => {
+export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError, clearErrors, fieldErrors }) => {
   const { ternaryDarkMode } = useTernaryDarkMode();
   const theme = ternaryDarkMode === "system" ? "auto" : ternaryDarkMode === "dark" ? "dark" : "light";
 
   const onSuccess = useCallback((token: string) => {
     clearErrors([name]);
-    setValue("turnstileToken", token);
+    setValue(name, token);
   }, [clearErrors, setValue]);
 
   const onError = useCallback(() => {
@@ -25,11 +25,11 @@ export const TurnstileInput: FC<ITurnstileInputProps> = ({ name, setValue, setEr
   }, [setError, setValue]);
 
   return (
-    <S.TurnstileInputContainer>
-      <S.TurnstileWidgetContainer>
+    <S.CaptchaInputContainer>
+      <S.CaptchaWidgetContainer>
         <Turnstile siteKey="1x00000000000000000000AA" onSuccess={onSuccess} onError={onError} options={{ theme }} />
         {fieldErrors[name] ? <FormInputError>{fieldErrors[name]!.message as string}</FormInputError> : null}
-      </S.TurnstileWidgetContainer>
-    </S.TurnstileInputContainer>
+      </S.CaptchaWidgetContainer>
+    </S.CaptchaInputContainer>
   );
 };

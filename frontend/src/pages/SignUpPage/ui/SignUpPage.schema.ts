@@ -6,7 +6,7 @@ export const signUpPageSchema = z
     email: z.email({ error: "Valid email address required." }),
     password: z.string().nonempty({ error: "Cannot be empty." }),
     confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
-    turnstileToken: z.string().nonempty({ error: "Cannot be empty." }),
+    captchaToken: z.string().nonempty({ error: "Cannot be empty." }),
   })
   .refine((data) => data.confirmPassword === data.password, {
     message: "Passwords do not match",
@@ -18,7 +18,7 @@ export const signUpDefaultValues = {
   email: "",
   password: "",
   confirmPassword: "",
-  turnstileToken: "",
+  captchaToken: "",
 };
 
 export type TSignUpPageSchema = z.infer<typeof signUpPageSchema>;

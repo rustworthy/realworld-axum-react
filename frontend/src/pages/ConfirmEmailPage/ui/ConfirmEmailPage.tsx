@@ -6,7 +6,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
-import { OTPInput } from "@/shared/ui/controls/inputs";
+import { OTPInput, CaptchaInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -40,6 +40,7 @@ export const ConfirmEmailPage = () => {
 
   const {
     handleSubmit,
+    setValue, setError, clearErrors,
     control,
     formState: { errors },
   } = useForm({
@@ -66,11 +67,18 @@ export const ConfirmEmailPage = () => {
           )}
         />
 
-        <S.ButtonContainer>
+        <S.SubmissionSection>
+          <CaptchaInput
+            name="captchaToken"
+            setValue={setValue}
+            setError={setError}
+            fieldErrors={errors}
+            clearErrors={clearErrors}
+          />
           <Button dataTestId="confirm_email_button" isDisabled={isConfirmEmailLoading}>
             Submit
           </Button>
-        </S.ButtonContainer>
+        </S.SubmissionSection>
       </S.OTPForm>
     </AuthPageLayout>
   );

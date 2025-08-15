@@ -6,6 +6,7 @@ import * as S from "./AuthPageLayout.styles";
  * Wrapper for authentication related pages: signin, signup,
  * password reset, email confirmation, etc.
  */
+// FormPageContainer
 export const AuthPageLayout: FC<PropsWithChildren<{ title: string }>> = (props) => {
   return (
     <S.PageWrapper>

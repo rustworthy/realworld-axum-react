@@ -6,7 +6,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput, TurnstileInput } from "@/shared/ui/controls/inputs";
+import { PasswordInput, TextInput, CaptchaInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -111,8 +111,8 @@ export const SignUpPage = () => {
         />
 
         <S.SubmissionSection>
-          <TurnstileInput
-            name="turnstileToken"
+          <CaptchaInput
+            name="captchaToken"
             setValue={setValue}
             setError={setError}
             fieldErrors={errors}

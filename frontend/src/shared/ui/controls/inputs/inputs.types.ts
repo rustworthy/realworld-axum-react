@@ -1,3 +1,4 @@
+import { ANY_TODO } from "@/shared/types/common.types";
 import {
   FieldErrors,
   FieldValues,
@@ -7,8 +8,7 @@ import {
   UseFormSetValue,
 } from "react-hook-form";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RHFFieldProps = Partial<UseControllerReturn<any>["field"]>;
+type RHFFieldProps = Partial<UseControllerReturn<ANY_TODO>["field"]>;
 
 export interface IInputProps {
   id: string;
@@ -24,8 +24,7 @@ export interface IOTPInputProps extends IInputProps {
   length: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ITurnstileInputProps<T extends FieldValues = any> {
+export interface ICaptchaInputProps<T extends FieldValues = ANY_TODO> {
   name: string;
   setValue: UseFormSetValue<T>;
   setError: UseFormSetError<T>;

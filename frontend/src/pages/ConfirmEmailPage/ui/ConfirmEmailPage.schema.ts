@@ -11,10 +11,12 @@ export const confirmEmailSchema = z.object({
     .refine((value) => NUMERIC.test(value), {
       error: "Should only contain numbers.",
     }),
+  captchaToken: z.string().nonempty({ error: "Cannot be empty." }),
 });
 
-export const confirmEmailDefaultValues = {
+export const confirmEmailDefaultValues: TConfirmEmail = {
   otp: "",
+  captchaToken: "",
 };
 
 export type TConfirmEmail = z.infer<typeof confirmEmailSchema>;

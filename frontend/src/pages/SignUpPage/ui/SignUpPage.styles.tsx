@@ -18,7 +18,6 @@ export const SubmissionSection = styled.div`
     max-width: 7.5rem;
   }
 
-
   @media (max-width: ${MOBILE_WIDTH}px) {
     flex-direction: column-reverse;
     align-items: center;

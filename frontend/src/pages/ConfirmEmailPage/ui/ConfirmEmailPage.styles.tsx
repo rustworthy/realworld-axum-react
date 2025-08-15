@@ -1,21 +1,31 @@
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
 
 export const OTPForm = styled.form`
-  max-width: 25rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
 `;
 
-export const ButtonContainer = styled.div`
-  width: 100%;
-  max-width: 600px;
+export const SubmissionSection = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: end;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75rem 0.125rem;
 
   .SimpleButton {
     max-width: 7.5rem;
+  }
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.75rem;
+
+    .SimpleButton {
+      max-width: 100%;
+    }
   }
 `;
 
