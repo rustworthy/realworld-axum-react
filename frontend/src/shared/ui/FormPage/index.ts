@@ -1,1 +1,1 @@
-export { FormPage } from "./FormPage";
+export * as FormPage from "./FormPage";

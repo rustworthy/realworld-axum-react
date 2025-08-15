@@ -1,5 +1,6 @@
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
+
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 
 export const PageWrapper = styled.div`
   padding: 3rem 0.5rem 0;
@@ -21,10 +22,9 @@ export const Title = styled.h1`
   color: inherit;
 `;
 
-
 export const Form = styled.form<{ maxWidth?: string }>`
   width: 100%;
-  max-width: ${props => props.maxWidth ?? "35rem"};
+  max-width: ${(props) => props.maxWidth ?? "35rem"};
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
@@ -51,4 +51,3 @@ export const FormSubmissionSection = styled.div`
     }
   }
 `;
-

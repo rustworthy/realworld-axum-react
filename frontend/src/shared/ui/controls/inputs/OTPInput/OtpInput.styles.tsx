@@ -81,5 +81,4 @@ export const DashLine = styled.div`
   height: 0.126rem;
   border-radius: 9999px;
   background-color: ${({ theme }) => theme.shared.input.otp.separator.backgroundColor};
-
 `;

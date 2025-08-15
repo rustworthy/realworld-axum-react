@@ -1,4 +1,3 @@
-import { ANY_TODO } from "@/shared/types/common.types";
 import {
   FieldErrors,
   FieldValues,
@@ -7,6 +6,8 @@ import {
   UseFormSetError,
   UseFormSetValue,
 } from "react-hook-form";
+
+import { ANY_TODO } from "@/shared/types/common.types";
 
 type RHFFieldProps = Partial<UseControllerReturn<ANY_TODO>["field"]>;
 

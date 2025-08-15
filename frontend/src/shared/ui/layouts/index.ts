@@ -1,2 +1,1 @@
 export { MainLayout } from "./MainLayout";
-

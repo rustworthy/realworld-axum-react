@@ -3,7 +3,6 @@ import { FC, useCallback } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { FormInputError } from "../inputs.styles";
 import { ICaptchaInputProps } from "../inputs.types";
 import * as S from "./CaptchaInput.styles";
 
@@ -11,10 +10,13 @@ export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError,
   const { ternaryDarkMode } = useTernaryDarkMode();
   const theme = ternaryDarkMode === "system" ? "auto" : ternaryDarkMode === "dark" ? "dark" : "light";
 
-  const onSuccess = useCallback((token: string) => {
-    clearErrors([name]);
-    setValue(name, token);
-  }, [clearErrors, setValue]);
+  const onSuccess = useCallback(
+    (token: string) => {
+      clearErrors([name]);
+      setValue(name, token);
+    },
+    [clearErrors, setValue],
+  );
 
   const onError = useCallback(() => {
     setError(name, {

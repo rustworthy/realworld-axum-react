@@ -2,7 +2,7 @@ import { FC, PropsWithChildren } from "react";
 
 import * as S from "./FormPage.styles";
 
-const Container: FC<PropsWithChildren<{ title: string }>> = (props) => {
+export const Container: FC<PropsWithChildren<{ title: string }>> = (props) => {
   return (
     <S.PageWrapper>
       <S.Title>{props.title}</S.Title>
@@ -11,8 +11,6 @@ const Container: FC<PropsWithChildren<{ title: string }>> = (props) => {
   );
 };
 
-export const FormPage = {
-  Container,
-  Form: S.Form,
-  FormSubmissionSection: S.FormSubmissionSection,
-}
+export const Form = S.Form;
+
+export const FormSubmissionSection = S.FormSubmissionSection;

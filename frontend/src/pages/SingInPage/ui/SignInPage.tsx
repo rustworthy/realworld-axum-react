@@ -5,14 +5,14 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput, CaptchaInput } from "@/shared/ui/controls/inputs";
+import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { TSignInPageSchema, signInDefaultValues, signInPageSchema } from "./SignInPage.schema";
 import * as S from "./SignInPage.styles";
-import { FormPage } from "@/shared/ui/FormPage";
 
 export const SignInPage = () => {
   const navigate = useNavigate();
@@ -21,7 +21,9 @@ export const SignInPage = () => {
   const {
     control,
     handleSubmit,
-    setValue, setError, clearErrors,
+    setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(signInPageSchema),

@@ -1,5 +1,6 @@
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
+
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 
 export const SubmitButtonContainer = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ export const LogoutSectionWrapper = styled.div`
   width: 100%;
   max-width: 35rem;
   padding: 0 0.75rem 1.5rem;
-`
+`;
 
 export const Separator = styled.hr`
   width: 100%;
@@ -57,4 +58,3 @@ export const LogoutButtonContainer = styled.div`
     }
   }
 `;
-

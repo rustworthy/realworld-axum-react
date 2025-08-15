@@ -5,14 +5,14 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
-import { OTPInput, CaptchaInput } from "@/shared/ui/controls/inputs";
+import { CaptchaInput, OTPInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./ConfirmEmailPage.schema";
 import * as S from "./ConfirmEmailPage.styles";
-import { FormPage } from "@/shared/ui/FormPage";
 
 export const ConfirmEmailPage = () => {
   const navigate = useNavigate();
@@ -40,7 +40,9 @@ export const ConfirmEmailPage = () => {
 
   const {
     handleSubmit,
-    setValue, setError, clearErrors,
+    setValue,
+    setError,
+    clearErrors,
     control,
     formState: { errors },
   } = useForm({
@@ -78,7 +80,7 @@ export const ConfirmEmailPage = () => {
           <Button dataTestId="confirm_email_button" isDisabled={isConfirmEmailLoading}>
             Submit
           </Button>
-        </FormPage.FormSubmissionSection >
+        </FormPage.FormSubmissionSection>
       </S.OTPForm>
     </FormPage.Container>
   );

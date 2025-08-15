@@ -1,6 +1,6 @@
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
-import { FormPage } from "@/shared/ui/FormPage";
 import styled from "@emotion/styled";
+
+import { FormPage } from "@/shared/ui/FormPage";
 
 export const OTPInstruction = styled.p`
   padding-bottom: 1rem;

@@ -5,14 +5,14 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput, CaptchaInput } from "@/shared/ui/controls/inputs";
+import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
 import * as S from "./SignUpPage.styles";
-import { FormPage } from "@/shared/ui/FormPage";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
