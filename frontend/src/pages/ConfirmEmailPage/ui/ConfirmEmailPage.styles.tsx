@@ -22,4 +22,3 @@ export const ButtonContainer = styled.div`
 export const OTPInstruction = styled.p`
   padding-bottom: 1rem;
 `;
-

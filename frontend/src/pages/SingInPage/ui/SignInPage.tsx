@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
+import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
@@ -12,7 +13,6 @@ import { toast } from "sonner";
 
 import { TSignInPageSchema, signInDefaultValues, signInPageSchema } from "./SignInPage.schema";
 import * as S from "./SignInPage.styles";
-import { useAuth } from "@/shared/auth";
 
 export const SignInPage = () => {
   const navigate = useNavigate();
@@ -71,13 +71,7 @@ export const SignInPage = () => {
           control={control}
           name="password"
           render={({ field }) => (
-            <PasswordInput
-              field={field}
-              required
-              id="signin_password"
-              label="Password"
-              error={errors.password?.message}
-            />
+            <PasswordInput field={field} required id="signin_password" label="Password" error={errors.password?.message} />
           )}
         />
 

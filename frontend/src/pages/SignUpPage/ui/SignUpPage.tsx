@@ -6,19 +6,15 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
+import { PasswordInput, TextInput, TurnstileInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
 import * as S from "./SignUpPage.styles";
-import { Turnstile } from "@marsidev/react-turnstile";
-import { useTernaryDarkMode } from "usehooks-ts";
 
 export const SignUpPage = () => {
-  const { ternaryDarkMode } = useTernaryDarkMode();
-  const turnstileMode = ternaryDarkMode === "system" ? "auto" : ternaryDarkMode === "dark" ? "dark" : "light";
   const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
 
@@ -27,6 +23,7 @@ export const SignUpPage = () => {
     handleSubmit,
     setValue,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(signUpPageSchema),
@@ -34,8 +31,6 @@ export const SignUpPage = () => {
   });
 
   const onSubmit = async (data: TSignUpPageSchema): Promise<void> => {
-    console.log(data);
-    return;
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
@@ -115,27 +110,18 @@ export const SignUpPage = () => {
           )}
         />
 
-        <S.SignUpButtonContainer>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ width: "300px", height: "65px" }}>
-              <Turnstile
-                siteKey="2x00000000000000000000AB"
-                onError={() => {
-                  console.log("errordasddad");
-                  setValue("turnstileToken", "");
-                  setError("turnstileToken", { message: "Anti-bot validation failed, please try again" });
-                }}
-                onSuccess={(token) => setValue("turnstileToken", token)}
-                options={{ theme: turnstileMode }}
-              />
-            </div>
-            {errors.turnstileToken ? errors.turnstileToken.message : null}
-          </div>
-
+        <S.SignUpSubmissionSection>
+          <TurnstileInput
+            name="turnstileToken"
+            setValue={setValue}
+            setError={setError}
+            fieldErrors={errors}
+            clearErrors={clearErrors}
+          />
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
             Sign up
           </Button>
-        </S.SignUpButtonContainer>
+        </S.SignUpSubmissionSection>
       </S.SignUpForm>
     </AuthPageLayout>
   );

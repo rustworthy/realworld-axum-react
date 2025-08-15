@@ -7,10 +7,11 @@ export const SignUpForm = styled.form`
   flex-direction: column;
 `;
 
-export const SignUpButtonContainer = styled.div`
+export const SignUpSubmissionSection = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  padding: 0.75rem 0.125rem;
 
   .SimpleButton {
     max-width: 7.5rem;
