@@ -6,7 +6,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
+import { PasswordInput, TextInput, TurnstileInput } from "@/shared/ui/controls/inputs";
 import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ export const SignInPage = () => {
   const {
     control,
     handleSubmit,
+    setValue, setError, clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(signInPageSchema),
@@ -75,11 +76,18 @@ export const SignInPage = () => {
           )}
         />
 
-        <S.SignInButtonContainer>
+        <S.SubmissionSection>
+          <TurnstileInput
+            name="turnstileToken"
+            setValue={setValue}
+            setError={setError}
+            fieldErrors={errors}
+            clearErrors={clearErrors}
+          />
           <Button dataTestId="signin_submit_button" isDisabled={isLoginLoading}>
             Sign in
           </Button>
-        </S.SignInButtonContainer>
+        </S.SubmissionSection>
       </S.SignInForm>
     </AuthPageLayout>
   );

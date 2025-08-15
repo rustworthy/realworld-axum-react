@@ -110,7 +110,7 @@ export const SignUpPage = () => {
           )}
         />
 
-        <S.SignUpSubmissionSection>
+        <S.SubmissionSection>
           <TurnstileInput
             name="turnstileToken"
             setValue={setValue}
@@ -121,7 +121,7 @@ export const SignUpPage = () => {
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
             Sign up
           </Button>
-        </S.SignUpSubmissionSection>
+        </S.SubmissionSection>
       </S.SignUpForm>
     </AuthPageLayout>
   );

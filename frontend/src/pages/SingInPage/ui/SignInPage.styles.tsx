@@ -1,3 +1,4 @@
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
 
 export const SignInForm = styled.form`
@@ -7,13 +8,24 @@ export const SignInForm = styled.form`
   flex-direction: column;
 `;
 
-export const SignInButtonContainer = styled.div`
+export const SubmissionSection = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: end;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75rem 0.125rem;
 
   .SimpleButton {
     max-width: 7.5rem;
+  }
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.75rem;
+
+    .SimpleButton {
+      max-width: 100%;
+    }
   }
 `;
 

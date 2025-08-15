@@ -1,3 +1,4 @@
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import styled from "@emotion/styled";
 
 export const SignUpForm = styled.form`
@@ -7,7 +8,7 @@ export const SignUpForm = styled.form`
   flex-direction: column;
 `;
 
-export const SignUpSubmissionSection = styled.div`
+export const SubmissionSection = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -15,6 +16,17 @@ export const SignUpSubmissionSection = styled.div`
 
   .SimpleButton {
     max-width: 7.5rem;
+  }
+
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.75rem;
+
+    .SimpleButton {
+      max-width: 100%;
+    }
   }
 `;
 
