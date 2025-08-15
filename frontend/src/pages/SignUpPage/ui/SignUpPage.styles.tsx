@@ -9,8 +9,8 @@ export const SignUpForm = styled.form`
 
 export const SignUpButtonContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: end;
+  align-items: center;
+  justify-content: space-between;
 
   .SimpleButton {
     max-width: 7.5rem;

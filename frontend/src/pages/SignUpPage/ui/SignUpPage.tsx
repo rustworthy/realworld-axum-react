@@ -13,8 +13,14 @@ import { toast } from "sonner";
 
 import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
 import * as S from "./SignUpPage.styles";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { useState } from "react";
+import { useTernaryDarkMode } from "usehooks-ts";
 
 export const SignUpPage = () => {
+  const { ternaryDarkMode } = useTernaryDarkMode();
+  const turnstileMode = ternaryDarkMode === "system" ? "auto" : ternaryDarkMode === "dark" ? "dark" : "light";
+  const [token, setToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
 
@@ -28,6 +34,8 @@ export const SignUpPage = () => {
   });
 
   const onSubmit = async (data: TSignUpPageSchema): Promise<void> => {
+    console.log(token);
+    return;
     const result = await registerUser({
       userPayloadRegistration: {
         user: data,
@@ -108,6 +116,9 @@ export const SignUpPage = () => {
         />
 
         <S.SignUpButtonContainer>
+          <div style={{ width: "300px", height: "65px" }}>
+            <Turnstile siteKey="1x00000000000000000000AA" onSuccess={setToken} options={{ theme: turnstileMode }} />
+          </div>
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
             Sign up
           </Button>
