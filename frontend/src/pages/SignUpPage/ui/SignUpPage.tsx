@@ -14,19 +14,19 @@ import { toast } from "sonner";
 import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
 import * as S from "./SignUpPage.styles";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useState } from "react";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 export const SignUpPage = () => {
   const { ternaryDarkMode } = useTernaryDarkMode();
   const turnstileMode = ternaryDarkMode === "system" ? "auto" : ternaryDarkMode === "dark" ? "dark" : "light";
-  const [token, setToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const [registerUser, { isLoading }] = useRegisterUserMutation();
 
   const {
     control,
     handleSubmit,
+    setValue,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(signUpPageSchema),
@@ -34,7 +34,7 @@ export const SignUpPage = () => {
   });
 
   const onSubmit = async (data: TSignUpPageSchema): Promise<void> => {
-    console.log(token);
+    console.log(data);
     return;
     const result = await registerUser({
       userPayloadRegistration: {
@@ -116,9 +116,22 @@ export const SignUpPage = () => {
         />
 
         <S.SignUpButtonContainer>
-          <div style={{ width: "300px", height: "65px" }}>
-            <Turnstile siteKey="1x00000000000000000000AA" onSuccess={setToken} options={{ theme: turnstileMode }} />
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ width: "300px", height: "65px" }}>
+              <Turnstile
+                siteKey="2x00000000000000000000AB"
+                onError={() => {
+                  console.log("errordasddad");
+                  setValue("turnstileToken", "");
+                  setError("turnstileToken", { message: "Anti-bot validation failed, please try again" });
+                }}
+                onSuccess={(token) => setValue("turnstileToken", token)}
+                options={{ theme: turnstileMode }}
+              />
+            </div>
+            {errors.turnstileToken ? errors.turnstileToken.message : null}
           </div>
+
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
             Sign up
           </Button>
