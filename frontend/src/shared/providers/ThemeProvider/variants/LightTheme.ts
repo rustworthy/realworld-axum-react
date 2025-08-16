@@ -15,6 +15,11 @@ export const LightTheme = {
         backgroundColor: palette.c03,
       },
     },
+    signin: {
+      signUpLink: {
+        textColor: palette.c03,
+      },
+    },
     signup: {
       signInLink: {
         textColor: palette.c03,

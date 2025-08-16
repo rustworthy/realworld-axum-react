@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
 
-export const Title = styled.h2`
-  font-size: 32px;
+export const SignUpLink = styled.a`
+  color: ${({ theme }) => theme.page.signin.signUpLink.textColor};
 `;

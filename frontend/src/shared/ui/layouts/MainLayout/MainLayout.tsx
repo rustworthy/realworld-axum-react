@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "@/shared/auth";
+import { useAuthSnapshotRestoration } from "@/shared/auth/hook";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
@@ -9,6 +10,7 @@ import { useTernaryDarkMode } from "usehooks-ts";
 import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
+  useAuthSnapshotRestoration();
   const navigate = useNavigate();
   const { toggleTernaryDarkMode } = useTernaryDarkMode();
   const { isAuthenticated, user } = useAuth();

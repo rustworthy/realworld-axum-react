@@ -3,9 +3,9 @@ import { Controller, useForm } from "react-hook-form";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/shared/auth";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput, Textarea } from "@/shared/ui/controls/inputs";
-import { AuthPageLayout } from "@/shared/ui/layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -42,8 +42,8 @@ export const SettingsPage = () => {
   };
 
   return (
-    <AuthPageLayout title="Your Settings">
-      <S.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
+    <FormPage.Container title="Your Settings">
+      <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isUpdateLoading}>
         <Controller
           control={control}
           name="image"
@@ -119,15 +119,16 @@ export const SettingsPage = () => {
             Update Settings
           </Button>
         </S.SubmitButtonContainer>
-      </S.Form>
+      </FormPage.Form>
 
-      <S.Separator />
-
-      <S.LogoutButtonContainer>
-        <Button dataTestId="settings_logout_button" onClick={logout}>
-          Or click here to logout.
-        </Button>
-      </S.LogoutButtonContainer>
-    </AuthPageLayout>
+      <S.LogoutSectionWrapper>
+        <S.Separator />
+        <S.LogoutButtonContainer>
+          <Button dataTestId="settings_logout_button" onClick={logout}>
+            Or click here to logout.
+          </Button>
+        </S.LogoutButtonContainer>
+      </S.LogoutSectionWrapper>
+    </FormPage.Container>
   );
 };

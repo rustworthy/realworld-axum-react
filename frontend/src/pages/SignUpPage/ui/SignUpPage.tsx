@@ -5,9 +5,9 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
-import { PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
-import { AuthPageLayout } from "@/shared/ui/layouts";
+import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -21,6 +21,9 @@ export const SignUpPage = () => {
   const {
     control,
     handleSubmit,
+    setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(signUpPageSchema),
@@ -46,10 +49,10 @@ export const SignUpPage = () => {
   };
 
   return (
-    <AuthPageLayout title="Sign up">
+    <FormPage.Container title="Sign up">
       <S.SignInLink href="/signin">Have an account?</S.SignInLink>
 
-      <S.SignUpForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
+      <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
         <Controller
           control={control}
           name="username"
@@ -107,12 +110,19 @@ export const SignUpPage = () => {
           )}
         />
 
-        <S.SignUpButtonContainer>
+        <FormPage.FormSubmissionSection>
+          <CaptchaInput
+            name="captchaToken"
+            setValue={setValue}
+            setError={setError}
+            fieldErrors={errors}
+            clearErrors={clearErrors}
+          />
           <Button dataTestId="signup_submit_button" isDisabled={isLoading}>
             Sign up
           </Button>
-        </S.SignUpButtonContainer>
-      </S.SignUpForm>
-    </AuthPageLayout>
+        </FormPage.FormSubmissionSection>
+      </FormPage.Form>
+    </FormPage.Container>
   );
 };

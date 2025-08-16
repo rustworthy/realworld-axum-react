@@ -29,6 +29,7 @@ pub(crate) struct User {
     bio: String,
 
     /// Location of user's image (if any).
+    #[schema(required = true)]
     image: Option<Url>,
 }
 
