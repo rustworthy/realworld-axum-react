@@ -21,7 +21,7 @@ export const FormInput = styled.input<{ $withRightAddon?: boolean }>`
   border: 1px solid ${(props) => props.theme.shared.input.borderColor};
   padding-block: 1rem;
   padding-left: 1rem;
-  padding-right: ${props => props.$withRightAddon ? "3rem" : "1rem"};
+  padding-right: ${(props) => (props.$withRightAddon ? "3rem" : "1rem")};
   font-size: 1.25rem;
   border-radius: 0.3rem;
 
@@ -64,7 +64,7 @@ export const PasswordRevealToggle = styled.div`
 
 export const FormInputErrorContainer = styled.div`
   min-height: 1.5rem;
-`
+`;
 export const FormInputError = styled.span`
   line-height: 1;
   color: ${(props) => props.theme.shared.input.errorColor};

@@ -26,4 +26,3 @@ export const SubmitButtonContainer = styled.div`
     }
   }
 `;
-

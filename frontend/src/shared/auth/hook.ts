@@ -52,7 +52,6 @@ export type UseAuthHookReturnType = {
 
 const AUTH_SNAPSHOT_KEY = "user";
 
-
 export const useAuthSnapshotRestoration = (): UseAuthSnapshotRestorationReturnType => {
   const [isRestoring, setIsRestoring] = useState<boolean>(true);
   const navigate = useNavigate();

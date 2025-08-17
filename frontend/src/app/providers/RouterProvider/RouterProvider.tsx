@@ -8,7 +8,6 @@ import { MainLayout } from "@/shared/ui/layouts";
 
 const ProtectedRoutes = () => {
   const { isAuthenticated } = useAuth();
-  console.log({ isAuthenticated });
   const location = useLocation();
 
   return isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.SIGNIN} state={{ from: location.pathname }} replace />;

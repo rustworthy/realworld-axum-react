@@ -23,10 +23,7 @@ export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, a
       />
 
       <S.FormInputErrorContainer>
-        {error ?
-          <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError>
-          : null
-        }
+        {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
       </S.FormInputErrorContainer>
     </S.FormInputContainer>
   );

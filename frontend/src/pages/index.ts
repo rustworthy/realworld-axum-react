@@ -4,4 +4,3 @@ export { SignInPage } from "./SingInPage";
 export { SignUpPage } from "./SignUpPage";
 export { ConfirmEmailPage } from "./ConfirmEmailPage";
 export { EditorPage } from "./EditorPage";
-

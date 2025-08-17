@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 
 export const PageWrapper = styled.div`
-  padding: 3rem 0.5rem 0;
+  padding-top: 3rem;
   width: 100%;
   height: 100%;
   overflow-x: hidden;
