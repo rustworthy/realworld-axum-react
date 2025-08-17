@@ -11,7 +11,7 @@ export const FormInputContainer = styled.div`
  *
  * @see https://stackoverflow.com/a/14205976
  */
-export const FormInput = styled.input<{ $withRightAddon?: boolean }>`
+export const FormInput = styled.input<{ $withLeftAddon?: boolean; $withRightAddon?: boolean }>`
   display: block;
   width: 100%;
   line-height: 1.25;
@@ -20,8 +20,8 @@ export const FormInput = styled.input<{ $withRightAddon?: boolean }>`
   background-clip: padding-box;
   border: 1px solid ${(props) => props.theme.shared.input.borderColor};
   padding-block: 1rem;
-  padding-left: 1rem;
-  padding-right: ${(props) => (props.$withRightAddon ? "3rem" : "1rem")};
+  padding-left: ${(props) => (props.$withLeftAddon ? "3rem" : "1.5rem")};
+  padding-right: ${(props) => (props.$withRightAddon ? "3rem" : "1.5rem")};
   font-size: 1.25rem;
   border-radius: 0.3rem;
 

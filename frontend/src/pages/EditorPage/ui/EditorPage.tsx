@@ -21,7 +21,10 @@ export const EditorPage = () => {
   });
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
-    window["console"]["log"](data);
+    const payload = {
+      article: data
+    };
+    window["console"]["log"](payload);
   };
 
   return (
