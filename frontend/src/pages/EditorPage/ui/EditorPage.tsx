@@ -22,7 +22,7 @@ export const EditorPage = () => {
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
     const payload = {
-      article: data
+      article: data,
     };
     window["console"]["log"](payload);
   };

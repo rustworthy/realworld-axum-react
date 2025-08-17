@@ -12,15 +12,18 @@ mod register;
 #[derive(Debug, Serialize, ToSchema)]
 pub(crate) struct User {
     /// User's email, e.g. `rob.pike@gmail.com`.
+    #[schema(example = "rob.pike@gmail.com", format = "email")]
     email: String,
 
     /// Fresh JWT token.
+    #[schema(format = "jwt")]
     token: String,
 
     /// User's name or nickname.
     ///
     /// This is  - just like the user's `email` - case-insensitively unique
     /// in the system.
+    #[schema(example = "rob.pike1984")]
     username: String,
 
     /// User's biography.

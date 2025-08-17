@@ -82,6 +82,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .route("/healthz", get(routes::healthz::health))
         .with_state(Arc::clone(&ctx))
         .nest("/api", routes::users::router(Arc::clone(&ctx)))
+        .nest("/api", routes::articles::router(Arc::clone(&ctx)))
         .layer(cors::layer(config.allowed_origins))
         .split_for_parts();
 

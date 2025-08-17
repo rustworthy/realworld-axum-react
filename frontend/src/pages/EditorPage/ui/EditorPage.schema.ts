@@ -1,7 +1,10 @@
 import * as z from "zod";
 
 const nonempty = (fieldName: string) => {
-  return z.preprocess((v) => (typeof v === "string" ? v.trim() : v), z.string().nonempty({ message: `${fieldName} is required` }));
+  return z.preprocess(
+    (v) => (typeof v === "string" ? v.trim() : v),
+    z.string().nonempty({ message: `${fieldName} is required` }),
+  );
 };
 
 export const editorPageSchema = z.object({

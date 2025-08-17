@@ -2,6 +2,9 @@ import { base as api } from "./base";
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    createArticle: build.mutation<CreateArticleApiResponse, CreateArticleApiArg>({
+      query: () => ({ url: `/api/articles`, method: "POST" }),
+    }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
     }),
@@ -37,6 +40,8 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
+export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
+export type CreateArticleApiArg = void;
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -55,6 +60,17 @@ export type LoginApiResponse = /** status 200 User successfully logged in */ Use
 export type LoginApiArg = {
   userPayloadLogin: UserPayloadLogin;
 };
+export type ArticlePayloadArticle = {
+  article: {
+    /** Article's slug. */
+    slug: string;
+  };
+};
+export type Validation = {
+  errors: {
+    [key: string]: string[];
+  };
+};
 export type UserPayloadUser = {
   user: {
     /** User's biography.
@@ -72,11 +88,6 @@ export type UserPayloadUser = {
         This is  - just like the user's `email` - case-insensitively unique
         in the system. */
     username: string;
-  };
-};
-export type Validation = {
-  errors: {
-    [key: string]: string[];
   };
 };
 export type UserPayloadUserUpdate = {
@@ -136,6 +147,7 @@ export type UserPayloadLogin = {
   };
 };
 export const {
+  useCreateArticleMutation,
   useReadCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useRegisterUserMutation,

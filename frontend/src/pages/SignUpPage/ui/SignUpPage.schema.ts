@@ -7,9 +7,12 @@ export const signUpPageSchema = z
   .object({
     username: z.string().nonempty({ error: "Cannot be empty." }),
     email: z.email({ error: "Valid email address required." }),
-    password: z.string().nonempty({ error: "Cannot be empty." })
+    password: z
+      .string()
+      .nonempty({ error: "Cannot be empty." })
       .refine((value) => PASSWORD_REGEX.test(value), {
-        error: "Password should be at least 12 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 digit, and a special character ($, !, %, *, ?, &)",
+        error:
+          "Password should be at least 12 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 digit, and a special character ($, !, %, *, ?, &)",
       }),
     confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
     captchaToken: z.string().nonempty({ error: "Cannot be empty." }),
