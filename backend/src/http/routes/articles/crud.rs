@@ -81,6 +81,7 @@ pub async fn create_article(
     )
     .fetch_one(&ctx.db)
     .await?;
+    let slug = slug::slugify(&article.title);
 
     let image = user
         .image
@@ -90,7 +91,7 @@ pub async fn create_article(
 
     Ok(Json(ArticlePayload {
         article: Article {
-            slug: "test-test".into(),
+            slug: slug::slugify(&article.title),
             title: article.title,
             body: article.body,
             description: article.description,
