@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
@@ -34,6 +34,10 @@ export type ConfirmEmailFnType = (arg: ConfirmEmailApiArg) => Promise<MaybeUserP
 export type LoginFnType = (arg: LoginApiArg) => Promise<MaybeUserPayload>;
 export type UpdateCurrentUserFnType = (arg: UpdateCurrentUserApiArg) => Promise<MaybeUserPayload>;
 
+export type UseAuthSnapshotRestorationReturnType = {
+  isRestoring: boolean;
+};
+
 export type UseAuthHookReturnType = {
   user: AuthSliceState["user"];
   isAuthenticated: boolean;
@@ -48,14 +52,16 @@ export type UseAuthHookReturnType = {
 
 const AUTH_SNAPSHOT_KEY = "user";
 
-export const useAuthSnapshotRestoration = () => {
+
+export const useAuthSnapshotRestoration = (): UseAuthSnapshotRestorationReturnType => {
+  const [isRestoring, setIsRestoring] = useState<boolean>(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const value = localStorage.getItem("user");
-    if (value === null) return;
     try {
+      const value = localStorage.getItem("user");
+      if (value === null) return;
       const auth = authSliceSchema.parse(JSON.parse(value));
       dispatch(restoreSnapshot(auth));
     } catch (error) {
@@ -68,8 +74,12 @@ export const useAuthSnapshotRestoration = () => {
       }
       localStorage.removeItem("user");
       navigate(ROUTES.SIGNIN);
+    } finally {
+      setIsRestoring(false);
     }
   }, []);
+
+  return { isRestoring };
 };
 
 export const useAuth = (): UseAuthHookReturnType => {

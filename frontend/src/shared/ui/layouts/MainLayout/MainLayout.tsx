@@ -10,11 +10,13 @@ import { useTernaryDarkMode } from "usehooks-ts";
 import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
-  useAuthSnapshotRestoration();
+  const { isRestoring } = useAuthSnapshotRestoration();
   const navigate = useNavigate();
   const { toggleTernaryDarkMode } = useTernaryDarkMode();
   const { isAuthenticated, user } = useAuth();
   const { pathname } = useLocation();
+
+  if (isRestoring) return null;
 
   return (
     <S.Wrapper>

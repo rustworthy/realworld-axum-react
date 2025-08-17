@@ -1,7 +1,7 @@
-import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 export const FormInputContainer = styled.div`
+  position: relative;
 `;
 
 /**
@@ -11,7 +11,7 @@ export const FormInputContainer = styled.div`
  *
  * @see https://stackoverflow.com/a/14205976
  */
-export const FormInput = styled.input`
+export const FormInput = styled.input<{ $withRightAddon?: boolean }>`
   display: block;
   width: 100%;
   line-height: 1.25;
@@ -19,7 +19,9 @@ export const FormInput = styled.input`
   background-color: ${(props) => props.theme.shared.input.backgroundColor};
   background-clip: padding-box;
   border: 1px solid ${(props) => props.theme.shared.input.borderColor};
-  padding: 1rem 1.5rem;
+  padding-block: 1rem;
+  padding-left: 1rem;
+  padding-right: ${props => props.$withRightAddon ? "3rem" : "1rem"};
   font-size: 1.25rem;
   border-radius: 0.3rem;
 
@@ -44,10 +46,6 @@ export const FormInput = styled.input`
     box-shadow: inset 0 0 2rem 2rem ${(props) => props.theme.shared.input.backgroundColor};
   }
 }
-`;
-
-export const PasswordInput = styled(FormInput)`
-  padding-right: 3rem;
 `;
 
 export const PasswordRevealToggle = styled.div`
