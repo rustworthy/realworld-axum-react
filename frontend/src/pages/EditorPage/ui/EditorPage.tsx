@@ -1,15 +1,22 @@
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+import { useCreateArticleMutation } from "@/shared/api/generated";
+import { ROUTES } from "@/shared/constants/routes.constants";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { TextInput, Textarea } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
 import * as S from "./EditorPage.styles";
 
 export const EditorPage = () => {
-  const isPublishLoading = false;
+  const navigate = useNavigate();
+  const [create, { isLoading }] = useCreateArticleMutation();
 
   const {
     control,
@@ -21,15 +28,26 @@ export const EditorPage = () => {
   });
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
-    const payload = {
-      article: data,
-    };
-    window["console"]["log"](payload);
+    const result = await create({
+      articlePayloadArticleCreate: {
+        article: data,
+      },
+    });
+
+    if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
+        toast.error("Failed to publush the article. Please check your internet connection and retry.");
+      }
+      return;
+    }
+
+    toast.success("Success! Your article has been published.");
+    navigate(`${ROUTES.ARTICLE}/${result.data.article.slug}`);
   };
 
   return (
     <FormPage.Container title="New Article">
-      <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isPublishLoading}>
+      <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
         <Controller
           control={control}
           name="title"
@@ -76,7 +94,7 @@ export const EditorPage = () => {
         />
 
         <S.SubmitButtonContainer>
-          <Button dataTestId="editor_submit_button" isDisabled={isPublishLoading}>
+          <Button dataTestId="editor_submit_button" isDisabled={isLoading}>
             Publish Article
           </Button>
         </S.SubmitButtonContainer>
