@@ -3,7 +3,11 @@ import { base as api } from "./base";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     createArticle: build.mutation<CreateArticleApiResponse, CreateArticleApiArg>({
-      query: () => ({ url: `/api/articles`, method: "POST" }),
+      query: (queryArg) => ({
+        url: `/api/articles`,
+        method: "POST",
+        body: queryArg.articlePayloadArticleCreate,
+      }),
     }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
@@ -41,7 +45,9 @@ const injectedRtkApi = api.injectEndpoints({
 });
 export { injectedRtkApi as api };
 export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
-export type CreateArticleApiArg = void;
+export type CreateArticleApiArg = {
+  articlePayloadArticleCreate: ArticlePayloadArticleCreate;
+};
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -69,6 +75,20 @@ export type ArticlePayloadArticle = {
 export type Validation = {
   errors: {
     [key: string]: string[];
+  };
+};
+export type ArticlePayloadArticleCreate = {
+  article: {
+    /** Article's contents. */
+    body: string;
+    /** Article's description. */
+    description: string;
+    /** Tags. */
+    tagList: string[];
+    /** Article's title.
+        
+        This is will be used to generate a slug for this article. */
+    title: string;
   };
 };
 export type UserPayloadUser = {
