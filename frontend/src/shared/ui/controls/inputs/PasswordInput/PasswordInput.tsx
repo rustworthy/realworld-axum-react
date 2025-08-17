@@ -33,7 +33,9 @@ export const PasswordInput: FC<IInputProps> = ({ id, label, required, placeholde
         )}
       </S.PasswordRevealToggle>
 
-      {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+      <S.FormInputErrorContainer>
+        {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+      </S.FormInputErrorContainer>
     </S.FormInputContainer>
   );
 };

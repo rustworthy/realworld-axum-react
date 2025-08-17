@@ -5,6 +5,7 @@ import { useTernaryDarkMode } from "usehooks-ts";
 
 import { ICaptchaInputProps } from "../inputs.types";
 import * as S from "./CaptchaInput.styles";
+import { FormInputErrorContainer } from "../inputs.styles";
 
 export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError, clearErrors, fieldErrors }) => {
   const { ternaryDarkMode } = useTernaryDarkMode();
@@ -31,7 +32,9 @@ export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError,
       <S.CaptchaWidgetContainer>
         <Turnstile siteKey="1x00000000000000000000AA" onSuccess={onSuccess} onError={onError} options={{ theme }} />
       </S.CaptchaWidgetContainer>
-      {fieldErrors[name] ? <S.CaptchaError>{fieldErrors[name]!.message as string}</S.CaptchaError> : null}
+      <FormInputErrorContainer>
+        {fieldErrors[name] ? <S.CaptchaError>{fieldErrors[name]!.message as string}</S.CaptchaError> : null}
+      </FormInputErrorContainer>
     </S.CaptchaInputContainer>
   );
 };

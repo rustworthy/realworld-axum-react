@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 export const Textarea = styled.textarea`
+  dispaly: block;
   resize: none;
   width: 100%;
   line-height: 1.25;
@@ -10,7 +11,6 @@ export const Textarea = styled.textarea`
   padding: 1rem 1.5rem;
   font-size: 1.325rem;
   border-radius: 0.3rem;
-  margin-bottom: 1.2rem;
 
   border-width: 1px;
   border-color: ${(props) => props.theme.shared.input.borderColor};
@@ -35,3 +35,4 @@ export const Textarea = styled.textarea`
   &::-webkit-scrollbar-thumb {
   }
 `;
+

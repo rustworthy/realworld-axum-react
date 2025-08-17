@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
-import { ConfirmEmailPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
+import { ConfirmEmailPage, EditorPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
@@ -8,6 +8,7 @@ import { MainLayout } from "@/shared/ui/layouts";
 
 const ProtectedRoutes = () => {
   const { isAuthenticated } = useAuth();
+  console.log({ isAuthenticated });
   const location = useLocation();
 
   return isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.SIGNIN} state={{ from: location.pathname }} replace />;
@@ -33,6 +34,7 @@ export const RouterProvider = () => {
 
           <Route element={<ProtectedRoutes />}>
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+            <Route path={ROUTES.EDITOR} element={<EditorPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

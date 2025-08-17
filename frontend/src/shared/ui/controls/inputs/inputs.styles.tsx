@@ -2,10 +2,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 export const FormInputContainer = styled.div`
-  position: relative;
 `;
-
-export const InoutCSS = css``;
 
 /**
  *
@@ -25,7 +22,6 @@ export const FormInput = styled.input`
   padding: 1rem 1.5rem;
   font-size: 1.25rem;
   border-radius: 0.3rem;
-  margin-bottom: 1.1rem;
 
   &:focus {
     border-color: ${(props) => props.theme.shared.input.borderColorFocused};
@@ -68,10 +64,10 @@ export const PasswordRevealToggle = styled.div`
   }
 `;
 
+export const FormInputErrorContainer = styled.div`
+  min-height: 1.5rem;
+`
 export const FormInputError = styled.span`
   line-height: 1;
-  position: absolute;
-  bottom: 0.1rem;
-  left: 0;
   color: ${(props) => props.theme.shared.input.errorColor};
 `;

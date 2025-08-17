@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import { SrOnly } from "@/shared/ui/SrOnly";
 
-import { FormInputContainer, FormInputError } from "../inputs.styles";
+import { FormInputContainer, FormInputError, FormInputErrorContainer } from "../inputs.styles";
 import { IInputProps } from "../inputs.types";
 import * as S from "./Textarea.styles";
 
@@ -21,7 +21,9 @@ export const Textarea: FC<IInputProps & { rows: number }> = ({ id, label, requir
         aria-invalid={!!error}
         aria-errormessage={`${id}_error`}
       />
-      {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
+      <FormInputErrorContainer>
+        {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
+      </FormInputErrorContainer>
     </FormInputContainer>
   );
 };
