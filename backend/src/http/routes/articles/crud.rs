@@ -1,4 +1,4 @@
-use super::{Article, ArticlePayload};
+use super::{Article, ArticlePayload, Author};
 use crate::{
     http::{
         errors::{Error, Validation},
@@ -8,7 +8,9 @@ use crate::{
 };
 use axum::Json;
 use axum::extract::{State, rejection::JsonRejection};
+use chrono::Utc;
 use std::sync::Arc;
+use url::Url;
 use utoipa::ToSchema;
 
 #[allow(unused)]
@@ -72,11 +74,37 @@ pub async fn create_article(
     id: UserID,
     input: Result<Json<ArticlePayload<ArticleCreate>>, JsonRejection>,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
-    let article = input?;
-    dbg!(article.0);
+    let ArticlePayload { article } = input?.0;
+    let user = sqlx::query!(
+        r#"SELECT username, bio, image FROM "users" WHERE user_id = $1"#,
+        &*id
+    )
+    .fetch_one(&ctx.db)
+    .await?;
+
+    let image = user
+        .image
+        .as_deref()
+        .map(|v| Url::parse(v).map_err(|_| anyhow::anyhow!("asd")))
+        .transpose()?;
+
     Ok(Json(ArticlePayload {
         article: Article {
             slug: "test-test".into(),
+            title: article.title,
+            body: article.body,
+            description: article.description,
+            tags: article.tags,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            favorited: false,
+            favorited_count: 0,
+            author: Author {
+                bio: user.bio,
+                image,
+                username: user.username,
+                following: false,
+            },
         },
     }))
 }
