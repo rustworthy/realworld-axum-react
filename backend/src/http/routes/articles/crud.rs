@@ -1,10 +1,50 @@
 use super::{Article, ArticlePayload};
 use crate::{
-    http::{errors::Validation, extractors::UserID},
+    http::{
+        errors::{Error, Validation},
+        extractors::UserID,
+    },
     state::AppContext,
 };
-use axum::extract::State;
+use axum::Json;
+use axum::extract::{State, rejection::JsonRejection};
 use std::sync::Arc;
+use utoipa::ToSchema;
+
+#[allow(unused)]
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ArticleCreate {
+    /// Article's title.
+    ///
+    /// This is will be used to generate a slug for this article.
+    #[schema(
+        examples("Your very own programming language", "Deploying with Kamal"),
+        min_length = 1
+    )]
+    title: String,
+
+    /// Article's description.
+    #[schema(
+        examples("This articles shares our knowledge on how to design a programming language",),
+        min_length = 1
+    )]
+    description: String,
+
+    /// Article's contents.
+    #[schema(
+        examples("Before we begin ... And that's pretty much it. Happy coding!",),
+        min_length = 1
+    )]
+    body: String,
+
+    /// Tags.
+    #[schema(
+        example = json!(vec!["programming".to_string(), "language design".to_string()]),
+        min_items = 1,
+    )]
+    #[serde(rename = "tagList")]
+    tags: Vec<String>,
+}
 
 /// Create new article.
 ///
@@ -27,6 +67,16 @@ use std::sync::Arc;
     skip_all,
 )]
 #[allow(unused_variables)]
-pub async fn create_article(ctx: State<Arc<AppContext>>, id: UserID) {
-    todo!()
+pub async fn create_article(
+    ctx: State<Arc<AppContext>>,
+    id: UserID,
+    input: Result<Json<ArticlePayload<ArticleCreate>>, JsonRejection>,
+) -> Result<Json<ArticlePayload<Article>>, Error> {
+    let article = input?;
+    dbg!(article.0);
+    Ok(Json(ArticlePayload {
+        article: Article {
+            slug: "test-test".into(),
+        },
+    }))
 }
