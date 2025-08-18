@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import { useAuth } from "@/shared/auth";
+import { useAuth } from "@/features/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";

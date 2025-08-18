@@ -5,8 +5,6 @@ import { useNavigate } from "react-router";
 import { SerializedError } from "@reduxjs/toolkit";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import z, { ZodError } from "zod";
-
 import {
   ConfirmEmailApiArg,
   LoginApiArg,
@@ -15,9 +13,11 @@ import {
   useConfirmEmailMutation,
   useLoginMutation,
   useUpdateCurrentUserMutation,
-} from "../api/generated";
-import { ROUTES } from "../constants/routes.constants";
-import { AppState } from "../providers/ReduxProvider/store";
+} from "@/shared/api/generated";
+import { ROUTES } from "@/shared/constants/routes.constants";
+import { AppState } from "@/shared/types/store.types";
+import z, { ZodError } from "zod";
+
 import { authSliceLoggedOutState, restoreSnapshot, setLoggedIn, setLoggedOut } from "./authSlice";
 import { type AuthSliceState, authSliceSchema } from "./authSlice.schema";
 
