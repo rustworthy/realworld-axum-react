@@ -1,2 +1,2 @@
-export { authReducer } from "./slice";
-export { useAuth } from "./hook";
+export { authReducer } from "./authSlice";
+export { useAuth, useAuthSnapshotRestoration } from "./auth.hooks";
