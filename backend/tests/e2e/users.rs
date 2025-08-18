@@ -39,29 +39,34 @@ async fn assert_invalid_registration(
 }
 
 async fn create_user_username_issues(ctx: TestContext) {
-    let cases = vec![
-        // [username] - not provided
-        json!({
-            "email": "rob.pike@gmail.com",
-            "password": "strongandcomplicated",
-        }),
-        // [username] - is not a string
-        json!({
-            "username": 123,
-            "email": "rob.pike@gmail.com",
-            "password": "strongandcomplicated",
-        }),
-        // [username] - empty string
-        json!({
-            "username": "",
-            "email": "rob.pike@gmail.com",
-            "password": "qwerty",
-            "password": "strongandcomplicated",
-        }),
+    let cases = [
+        (
+            json!({
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username not provided",
+        ),
+        (
+            json!({
+                "username": 123,
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username is not a string",
+        ),
+        (
+            json!({
+                "username": "",
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username is empty string",
+        ),
     ];
 
-    for case in cases {
-        assert_invalid_registration(&ctx, case, "invalid registration").await;
+    for (case, msg) in cases {
+        assert_invalid_registration(&ctx, case, msg).await;
     }
 
     // [username] - duplicate
@@ -96,34 +101,42 @@ async fn create_user_username_issues(ctx: TestContext) {
 }
 
 async fn create_user_email_issues(ctx: TestContext) {
-    let cases = vec![
-        // [email] - not provided
-        json!({
-            "username": "rob",
-            "password": "strongandcomplicated",
-        }),
-        // [email] - is not a string
-        json!({
-            "username": "rob",
-            "email": 123,
-            "password": "strongandcomplicated",
-        }),
-        // [email] - empty string
-        json!({
-            "username": "rob",
-            "email": "",
-            "password": "strongandcomplicated",
-        }),
-        // [email] - not valid email
-        json!({
-            "username": "rob",
-            "email": "rob.pike.com",
-            "password": "strongandcomplicated",
-        }),
+    let cases = [
+        (
+            json!({
+                "username": "rob",
+                "password": "strongandcomplicated",
+            }),
+            "email not provided",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": 123,
+                "password": "strongandcomplicated",
+            }),
+            "email is not a string",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": "",
+                "password": "strongandcomplicated",
+            }),
+            "email is empty string",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": "rob.pike.com",
+                "password": "strongandcomplicated",
+            }),
+            "email is not valid email",
+        ),
     ];
 
-    for case in cases {
-        assert_invalid_registration(&ctx, case, "invalid registration").await;
+    for (case, msg) in cases {
+        assert_invalid_registration(&ctx, case, msg).await;
     }
 
     // [email] - duplicate email
@@ -159,24 +172,24 @@ async fn create_user_password_issues(ctx: TestContext) {
     let cases = [
         (
             json!({
-                "username": "rob",
-                "password": "strongandcomplicated",
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
             }),
             "password not provided",
         ),
         (
             json!({
-                "username": "rob",
-                "email": 123,
-                "password": "strongandcomplicated",
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
+                "password": 1,
             }),
             "password is not a string",
         ),
         (
             json!({
-                "username": "rob",
-                "email": "",
-                "password": "strongandcomplicated",
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
+                "password": "strong?",
             }),
             "password is too short",
         ),
