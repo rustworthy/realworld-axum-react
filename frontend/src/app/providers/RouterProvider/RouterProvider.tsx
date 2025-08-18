@@ -13,10 +13,10 @@ const ProtectedRoutes = () => {
   return isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.SIGNIN} state={{ from: location.pathname }} replace />;
 };
 
-const AnonymRoutes = () => {
+const AuthRoutes = () => {
   const { isAuthenticated } = useAuth();
 
-  return !isAuthenticated ? <Outlet /> : <Navigate to={ROUTES.HOME} replace />;
+  return isAuthenticated ? <Navigate to={ROUTES.HOME} replace /> : <Outlet />;
 };
 
 export const RouterProvider = () => {
@@ -25,7 +25,8 @@ export const RouterProvider = () => {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path={ROUTES.HOME} element={<HomePage />} />
-          <Route element={<AnonymRoutes />}>
+
+          <Route element={<AuthRoutes />}>
             <Route path={ROUTES.SIGNIN} element={<SignInPage />} />
             <Route path={ROUTES.SIGNUP} element={<SignUpPage />} />
             <Route path={ROUTES.CONFIRM_EMAIL} element={<ConfirmEmailPage />} />

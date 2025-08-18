@@ -17,10 +17,11 @@ import * as S from "./ConfirmEmailPage.styles";
 export const ConfirmEmailPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
   const initialOTP = (searchParams.get("otp") ?? "").slice(0, OTP_LENGTH);
   const { confirmEmail, isConfirmEmailLoading } = useAuth();
 
-  const onSubmit = async (data: TConfirmEmail) => {
+  const onSubmit = async (data: TConfirmEmail): Promise<void> => {
     const result = await confirmEmail({
       userPayloadEmailConfirmation: {
         user: data,

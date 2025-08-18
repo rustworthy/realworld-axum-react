@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "@/shared/auth";
-import { useAuthSnapshotRestoration } from "@/shared/auth/hook";
+import { useAuthSnapshotRestoration } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
@@ -11,10 +11,12 @@ import * as S from "./MainLayout.styles";
 
 export const MainLayout = () => {
   const { isRestoring } = useAuthSnapshotRestoration();
+
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const { toggleTernaryDarkMode } = useTernaryDarkMode();
   const { isAuthenticated, user } = useAuth();
-  const { pathname } = useLocation();
 
   if (isRestoring) return null;
 
@@ -23,6 +25,7 @@ export const MainLayout = () => {
       <S.Header>
         <S.HeaderContainer>
           <S.HeaderLink href={ROUTES.HOME}>conduit</S.HeaderLink>
+
           {isAuthenticated ? (
             <nav>
               <S.HeaderNavList>

@@ -38,7 +38,7 @@ export const SettingsPage = () => {
       return;
     }
 
-    toast.success("Success! Your details have been succesfully updated.");
+    toast.success("Success! Your details have been successfully updated.");
   };
 
   return (
