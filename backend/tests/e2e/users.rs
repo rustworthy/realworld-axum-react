@@ -14,8 +14,140 @@ const TEST_JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyN
 async fn create_user_empty_payload(ctx: TestContext) {
     let url = ctx.backend_url.join("/api/users").unwrap();
     let response = ctx.http_client.post(url).send().await.unwrap();
+
     assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     assert!(!response.bytes().await.unwrap().is_empty());
+}
+
+async fn assert_invalid_registration(ctx: &TestContext, registration: serde_json::Value) {
+    let url = ctx.backend_url.join("/api/users").unwrap();
+
+    let response = ctx
+        .http_client
+        .post(url)
+        .json(&json!({ "user": registration }))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert!(!response.bytes().await.unwrap().is_empty());
+}
+
+async fn create_user_username_issues(ctx: TestContext) {
+    let cases = vec![
+        // [username] - not provided
+        json!({
+            "email": "rob.pike@gmail.com",
+            "password": "qwerty",
+        }),
+        // [username] - is not a string
+        json!({
+            "username": 123,
+            "email": "rob.pike@gmail.com",
+            "password": "qwerty",
+        }),
+        // [username] - empty string
+        json!({
+            "username": "",
+            "email": "rob.pike@gmail.com",
+            "password": "qwerty",
+        }),
+    ];
+
+    for case in cases {
+        assert_invalid_registration(&ctx, case).await;
+    }
+
+    // [username] - duplicate
+    let url = ctx.backend_url.join("/api/users").unwrap();
+
+    let registration = json!({
+        "username": "rob",
+        "email": "rob.pike@gmail.com",
+        "password": "qwerty",
+    });
+
+    let response = ctx
+        .http_client
+        .post(url)
+        .json(&json!({
+            "user": registration
+        }))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert!(!response.bytes().await.unwrap().is_empty());
+
+    let duplicate_registration = json!({
+        "username": "rob",
+        "email": "rob.pike1@gmail.com",
+        "password": "qwerty",
+    });
+
+    assert_invalid_registration(&ctx, duplicate_registration).await;
+}
+
+async fn create_user_email_issues(ctx: TestContext) {
+    let cases = vec![
+        // [email] - not provided
+        json!({
+            "username": "rob",
+            "password": "qwerty",
+        }),
+        // [email] - is not a string
+        json!({
+            "username": "rob",
+            "email": 123,
+            "password": "qwerty",
+        }),
+        // [email] - empty string
+        json!({
+            "username": "rob",
+            "email": "",
+            "password": "qwerty",
+        }),
+        // [email] - not valid email
+        json!({
+            "username": "rob",
+            "email": "rob.pike.com",
+            "password": "qwerty",
+        }),
+    ];
+
+    for case in cases {
+        assert_invalid_registration(&ctx, case).await;
+    }
+
+    // [email] - duplicate email
+    let url = ctx.backend_url.join("/api/users").unwrap();
+
+    let registration = json!({
+        "username": "rob",
+        "email": "rob.pike@gmail.com",
+        "password": "qwerty",
+    });
+
+    let response = ctx
+        .http_client
+        .post(url)
+        .json(&json!({ "user": registration}))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert!(!response.bytes().await.unwrap().is_empty());
+
+    let duplicate_registration = json!({
+        "username": "rob1",
+        "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
+        "password": "qwerty",
+    });
+
+    assert_invalid_registration(&ctx, duplicate_registration).await;
 }
 
 // --------------------------- CONFIRM EMAIL -----------------------------------
@@ -27,7 +159,7 @@ async fn confirm_email_address(ctx: TestContext) {
         "password": "qwerty",
     });
 
-    // make sure to registger first
+    // make sure to register first
     let _response: Value = ctx
         .http_client
         .post(url)
@@ -41,30 +173,33 @@ async fn confirm_email_address(ctx: TestContext) {
         .await
         .expect("valid JSON in response");
 
-    // @Dzmitry let's check here that the user has been created in the database
-    // but their status is pending email confirmation; for this we can utilize
-    // the db pool from the test's context, and use simple queries, e.g.:
-    // `sqlx::query("query here")`, rather than those macros `sqlx::query!`
-    // we do not need extra type safety with this regard here in the test suite;
-    // and so we can just inspect the the PgRow without deserialzing into structs;
-    // I am leaving an example below.
-
-    // let's make sure there is now one entry in db and it stores an OTP, but
-    let otp_rows = sqlx::query(r#"select * from "confirmation_tokens""#)
+    let user_row = sqlx::query(r#"SELECT * FROM "users""#)
         .fetch_all(&ctx.db_pool)
         .await
         .expect("valid query");
+
+    assert_eq!(user_row.len(), 1);
+    let status: &str = user_row[0].get("status");
+    assert_eq!(status, "EMAIL_CONFIRMATION_PENDING");
+
+    // let's make sure there is now one entry in db and it stores an OTP, but
+    let otp_rows = sqlx::query(r#"SELECT * FROM "confirmation_tokens""#)
+        .fetch_all(&ctx.db_pool)
+        .await
+        .expect("valid query");
+
     assert_eq!(otp_rows.len(), 1);
     let purpose: &str = otp_rows[0].get("purpose");
     assert_eq!(purpose, "EMAIL_CONFIRMATION");
+
     let otp_stored: &str = otp_rows[0].get("token");
 
-    // intercept the malier requests and ...
+    // intercept the mailer requests and ...
     let otp_email_request: Value = ctx
         .mailer_server
         .received_requests()
         .await
-        .expect("reqests to have been received")
+        .expect("requests to have been received")
         .first()
         .expect("letter with OTP to have been sent")
         .body_json()
@@ -90,6 +225,7 @@ async fn confirm_email_address(ctx: TestContext) {
         .expect("'html' field to be present in request payload")
         .as_str()
         .expect("html content to be a string");
+
     let finder = linkify::LinkFinder::new();
     let links: Vec<_> = finder.links(html).collect();
     let otp_link: Url = links[1].as_str().parse().expect("value URL");
@@ -98,7 +234,6 @@ async fn confirm_email_address(ctx: TestContext) {
         .find(|(key, _)| key == "otp")
         .map(|(_, otp)| otp)
         .expect("OTP as query string parameter");
-
     // let's see if the code we've sent to them is the one we peristed
     assert_eq!(otp_sent, otp_stored);
 
@@ -127,8 +262,13 @@ async fn confirm_email_address(ctx: TestContext) {
         .expect("user details JSON object");
     assert!(user.get("token").is_some());
 
-    // @Dzmitry and here we should make a sanity check: let's check that the
-    // same signle user entry is in the database, but the status has now changed
+    let user_row = sqlx::query(r#"SELECT * FROM "users""#)
+        .fetch_all(&ctx.db_pool)
+        .await
+        .expect("valid query");
+    assert_eq!(user_row.len(), 1);
+    let status: &str = user_row[0].get("status");
+    assert_eq!(status, "ACTIVE");
 }
 
 // ------------------------- POST /api/users/login -----------------------------
@@ -186,6 +326,8 @@ async fn update_user_unauthenticated(ctx: TestContext) {
 
 mod tests {
     crate::async_test!(create_user_empty_payload);
+    crate::async_test!(create_user_username_issues);
+    crate::async_test!(create_user_email_issues);
     crate::async_test!(confirm_email_address);
     crate::async_test!(login_empty_payload);
     crate::async_test!(get_current_user_no_token);

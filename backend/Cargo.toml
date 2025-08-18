@@ -75,6 +75,8 @@ async-trait = "0.1.88"
 url = { version = "2.5.4", features = ["serde"] }
 askama = "0.14"
 thiserror = "2.0.14"
+validator = "0.20.0"
+validator_derive = "0.20.0"
 
 [dependencies.resend-rs]
 version = "0.16"
