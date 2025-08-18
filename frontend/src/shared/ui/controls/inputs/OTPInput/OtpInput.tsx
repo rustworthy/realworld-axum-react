@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import { OTPInput as OTPInputHeadless, SlotProps } from "input-otp";
 
-import { FormInputContainer, FormInputError } from "../inputs.styles";
+import { FormInputContainer, FormInputError, FormInputErrorContainer } from "../inputs.styles";
 import { IOTPInputProps } from "../inputs.types";
 import * as S from "./OtpInput.styles";
 
@@ -51,7 +51,9 @@ export const OTPInput: FC<IOTPInputProps> = ({ id, length, error, label, ...fiel
           </S.SlotGroupsWrapper>
         )}
       />
-      {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
+      <FormInputErrorContainer>
+        {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
+      </FormInputErrorContainer>
     </FormInputContainer>
   );
 };

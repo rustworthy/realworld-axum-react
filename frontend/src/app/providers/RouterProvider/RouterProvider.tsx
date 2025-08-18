@@ -2,8 +2,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "rea
 
 import { MainLayout } from "@/app/layouts";
 import { useAuth } from "@/features/auth";
-import { ConfirmEmailPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
-import { SettingsPage } from "@/pages/SettingsPage";
+import { ConfirmEmailPage, EditorPage, HomePage, NotFoundPage, SettingsPage, SignInPage, SignUpPage } from "@/pages";
 import { ROUTES } from "@/shared/constants/routes.constants";
 
 const ProtectedRoutes = () => {
@@ -34,6 +33,7 @@ export const RouterProvider = () => {
 
           <Route element={<ProtectedRoutes />}>
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+            <Route path={ROUTES.EDITOR} element={<EditorPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

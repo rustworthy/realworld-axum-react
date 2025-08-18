@@ -1,4 +1,5 @@
 export const ROUTES = {
+  ARTICLE: "/article",
   CONFIRM_EMAIL: "/confirm-email",
   EDITOR: "/editor",
   HOME: "/",

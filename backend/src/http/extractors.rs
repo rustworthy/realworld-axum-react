@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::sync::Arc;
 
 use crate::AppContext;
@@ -9,6 +10,13 @@ use uuid::Uuid;
 
 #[derive(Debug)]
 pub(in crate::http) struct UserID(pub Uuid);
+
+impl Deref for UserID {
+    type Target = Uuid;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl<S> FromRequestParts<S> for UserID
 where

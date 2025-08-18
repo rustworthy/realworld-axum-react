@@ -66,7 +66,7 @@ pub struct UserUpdate {
     bio: Option<String>,
 
     /// New password.
-    #[schema(nullable = false, example = "Whoami@g00gle")]
+    #[schema(nullable = false, min_length = 1, example = "Whoami@g00gle")]
     password: Option<String>,
 
     /// New image URL.

@@ -1,8 +1,10 @@
 import { FC, useCallback } from "react";
 
+import { config } from "@/config";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useTernaryDarkMode } from "usehooks-ts";
 
+import { FormInputErrorContainer } from "../inputs.styles";
 import { ICaptchaInputProps } from "../inputs.types";
 import * as S from "./CaptchaInput.styles";
 
@@ -29,9 +31,11 @@ export const CaptchaInput: FC<ICaptchaInputProps> = ({ name, setValue, setError,
   return (
     <S.CaptchaInputContainer>
       <S.CaptchaWidgetContainer>
-        <Turnstile siteKey="1x00000000000000000000AA" onSuccess={onSuccess} onError={onError} options={{ theme }} />
+        <Turnstile siteKey={config.TURNSTILE_SITE_KEY} onSuccess={onSuccess} onError={onError} options={{ theme }} />
       </S.CaptchaWidgetContainer>
-      {fieldErrors[name] ? <S.CaptchaError>{fieldErrors[name]!.message as string}</S.CaptchaError> : null}
+      <FormInputErrorContainer>
+        {fieldErrors[name] ? <S.CaptchaError>{fieldErrors[name]!.message as string}</S.CaptchaError> : null}
+      </FormInputErrorContainer>
     </S.CaptchaInputContainer>
   );
 };

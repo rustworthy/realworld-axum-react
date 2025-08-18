@@ -21,7 +21,10 @@ export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, a
         aria-invalid={!!error}
         aria-errormessage={`${id}_error`}
       />
-      {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+
+      <S.FormInputErrorContainer>
+        {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+      </S.FormInputErrorContainer>
     </S.FormInputContainer>
   );
 };

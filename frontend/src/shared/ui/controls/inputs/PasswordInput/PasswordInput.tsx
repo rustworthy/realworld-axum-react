@@ -14,7 +14,8 @@ export const PasswordInput: FC<IInputProps> = ({ id, label, required, placeholde
       <SrOnly>
         <label htmlFor={id}>{label}</label>
       </SrOnly>
-      <S.PasswordInput
+      <S.FormInput
+        $padding="1rem 3rem 1rem 1.5rem"
         {...field}
         required={required}
         id={id}
@@ -33,7 +34,9 @@ export const PasswordInput: FC<IInputProps> = ({ id, label, required, placeholde
         )}
       </S.PasswordRevealToggle>
 
-      {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+      <S.FormInputErrorContainer>
+        {error ? <S.FormInputError id={`${id}_error`}>{error}</S.FormInputError> : null}
+      </S.FormInputErrorContainer>
     </S.FormInputContainer>
   );
 };

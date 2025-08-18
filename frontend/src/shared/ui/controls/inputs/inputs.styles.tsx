@@ -1,11 +1,8 @@
-import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 export const FormInputContainer = styled.div`
   position: relative;
 `;
-
-export const InoutCSS = css``;
 
 /**
  *
@@ -14,18 +11,17 @@ export const InoutCSS = css``;
  *
  * @see https://stackoverflow.com/a/14205976
  */
-export const FormInput = styled.input`
+export const FormInput = styled.input<{ $padding?: string }>`
   display: block;
   width: 100%;
   line-height: 1.25;
-  color: ${(props) => props.theme.shared.input.textColor};
-  background-color: ${(props) => props.theme.shared.input.backgroundColor};
+  color: ${({ theme }) => theme.shared.input.textColor};
+  background-color: ${({ theme }) => theme.shared.input.backgroundColor};
   background-clip: padding-box;
-  border: 1px solid ${(props) => props.theme.shared.input.borderColor};
-  padding: 1rem 1.5rem;
+  border: 1px solid ${({ theme }) => theme.shared.input.borderColor};
+  padding: ${({ $padding }) => $padding ?? "1rem 1.5rem"};
   font-size: 1.25rem;
   border-radius: 0.3rem;
-  margin-bottom: 1.1rem;
 
   &:focus {
     border-color: ${(props) => props.theme.shared.input.borderColorFocused};
@@ -42,16 +38,12 @@ export const FormInput = styled.input`
       :-webkit-autofill:focus
   ) {
     -webkit-background-clip: text;
-    -webkit-text-fill-color: ${(props) => props.theme.shared.input.textColor};
+    -webkit-text-fill-color: ${({ theme }) => theme.shared.input.textColor};
     transition: background-color 5000000s ease-in-out 0s;
     transition: color 5000000s ease-in-out 0s;
-    box-shadow: inset 0 0 2rem 2rem ${(props) => props.theme.shared.input.backgroundColor};
+    box-shadow: inset 0 0 2rem 2rem ${({ theme }) => theme.shared.input.backgroundColor};
   }
 }
-`;
-
-export const PasswordInput = styled(FormInput)`
-  padding-right: 3rem;
 `;
 
 export const PasswordRevealToggle = styled.div`
@@ -64,14 +56,14 @@ export const PasswordRevealToggle = styled.div`
   svg {
     width: 20px;
     height: 20px;
-    color: ${(props) => props.theme.shared.input.textColor};
+    color: ${({ theme }) => theme.shared.input.textColor};
   }
 `;
 
+export const FormInputErrorContainer = styled.div`
+  min-height: 1.5rem;
+`;
 export const FormInputError = styled.span`
   line-height: 1;
-  position: absolute;
-  bottom: 0.1rem;
-  left: 0;
-  color: ${(props) => props.theme.shared.input.errorColor};
+  color: ${({ theme }) => theme.shared.input.errorColor};
 `;

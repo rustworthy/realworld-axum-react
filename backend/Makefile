@@ -137,7 +137,11 @@ test/e2e:
 
 .PHONY: test/e2e/browser
 test/e2e/browser:
-	cd ../frontend && BACKEND_URL=/ REACT_APP_MODE=production npm run build:prod
+	cd ../frontend && \
+		BACKEND_URL=/ \
+		REACT_APP_MODE=production \
+  	TURNSTILE_SITE_KEY=1x00000000000000000000AA \
+		npm run build:prod
 	fuser -k 4444/tcp || true
 	chromedriver --port=4444 &
 	SQLX_OFFLINE=1 cargo test --release --test e2e --features=browser-test -- --nocapture

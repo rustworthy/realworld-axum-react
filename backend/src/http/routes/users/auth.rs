@@ -15,9 +15,11 @@ pub(crate) struct Login {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.
+    #[schema(example = "rob.pike@gmail.com", format = "email")]
     email: String,
 
     /// User's password.
+    #[schema(min_length = 1, examples("Whoami@g00gle",))]
     password: String,
 }
 

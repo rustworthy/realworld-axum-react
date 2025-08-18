@@ -2,6 +2,13 @@ import { base as api } from "./base";
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    createArticle: build.mutation<CreateArticleApiResponse, CreateArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles`,
+        method: "POST",
+        body: queryArg.articlePayloadArticleCreate,
+      }),
+    }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
     }),
@@ -37,6 +44,10 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
+export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
+export type CreateArticleApiArg = {
+  articlePayloadArticleCreate: ArticlePayloadArticleCreate;
+};
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -55,6 +66,66 @@ export type LoginApiResponse = /** status 200 User successfully logged in */ Use
 export type LoginApiArg = {
   userPayloadLogin: UserPayloadLogin;
 };
+export type Author = {
+  /** User's biography.
+    
+    Empty string means biography has never been provided. */
+  bio: string;
+  /** If the current user is following the author. */
+  following: boolean;
+  /** Location of user's image (if any). */
+  image: string | null;
+  /** User's name or nickname.
+    
+    This is  - just like the user's `email` - case-insensitively unique
+    in the system. */
+  username: string;
+};
+export type ArticlePayloadArticle = {
+  article: {
+    /** The article's author details. */
+    author: Author;
+    /** Article's contents. */
+    body: string;
+    /** When this article was created. */
+    createdAt: string;
+    /** Article's description. */
+    description: string;
+    /** If this article is favorited by the current user. */
+    favorited: boolean;
+    /** How many users favorited this article. */
+    favoritedCount: number;
+    /** Article's slug. */
+    slug: string;
+    /** Tags. */
+    tags: string[];
+    /** Article's title.
+        
+        This is will be used to generate a slug for this article. */
+    title: string;
+    /** When this article was last update. */
+    updatedAt: string;
+  };
+};
+export type Validation = {
+  errors: {
+    [key: string]: string[];
+  };
+};
+export type ArticlePayloadArticleCreate = {
+  article: {
+    /** Article's contents. */
+    body: string;
+    /** Article's description. */
+    description: string;
+    /** Tags. */
+    tagList: string[];
+    /** Article's title.
+        
+        This is will be used to generate a slug for this article. */
+    title: string;
+  };
+};
 export type UserPayloadUser = {
   user: {
     /** User's biography.
@@ -72,11 +143,6 @@ export type UserPayloadUser = {
         This is  - just like the user's `email` - case-insensitively unique
         in the system. */
     username: string;
-  };
-};
-export type Validation = {
-  errors: {
-    [key: string]: string[];
   };
 };
 export type UserPayloadUserUpdate = {
@@ -136,6 +202,7 @@ export type UserPayloadLogin = {
   };
 };
 export const {
+  useCreateArticleMutation,
   useReadCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useRegisterUserMutation,
