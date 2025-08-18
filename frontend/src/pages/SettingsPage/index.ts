@@ -1,1 +1,1 @@
-export { SettingsPage } from "./ui/SettingsPage.tsx";
+export { SettingsPage } from "./ui/SettingsPage";

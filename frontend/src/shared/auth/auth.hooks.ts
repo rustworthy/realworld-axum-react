@@ -18,14 +18,8 @@ import {
 } from "../api/generated";
 import { ROUTES } from "../constants/routes.constants";
 import { AppState } from "../providers/ReduxProvider/store";
-import {
-  type AuthSliceState,
-  authSliceLoggedOutState,
-  authSliceSchema,
-  restoreSnapshot,
-  setLoggedIn,
-  setLoggedOut,
-} from "./slice";
+import { authSliceLoggedOutState, restoreSnapshot, setLoggedIn, setLoggedOut } from "./authSlice";
+import { type AuthSliceState, authSliceSchema } from "./authSlice.schema";
 
 export type MaybeUserPayload =
   | { data: UserPayloadUser; error: undefined }
@@ -54,7 +48,9 @@ export const useAuthSnapshotRestoration = () => {
 
   useEffect(() => {
     const value = localStorage.getItem("user");
+
     if (value === null) return;
+
     try {
       const auth = authSliceSchema.parse(JSON.parse(value));
       dispatch(restoreSnapshot(auth));
@@ -75,6 +71,7 @@ export const useAuthSnapshotRestoration = () => {
 export const useAuth = (): UseAuthHookReturnType => {
   const auth: AuthSliceState = useSelector((state: AppState) => state.auth);
   const dispatch = useDispatch();
+
   const [updateMutation, { isLoading: isUpdateLoading }] = useUpdateCurrentUserMutation();
   const [confirmEmailMutation, { isLoading: isConfirmEmailLoading }] = useConfirmEmailMutation();
   const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
@@ -95,6 +92,7 @@ export const useAuth = (): UseAuthHookReturnType => {
   const confirmEmail = makeMutateFn(confirmEmailMutation);
   const update = makeMutateFn(updateMutation);
   const login = makeMutateFn(loginMutation);
+
   const logout = useCallback(() => {
     localStorage.setItem(AUTH_SNAPSHOT_KEY, JSON.stringify(authSliceLoggedOutState));
     dispatch(setLoggedOut());
