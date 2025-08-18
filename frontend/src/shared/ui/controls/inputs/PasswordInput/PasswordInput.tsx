@@ -15,7 +15,7 @@ export const PasswordInput: FC<IInputProps> = ({ id, label, required, placeholde
         <label htmlFor={id}>{label}</label>
       </SrOnly>
       <S.FormInput
-        $withRightAddon
+        $padding="1rem 3rem 1rem 1.5rem"
         {...field}
         required={required}
         id={id}
