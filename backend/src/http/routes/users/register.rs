@@ -42,8 +42,8 @@ pub struct Registration {
     /// User's password.
     ///
     /// There are currently no limitations on password strength.
-    #[schema(min_length = 1, example = "Whoami@g00gle")]
-    #[validate(length(min = 1, message = "password cannot be empty"))]
+    #[schema(min_length = 12, example = "Whoami@g00gle")]
+    #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: String,
 }
 
