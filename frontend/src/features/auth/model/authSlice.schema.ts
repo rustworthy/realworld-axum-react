@@ -1,7 +1,6 @@
 import z from "zod";
 
 export const authSliceSchema = z.object({
-  loadingCount: z.number(),
   isAuthenticated: z.boolean(),
   user: z
     .object({
