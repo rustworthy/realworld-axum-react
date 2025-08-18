@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS "articles" (
 
 SELECT put_creation_mutation_timestamps_guard_on('articles');
 
-CREATE INDEX articles_tags_gin ON "articles" USING GIN (tags);
+CREATE INDEX articles_tags_gin ON "articles" USING gin(tags);
 

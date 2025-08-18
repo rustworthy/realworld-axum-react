@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH article as (\n            INSERT INTO \"articles\" (user_id, slug, title, description, body, tags)\n            VALUES ($1, $2, $3, $4, $5, $6)\n            RETURNING user_id, created_at, updated_at\n        )\n        SELECT\n            article.created_at as article_created_at,\n            article.updated_at as article_updated_at,\n            author.username as author_username,\n            author.bio as author_bio,\n            author.image as author_image \n        FROM \"article\" JOIN \"users\" author USING (user_id);\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "article_created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "article_updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "author_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "author_bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "author_image",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "ed456acff0045378c13b1f7edda6ec27189bb7747ad4ed5e2421c794b9efa74f"
+}

@@ -8,7 +8,6 @@ use crate::{
 };
 use axum::Json;
 use axum::extract::{State, rejection::JsonRejection};
-use chrono::Utc;
 use std::sync::Arc;
 use url::Url;
 use utoipa::ToSchema;
@@ -75,35 +74,57 @@ pub async fn create_article(
     input: Result<Json<ArticlePayload<ArticleCreate>>, JsonRejection>,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
     let ArticlePayload { article } = input?.0;
-    let user = sqlx::query!(
-        r#"SELECT username, bio, image FROM "users" WHERE user_id = $1"#,
-        &*id
+    let slug = slug::slugify(&article.title);
+    let details = sqlx::query!(
+        r#"
+        WITH article as (
+            INSERT INTO "articles" (user_id, slug, title, description, body, tags)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING user_id, created_at, updated_at
+        )
+        SELECT
+            article.created_at as article_created_at,
+            article.updated_at as article_updated_at,
+            author.username as author_username,
+            author.bio as author_bio,
+            author.image as author_image 
+        FROM "article" JOIN "users" author USING (user_id);
+        "#,
+        &*id,
+        slug,
+        article.title,
+        article.description,
+        article.body,
+        &article.tags,
     )
     .fetch_one(&ctx.db)
     .await?;
-    let slug = slug::slugify(&article.title);
 
-    let image = user
-        .image
+    let image = details
+        .author_image
         .as_deref()
-        .map(|v| Url::parse(v).map_err(|_| anyhow::anyhow!("asd")))
+        .map(|v| {
+            Url::parse(v).map_err(|_| anyhow::anyhow!("Failed to partse store image path as URL"))
+        })
         .transpose()?;
 
     Ok(Json(ArticlePayload {
         article: Article {
-            slug: slug::slugify(&article.title),
+            slug,
             title: article.title,
             body: article.body,
             description: article.description,
             tags: article.tags,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: details.article_created_at,
+            updated_at: details
+                .article_updated_at
+                .unwrap_or(details.article_created_at),
             favorited: false,
             favorited_count: 0,
             author: Author {
-                bio: user.bio,
+                bio: details.author_bio,
                 image,
-                username: user.username,
+                username: details.author_username,
                 following: false,
             },
         },
