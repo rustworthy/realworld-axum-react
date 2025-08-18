@@ -143,7 +143,7 @@ async fn create_user_email_issues(ctx: TestContext) {
 
     let duplicate_registration = json!({
         "username": "rob1",
-        "email": "rob.pike@gmail.com",
+        "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
         "password": "qwerty",
     });
 
