@@ -6,7 +6,7 @@ export const authSliceSchema = z.object({
     .object({
       username: z.string().nonempty(),
       email: z.email(),
-      image: z.string().nullable(),
+      image: z.url().nullable(),
       bio: z.string(),
       token: z.jwt(),
     })

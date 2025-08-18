@@ -10,6 +10,7 @@ builder:
   args:
     BACKEND_URL: https://api.realworld-axum-react.org
     REACT_APP_MODE: production
+    TURNSTILE_SITE_KEY: 0x4AAAAAABs6rE6kiGsSw8M_
 
 servers:
   web:

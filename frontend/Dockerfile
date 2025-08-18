@@ -2,6 +2,7 @@ FROM node:22-alpine AS build
 
 ARG BACKEND_URL
 ARG REACT_APP_MODE
+ARG TURNSTILE_SITE_KEY
 
 WORKDIR /build
 
@@ -12,6 +13,7 @@ COPY . .
 
 ENV BACKEND_URL=$BACKEND_URL
 ENV REACT_APP_MODE=$REACT_APP_MODE
+ENV TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY
 RUN npm run build:prod
 
 ################################################################################

@@ -21,7 +21,7 @@ export function buildPlugins({ mode, paths, analyzer, platform }: BuildOptions):
       __PLATFORM__: JSON.stringify(platform),
       __ENV__: JSON.stringify(mode),
     }),
-    new EnvironmentPlugin(["BACKEND_URL", "REACT_APP_MODE"]),
+    new EnvironmentPlugin(["BACKEND_URL", "REACT_APP_MODE", "TURNSTILE_SITE_KEY"]),
   ];
 
   if (isDev) {

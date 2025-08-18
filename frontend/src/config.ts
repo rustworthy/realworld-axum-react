@@ -7,4 +7,6 @@
  */
 export const config = {
   BACKEND_URL: process.env.BACKEND_URL!,
+  TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY!,
+  REACT_APP_MODE: process.env.REACT_APP_MODE!,
 } as const;
