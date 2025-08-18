@@ -5,6 +5,7 @@ use axum::response::{IntoResponse, Response};
 use sqlx::error::DatabaseError;
 use std::collections::BTreeMap;
 use utoipa::ToSchema;
+use validator::ValidationErrors;
 
 /// Container with validation errors.
 ///
@@ -38,6 +39,21 @@ impl From<JsonRejection> for Error {
     fn from(value: JsonRejection) -> Self {
         let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
         Self::Unprocessable(Validation { errors })
+    }
+}
+
+impl From<ValidationErrors> for Error {
+    fn from(errs: ValidationErrors) -> Self {
+        let mapped = errs.field_errors().into_iter().map(|(field, errs)| {
+            let msg = errs
+                .first()
+                .and_then(|e| e.message.clone())
+                .unwrap_or_else(|| "invalid value".into());
+
+            (field.to_string(), msg.to_string())
+        });
+
+        Error::unprocessable_entity(mapped)
     }
 }
 

@@ -16,16 +16,19 @@ use std::time::Duration;
 use tracing::Span;
 use url::Url;
 use utoipa::ToSchema;
+use validator::Validate;
+use validator_derive::Validate;
 
 const EMAIL_CONFIRMATION_TOKEN_LEN: usize = 8;
 const EMAIL_CONFIRMATION_TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema, Validate)]
 pub struct Registration {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.
     #[schema(example = "rob.pike@gmail.com", format = "email")]
+    #[validate(email(message = "invalid email format"))]
     email: String,
 
     /// User's name or nickname.
@@ -33,12 +36,14 @@ pub struct Registration {
     /// This is - just like the user's `email` - case-insensitively unique
     /// in the system.
     #[schema(example = "rob.pike1984")]
+    #[validate(length(min = 1, message = "username cannot be empty"))]
     username: String,
 
     /// User's password.
     ///
     /// There are currently no limitations on password strength.
     #[schema(min_length = 1, example = "Whoami@g00gle")]
+    #[validate(length(min = 1, message = "password cannot be empty"))]
     password: String,
 }
 
@@ -68,12 +73,8 @@ pub(crate) async fn register_user(
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
 
-    if user.password.trim().is_empty() {
-        return Err(Error::unprocessable_entity([(
-            "password",
-            "password cannot be empty",
-        )]));
-    }
+    // check email, username and password fields
+    user.validate()?;
 
     let password_hash = hash_password(&user.password)?;
 
