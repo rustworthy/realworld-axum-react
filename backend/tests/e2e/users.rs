@@ -68,7 +68,8 @@ async fn create_user_username_issues(ctx: TestContext) {
         "password": "qwerty",
     });
 
-    ctx.http_client
+    let response = ctx
+        .http_client
         .post(url)
         .json(&json!({
             "user": registration
@@ -76,6 +77,9 @@ async fn create_user_username_issues(ctx: TestContext) {
         .send()
         .await
         .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert!(!response.bytes().await.unwrap().is_empty());
 
     let duplicate_registration = json!({
         "username": "rob",
@@ -126,12 +130,16 @@ async fn create_user_email_issues(ctx: TestContext) {
         "password": "qwerty",
     });
 
-    ctx.http_client
+    let response = ctx
+        .http_client
         .post(url)
         .json(&json!({ "user": registration}))
         .send()
         .await
         .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert!(!response.bytes().await.unwrap().is_empty());
 
     let duplicate_registration = json!({
         "username": "rob1",
