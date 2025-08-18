@@ -35,6 +35,8 @@ jobs:
         env:
           BACKEND_URL: /
           REACT_APP_MODE: production
+          # see: https://developers.cloudflare.com/turnstile/tutorials/excluding-turnstile-from-e2e-tests/
+          TURNSTILE_SITE_KEY: 1x00000000000000000000AA
         run: |
           cd ../frontend
           npm ci
