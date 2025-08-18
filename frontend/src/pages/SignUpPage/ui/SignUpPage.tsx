@@ -5,6 +5,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useRegisterUserMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inputs";
@@ -38,6 +39,12 @@ export const SignUpPage = () => {
     });
 
     if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === 422) {
+        // TODO: think about how to simplify extracting error messages
+        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
+
+        toast.error(`Failed to register. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+      }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
         toast.error("Failed to register. Please check your internet connection and retry.");
       }

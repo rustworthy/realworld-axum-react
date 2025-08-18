@@ -1,10 +1,10 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
 import { ConfirmEmailPage, EditorPage, HomePage, NotFoundPage, SignInPage, SignUpPage } from "@/pages";
+import { MainLayout } from "@/app/layouts";
+import { useAuth } from "@/features/auth";
 import { SettingsPage } from "@/pages/SettingsPage";
-import { useAuth } from "@/shared/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
-import { MainLayout } from "@/shared/ui/layouts";
 
 const ProtectedRoutes = () => {
   const { isAuthenticated } = useAuth();

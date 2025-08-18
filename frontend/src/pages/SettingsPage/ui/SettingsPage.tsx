@@ -2,7 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import { useAuth } from "@/shared/auth";
+import { useAuth } from "@/features/auth";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { PasswordInput, TextInput, Textarea } from "@/shared/ui/controls/inputs";
