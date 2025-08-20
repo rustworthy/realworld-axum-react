@@ -4,7 +4,6 @@ use std::{collections::HashMap, time::Duration};
 const CAPTCHA_VERIFY_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 const CAPTCHA_VERIFY_ENDPOINT: &str = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
-#[allow(unused)]
 pub struct Captcha {
     client: reqwest::Client,
     secret: SecretString,
