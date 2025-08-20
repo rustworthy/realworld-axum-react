@@ -29,6 +29,7 @@ export const SignUpPage = () => {
   } = useForm({
     resolver: zodResolver(signUpPageSchema),
     defaultValues: signUpDefaultValues,
+    reValidateMode: "onSubmit",
   });
 
   const onSubmit = async (data: TSignUpPageSchema): Promise<void> => {
