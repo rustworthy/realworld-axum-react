@@ -37,7 +37,7 @@ impl Captcha {
     {
         let mut form = HashMap::new();
         form.insert("secret", self.secret.expose_secret());
-        form.insert("token", token.as_ref());
+        form.insert("response", token.as_ref());
         let result = self
             .client
             .post(CAPTCHA_VERIFY_ENDPOINT)

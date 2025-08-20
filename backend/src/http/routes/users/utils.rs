@@ -1,5 +1,6 @@
 use crate::{http::errors::Error, state::AppContext};
 
+#[instrument(name = "VERIFY CAPTCHA", skip_all)]
 pub async fn check_captcha(captcha: Option<String>, ctx: &AppContext) -> Result<(), Error> {
     match captcha {
         Some(token) => {
