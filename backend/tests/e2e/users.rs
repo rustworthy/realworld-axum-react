@@ -19,7 +19,11 @@ async fn create_user_empty_payload(ctx: TestContext) {
     assert!(!response.bytes().await.unwrap().is_empty());
 }
 
-async fn assert_invalid_registration(ctx: &TestContext, registration: serde_json::Value) {
+async fn assert_invalid_registration(
+    ctx: &TestContext,
+    registration: serde_json::Value,
+    msg: &str,
+) {
     let url = ctx.backend_url.join("/api/users").unwrap();
 
     let response = ctx
@@ -30,33 +34,39 @@ async fn assert_invalid_registration(ctx: &TestContext, registration: serde_json
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY, "{msg}");
     assert!(!response.bytes().await.unwrap().is_empty());
 }
 
 async fn create_user_username_issues(ctx: TestContext) {
-    let cases = vec![
-        // [username] - not provided
-        json!({
-            "email": "rob.pike@gmail.com",
-            "password": "qwerty",
-        }),
-        // [username] - is not a string
-        json!({
-            "username": 123,
-            "email": "rob.pike@gmail.com",
-            "password": "qwerty",
-        }),
-        // [username] - empty string
-        json!({
-            "username": "",
-            "email": "rob.pike@gmail.com",
-            "password": "qwerty",
-        }),
+    let cases = [
+        (
+            json!({
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username not provided",
+        ),
+        (
+            json!({
+                "username": 123,
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username is not a string",
+        ),
+        (
+            json!({
+                "username": "",
+                "email": "rob.pike@gmail.com",
+                "password": "strongandcomplicated",
+            }),
+            "username is empty string",
+        ),
     ];
 
-    for case in cases {
-        assert_invalid_registration(&ctx, case).await;
+    for (case, msg) in cases {
+        assert_invalid_registration(&ctx, case, msg).await;
     }
 
     // [username] - duplicate
@@ -65,7 +75,7 @@ async fn create_user_username_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "qwerty",
+        "password": "strongandcomplicated",
     });
 
     let response = ctx
@@ -82,43 +92,51 @@ async fn create_user_username_issues(ctx: TestContext) {
     assert!(!response.bytes().await.unwrap().is_empty());
 
     let duplicate_registration = json!({
-        "username": "rob",
+        "username": "RoB", // / NB: usernames are case-insensitively unique
         "email": "rob.pike1@gmail.com",
-        "password": "qwerty",
+        "password": "strongandcomplicated",
     });
 
-    assert_invalid_registration(&ctx, duplicate_registration).await;
+    assert_invalid_registration(&ctx, duplicate_registration, "duplicate username").await;
 }
 
 async fn create_user_email_issues(ctx: TestContext) {
-    let cases = vec![
-        // [email] - not provided
-        json!({
-            "username": "rob",
-            "password": "qwerty",
-        }),
-        // [email] - is not a string
-        json!({
-            "username": "rob",
-            "email": 123,
-            "password": "qwerty",
-        }),
-        // [email] - empty string
-        json!({
-            "username": "rob",
-            "email": "",
-            "password": "qwerty",
-        }),
-        // [email] - not valid email
-        json!({
-            "username": "rob",
-            "email": "rob.pike.com",
-            "password": "qwerty",
-        }),
+    let cases = [
+        (
+            json!({
+                "username": "rob",
+                "password": "strongandcomplicated",
+            }),
+            "email not provided",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": 123,
+                "password": "strongandcomplicated",
+            }),
+            "email is not a string",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": "",
+                "password": "strongandcomplicated",
+            }),
+            "email is empty string",
+        ),
+        (
+            json!({
+                "username": "rob",
+                "email": "rob.pike.com",
+                "password": "strongandcomplicated",
+            }),
+            "email is not valid email",
+        ),
     ];
 
-    for case in cases {
-        assert_invalid_registration(&ctx, case).await;
+    for (case, msg) in cases {
+        assert_invalid_registration(&ctx, case, msg).await;
     }
 
     // [email] - duplicate email
@@ -127,7 +145,7 @@ async fn create_user_email_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "qwerty",
+        "password": "strongandcomplicated",
     });
 
     let response = ctx
@@ -144,10 +162,42 @@ async fn create_user_email_issues(ctx: TestContext) {
     let duplicate_registration = json!({
         "username": "rob1",
         "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
-        "password": "qwerty",
+        "password": "strongandcomplicated",
     });
 
-    assert_invalid_registration(&ctx, duplicate_registration).await;
+    assert_invalid_registration(&ctx, duplicate_registration, "duplicate email").await;
+}
+
+async fn create_user_password_issues(ctx: TestContext) {
+    let cases = [
+        (
+            json!({
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
+            }),
+            "password not provided",
+        ),
+        (
+            json!({
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
+                "password": 1,
+            }),
+            "password is not a string",
+        ),
+        (
+            json!({
+                "email": "rob.pike@gmail.com",
+                "username": "gogorob",
+                "password": "strong?",
+            }),
+            "password is too short",
+        ),
+    ];
+
+    for (case, msg) in cases {
+        assert_invalid_registration(&ctx, case, msg).await;
+    }
 }
 
 // --------------------------- CONFIRM EMAIL -----------------------------------
@@ -156,7 +206,7 @@ async fn confirm_email_address(ctx: TestContext) {
     let registration = json!({
         "username": "rob.pike",
         "email": "rob.pike@gmail.com",
-        "password": "qwerty",
+        "password": "strongandcomplicated",
     });
 
     // make sure to register first
@@ -328,6 +378,7 @@ mod tests {
     crate::async_test!(create_user_empty_payload);
     crate::async_test!(create_user_username_issues);
     crate::async_test!(create_user_email_issues);
+    crate::async_test!(create_user_password_issues);
     crate::async_test!(confirm_email_address);
     crate::async_test!(login_empty_payload);
     crate::async_test!(get_current_user_no_token);
