@@ -71,13 +71,7 @@ export const ConfirmEmailPage = () => {
         />
 
         <FormPage.FormSubmissionSection>
-          <CaptchaInput
-            name="captcha"
-            setValue={setValue}
-            setError={setError}
-            fieldErrors={errors}
-            clearErrors={clearErrors}
-          />
+          <CaptchaInput name="captcha" setValue={setValue} setError={setError} fieldErrors={errors} clearErrors={clearErrors} />
           <Button dataTestId="confirm_email_button" isDisabled={isConfirmEmailLoading}>
             Submit
           </Button>
