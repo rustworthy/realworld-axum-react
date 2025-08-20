@@ -15,7 +15,7 @@ export const signUpPageSchema = z
           "Password should be at least 12 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 digit, and a special character ($, !, %, *, ?, &)",
       }),
     confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
-    captchaToken: z.string().nonempty({ error: "Cannot be empty." }),
+    captcha: z.string().nonempty({ error: "Cannot be empty." }),
   })
   .refine((data) => data.confirmPassword === data.password, {
     message: "Passwords do not match",
@@ -27,7 +27,7 @@ export const signUpDefaultValues = {
   email: "",
   password: "",
   confirmPassword: "",
-  captchaToken: "",
+  captcha: "",
 };
 
 export type TSignUpPageSchema = z.infer<typeof signUpPageSchema>;

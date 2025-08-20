@@ -119,7 +119,7 @@ export const SignUpPage = () => {
 
         <FormPage.FormSubmissionSection>
           <CaptchaInput
-            name="captchaToken"
+            name="captcha"
             setValue={setValue}
             setError={setError}
             fieldErrors={errors}
