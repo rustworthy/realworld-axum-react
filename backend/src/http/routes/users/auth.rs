@@ -4,22 +4,27 @@ use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, Validation};
 use crate::http::jwt::issue_token;
+use crate::utils::verify_password;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
+use url::Url;
 use utoipa::ToSchema;
-use uuid::Uuid;
+use validator::Validate;
+use validator_derive::Validate;
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema, Validate)]
 pub(crate) struct Login {
     /// User's email, e.g. `rob.pike@gmail.com`.
     ///
     /// This is case-insensitively unique in the system.
     #[schema(example = "rob.pike@gmail.com", format = "email")]
+    #[validate(email(message = "invalid email format"))]
     email: String,
 
     /// User's password.
     #[schema(min_length = 1, examples("Whoami@g00gle",))]
+    #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: String,
 }
 
@@ -43,26 +48,39 @@ pub(crate) async fn login(
     login_details: Result<Json<UserPayload<Login>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = login_details?;
-    // @Dzmitry, we of course should not be just dropping user's password,
-    // rather should verify it's not empty, hash it and compare to what is
-    // stored in our database
-    drop(user.password);
 
-    // @Dzmitry as if we found a user in db
-    let uid = Uuid::parse_str("25f75337-a5e3-44b1-97d7-6653ca23e9ee").unwrap();
+    // check email and password fields
+    user.validate()?;
 
-    // @Dzmitry and we issued a token for the newly created user
-    let jwt_string = issue_token(uid, &ctx.enc_key).unwrap();
+    let user_row = sqlx::query!(
+        r#"
+            SELECT user_id, username, email, bio, image, password_hash 
+            FROM users 
+            WHERE email = $1
+        "#,
+        &user.email
+    )
+    .fetch_one(&ctx.db)
+    .await
+    .map_err(|_e| Error::Unauthorized)?;
 
-    let paylaod = UserPayload {
+    let is_password_verified = verify_password(&user.password, &user_row.password_hash)?;
+
+    if !is_password_verified {
+        return Err(Error::Unauthorized);
+    }
+
+    let jwt_string = issue_token(user_row.user_id, &ctx.enc_key).unwrap();
+
+    let payload = UserPayload {
         user: User {
-            email: user.email,
+            email: user_row.email,
             token: jwt_string,
-            username: "rob.pike".into(),
-            bio: "Co-author Go programming language".into(),
-            image: Some("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_ySzB8CjQ85dLtvWXX8K1F4RlxbPEzjgfgKNTwneiPUCyfixt4edM8Nc&s".parse().expect("a valid URL")),
+            username: user_row.username,
+            bio: user_row.bio,
+            image: user_row.image.and_then(|img_str| Url::parse(&img_str).ok()),
         },
     };
 
-    Ok(Json(paylaod))
+    return Ok(Json(payload));
 }
