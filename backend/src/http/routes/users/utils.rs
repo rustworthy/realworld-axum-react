@@ -14,10 +14,10 @@ pub async fn check_captcha(captcha: Option<String>, ctx: &AppContext) -> Result<
                 Ok(())
             }
         }
-        None if ctx.skip_captcha_verification => Err(Error::unprocessable_entity([(
+        None if ctx.skip_captcha_verification => Ok(()),
+        None => Err(Error::unprocessable_entity([(
             "captcha",
             "cannot be empty",
         )])),
-        _ => Ok(()),
     }
 }
