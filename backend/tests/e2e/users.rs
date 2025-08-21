@@ -44,6 +44,7 @@ async fn create_user_username_issues(ctx: TestContext) {
             json!({
                 "email": "rob.pike@gmail.com",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "username not provided",
         ),
@@ -52,6 +53,7 @@ async fn create_user_username_issues(ctx: TestContext) {
                 "username": 123,
                 "email": "rob.pike@gmail.com",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "username is not a string",
         ),
@@ -60,6 +62,7 @@ async fn create_user_username_issues(ctx: TestContext) {
                 "username": "",
                 "email": "rob.pike@gmail.com",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "username is empty string",
         ),
@@ -69,18 +72,17 @@ async fn create_user_username_issues(ctx: TestContext) {
         assert_invalid_registration(&ctx, case, msg).await;
     }
 
-    // [username] - duplicate
-    let url = ctx.backend_url.join("/api/users").unwrap();
-
+    // valid and so far unique registration details
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
         "password": "strongandcomplicated",
+        "captcha": "test",
     });
 
     let response = ctx
         .http_client
-        .post(url)
+        .post(ctx.backend_url.join("/api/users").unwrap())
         .json(&json!({
             "user": registration
         }))
@@ -95,6 +97,7 @@ async fn create_user_username_issues(ctx: TestContext) {
         "username": "RoB", // / NB: usernames are case-insensitively unique
         "email": "rob.pike1@gmail.com",
         "password": "strongandcomplicated",
+        "captcha": "test",
     });
 
     assert_invalid_registration(&ctx, duplicate_registration, "duplicate username").await;
@@ -106,6 +109,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "email not provided",
         ),
@@ -114,6 +118,7 @@ async fn create_user_email_issues(ctx: TestContext) {
                 "username": "rob",
                 "email": 123,
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "email is not a string",
         ),
@@ -122,6 +127,7 @@ async fn create_user_email_issues(ctx: TestContext) {
                 "username": "rob",
                 "email": "",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "email is empty string",
         ),
@@ -130,6 +136,7 @@ async fn create_user_email_issues(ctx: TestContext) {
                 "username": "rob",
                 "email": "rob.pike.com",
                 "password": "strongandcomplicated",
+                "captcha": "test",
             }),
             "email is not valid email",
         ),
@@ -139,18 +146,17 @@ async fn create_user_email_issues(ctx: TestContext) {
         assert_invalid_registration(&ctx, case, msg).await;
     }
 
-    // [email] - duplicate email
-    let url = ctx.backend_url.join("/api/users").unwrap();
-
+    // valid and so far unique registration details
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
         "password": "strongandcomplicated",
+        "captcha": "test",
     });
 
     let response = ctx
         .http_client
-        .post(url)
+        .post(ctx.backend_url.join("/api/users").unwrap())
         .json(&json!({ "user": registration}))
         .send()
         .await
@@ -163,6 +169,7 @@ async fn create_user_email_issues(ctx: TestContext) {
         "username": "rob1",
         "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
         "password": "strongandcomplicated",
+        "captcha": "test",
     });
 
     assert_invalid_registration(&ctx, duplicate_registration, "duplicate email").await;
@@ -174,6 +181,7 @@ async fn create_user_password_issues(ctx: TestContext) {
             json!({
                 "email": "rob.pike@gmail.com",
                 "username": "gogorob",
+                "captcha": "test",
             }),
             "password not provided",
         ),
@@ -182,6 +190,7 @@ async fn create_user_password_issues(ctx: TestContext) {
                 "email": "rob.pike@gmail.com",
                 "username": "gogorob",
                 "password": 1,
+                "captcha": "test",
             }),
             "password is not a string",
         ),
@@ -190,6 +199,7 @@ async fn create_user_password_issues(ctx: TestContext) {
                 "email": "rob.pike@gmail.com",
                 "username": "gogorob",
                 "password": "strong?",
+                "captcha": "test",
             }),
             "password is too short",
         ),
@@ -207,6 +217,7 @@ async fn confirm_email_address(ctx: TestContext) {
         "username": "rob.pike",
         "email": "rob.pike@gmail.com",
         "password": "strongandcomplicated",
+        "captcha": "test",
     });
 
     // make sure to register first
@@ -294,7 +305,8 @@ async fn confirm_email_address(ctx: TestContext) {
         .post(url)
         .json(&json!({
             "user": {
-                "otp": otp_sent
+                "otp": otp_sent,
+                "captcha": "test",
             }
         }))
         .send()

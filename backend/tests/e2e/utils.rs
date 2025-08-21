@@ -30,6 +30,7 @@ pub struct TestContext {
     #[allow(unused)]
     pub backend_url: Url,
 
+    #[allow(unused)]
     pub db_pool: PgPool,
 
     #[allow(unused)]
@@ -152,6 +153,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         port: 0,
         database_url: SecretString::from(database_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
+        // https://developers.cloudflare.com/turnstile/troubleshooting/testing/#dummy-sitekeys-and-secret-keys
+        captcha_secret: SecretString::from("1x0000000000000000000000000000000AA"),
         docs_ui_path: Some("/scalar".to_string()),
         frontend_url: frontend_url.clone(),
         allowed_origins,
@@ -160,6 +163,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         mailer_endpoint: mailer_server.uri().parse().unwrap(),
         mailer_from: "hello@realworld-axum-react.org".to_string(),
         skip_email_verification: None,
+        skip_captcha_verification: None,
     };
 
     // launch back-end application

@@ -79,13 +79,7 @@ export const SignInPage = () => {
         />
 
         <FormPage.FormSubmissionSection>
-          <CaptchaInput
-            name="captchaToken"
-            setValue={setValue}
-            setError={setError}
-            fieldErrors={errors}
-            clearErrors={clearErrors}
-          />
+          <CaptchaInput name="captcha" setValue={setValue} setError={setError} fieldErrors={errors} clearErrors={clearErrors} />
           <Button dataTestId="signin_submit_button" isDisabled={isLoginLoading}>
             Sign in
           </Button>

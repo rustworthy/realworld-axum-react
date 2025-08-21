@@ -1,3 +1,4 @@
+use super::utils::check_captcha;
 use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, ResultExt, Validation};
@@ -45,6 +46,10 @@ pub struct Registration {
     #[schema(min_length = 12, example = "Whoami@g00gle")]
     #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: String,
+
+    /// Turnstile captcha token.
+    #[schema(nullable = false, required)]
+    captcha: Option<String>,
 }
 
 /// Register new user.
@@ -71,7 +76,9 @@ pub(crate) async fn register_user(
     ctx: State<Arc<AppContext>>,
     input: Result<Json<UserPayload<Registration>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
-    let Json(UserPayload { user }) = input?;
+    let Json(UserPayload { mut user }) = input?;
+
+    check_captcha(user.captcha.take(), &ctx).await?;
 
     // check email, username and password fields
     user.validate()?;
@@ -158,6 +165,10 @@ pub struct EmailConfirmation {
     /// An numeric code that has been sent to them upon registration.
     #[schema(min_length = 8, max_length = 8, example = "01234567")]
     otp: String,
+
+    /// Turnstile captcha token.
+    #[schema(nullable = false, required)]
+    captcha: Option<String>,
 }
 
 /// Confirm email address.
@@ -181,7 +192,8 @@ pub(crate) async fn confirm_email(
     ctx: State<Arc<AppContext>>,
     input: Result<Json<UserPayload<EmailConfirmation>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
-    let Json(UserPayload { user }) = input?;
+    let Json(UserPayload { mut user }) = input?;
+    check_captcha(user.captcha.take(), &ctx).await?;
 
     let user_id = sqlx::query_scalar!(
         r#"
