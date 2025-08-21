@@ -7,7 +7,7 @@ import { useCreateArticleMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
-import { TextInput, Textarea } from "@/shared/ui/controls/inputs";
+import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -20,6 +20,8 @@ export const EditorPage = () => {
 
   const {
     control,
+    setValue,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -70,19 +72,14 @@ export const EditorPage = () => {
           )}
         />
 
-        <Controller
-          control={control}
+        <EditorInput
+          value={watch("body") as string}
+          onChange={(value) => setValue("body", value)}
+          error={errors.body?.message}
+          label="Write your article (in markdown)"
+          required
+          id="editor_body"
           name="body"
-          render={({ field }) => (
-            <Textarea
-              rows={8}
-              field={field}
-              required
-              id="editor_body"
-              label="Write your article (in markdown)"
-              error={errors.body?.message}
-            />
-          )}
         />
 
         <Controller
