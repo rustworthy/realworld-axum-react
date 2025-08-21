@@ -69,7 +69,7 @@ impl IntoResponse for Error {
                 (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
             }
             Self::Internal(e) => {
-                error!(error = ?e, "innternal error occurred");
+                error!(error = ?e, "internal error occurred");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
             Error::Sqlx(e) => {
