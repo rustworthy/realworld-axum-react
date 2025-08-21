@@ -23,7 +23,7 @@ pub(crate) struct Login {
     email: String,
 
     /// User's password.
-    #[schema(min_length = 1, examples("Whoami@g00gle",))]
+    #[schema(min_length = 12, examples("Whoami@g00gle",))]
     #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: String,
 }
@@ -60,9 +60,9 @@ pub(crate) async fn login(
         "#,
         &user.email
     )
-    .fetch_one(&ctx.db)
-    .await
-    .map_err(|_e| Error::Unauthorized)?;
+    .fetch_optional(&ctx.db)
+    .await?
+    .ok_or(Error::Unauthorized)?;
 
     let is_password_verified = verify_password(&user.password, &user_row.password_hash)?;
 
@@ -72,15 +72,23 @@ pub(crate) async fn login(
 
     let jwt_string = issue_token(user_row.user_id, &ctx.enc_key).unwrap();
 
+    let image = user_row
+        .image
+        .as_deref()
+        .map(|v| {
+            Url::parse(v).map_err(|_| anyhow::anyhow!("Failed to parse store image path as URL"))
+        })
+        .transpose()?;
+
     let payload = UserPayload {
         user: User {
             email: user_row.email,
             token: jwt_string,
             username: user_row.username,
             bio: user_row.bio,
-            image: user_row.image.and_then(|img_str| Url::parse(&img_str).ok()),
+            image: image,
         },
     };
 
-    return Ok(Json(payload));
+    Ok(Json(payload))
 }
