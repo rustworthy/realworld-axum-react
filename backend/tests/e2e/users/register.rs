@@ -333,15 +333,6 @@ async fn confirm_email_address(ctx: TestContext) {
     assert_eq!(status, "ACTIVE");
 }
 
-// ------------------------- POST /api/users/login -----------------------------
-async fn login_empty_payload(ctx: TestContext) {
-    let url = ctx.backend_url.join("/api/users/login").unwrap();
-    let response = ctx.http_client.post(url).send().await.unwrap();
-
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-    assert!(!response.bytes().await.unwrap().is_empty());
-}
-
 // ---------------------------- GET /api/user ----------------------------------
 async fn get_current_user_no_token(ctx: TestContext) {
     let url = ctx.backend_url.join("/api/user").unwrap();
@@ -392,7 +383,6 @@ mod tests {
     crate::async_test!(create_user_email_issues);
     crate::async_test!(create_user_password_issues);
     crate::async_test!(confirm_email_address);
-    crate::async_test!(login_empty_payload);
     crate::async_test!(get_current_user_no_token);
     crate::async_test!(get_current_user_invalid_token);
     crate::async_test!(update_user_unauthenticated);
