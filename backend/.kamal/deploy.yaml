@@ -29,6 +29,7 @@ env:
     - DATABASE_URL
     - SECRET_KEY
     - MAILER_TOKEN
+    - CAPTCHA_SECRET
   tags:
     migrator:
       clear:

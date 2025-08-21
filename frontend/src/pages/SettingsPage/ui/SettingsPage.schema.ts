@@ -1,9 +1,13 @@
+import { PASSWORD_MIN_LENGTH } from "@/shared/constants/auth.constants";
 import * as z from "zod";
 
 export const settingsPageSchema = z.object({
   email: z.email({ error: "Valid email address required." }),
   username: z.string().nonempty({ error: "Cannot be empty." }),
-  password: z.string(),
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`)
+    .or(z.literal("")),
   bio: z.string(),
   image: z.preprocess((val) => (val === "" ? null : val), z.url({ message: "Valid URL required." }).nullable()),
 });
