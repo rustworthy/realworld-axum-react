@@ -23,7 +23,6 @@ pub fn gen_numeric_string(length: usize) -> String {
         .collect()
 }
 
-#[allow(unused)]
 pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
     // generate a salt
     let mut rng = OsRng;

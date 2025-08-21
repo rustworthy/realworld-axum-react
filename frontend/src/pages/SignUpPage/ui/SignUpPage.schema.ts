@@ -7,7 +7,7 @@ export const signUpPageSchema = z
     email: z.email({ error: "Valid email address required." }),
     password: z.string().min(PASSWORD_MIN_LENGTH, `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`),
     confirmPassword: z.string().nonempty({ error: "Cannot be empty." }),
-    captchaToken: z.string().nonempty({ error: "Cannot be empty." }),
+    captcha: z.string().nonempty({ error: "Cannot be empty." }),
   })
   .refine((data) => data.confirmPassword === data.password, {
     message: "Passwords do not match",
@@ -19,7 +19,7 @@ export const signUpDefaultValues = {
   email: "",
   password: "",
   confirmPassword: "",
-  captchaToken: "",
+  captcha: "",
 };
 
 export type TSignUpPageSchema = z.infer<typeof signUpPageSchema>;

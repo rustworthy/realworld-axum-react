@@ -39,7 +39,7 @@ impl ResendMailer {
         }
     }
 
-    #[tracing::instrument(name = "SEND EMAIL", fields(email_id), skip(html, text))]
+    #[instrument(name = "SEND EMAIL", fields(email_id), skip(html, text))]
     pub async fn send_email(
         &self,
         to: &str,
