@@ -54,7 +54,7 @@ pub(crate) async fn login(
 
     let user_row = sqlx::query!(
         r#"
-            SELECT user_id, username, email, bio, image, password_hash 
+            SELECT user_id, username, email, bio, image, status, password_hash 
             FROM users 
             WHERE email = $1
         "#,
@@ -63,6 +63,10 @@ pub(crate) async fn login(
     .fetch_optional(&ctx.db)
     .await?
     .ok_or(Error::Unauthorized)?;
+
+    if user_row.status == "EMAIL_CONFIRMATION_PENDING" {
+        return Err(Error::Unauthorized);
+    }
 
     let is_password_verified = verify_password(&user.password, &user_row.password_hash)?;
 

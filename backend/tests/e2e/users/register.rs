@@ -43,7 +43,7 @@ async fn create_user_username_issues(ctx: TestContext) {
         (
             json!({
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username not provided",
@@ -52,7 +52,7 @@ async fn create_user_username_issues(ctx: TestContext) {
             json!({
                 "username": 123,
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username is not a string",
@@ -61,7 +61,7 @@ async fn create_user_username_issues(ctx: TestContext) {
             json!({
                 "username": "",
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username is empty string",
@@ -76,7 +76,7 @@ async fn create_user_username_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -96,7 +96,7 @@ async fn create_user_username_issues(ctx: TestContext) {
     let duplicate_registration = json!({
         "username": "RoB", // / NB: usernames are case-insensitively unique
         "email": "rob.pike1@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -108,7 +108,7 @@ async fn create_user_email_issues(ctx: TestContext) {
         (
             json!({
                 "username": "rob",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email not provided",
@@ -117,7 +117,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": 123,
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is not a string",
@@ -126,7 +126,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": "",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is empty string",
@@ -135,7 +135,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": "rob.pike.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is not valid email",
@@ -150,7 +150,7 @@ async fn create_user_email_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -168,7 +168,7 @@ async fn create_user_email_issues(ctx: TestContext) {
     let duplicate_registration = json!({
         "username": "rob1",
         "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -216,7 +216,7 @@ async fn confirm_email_address(ctx: TestContext) {
     let registration = json!({
         "username": "rob.pike",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -295,7 +295,7 @@ async fn confirm_email_address(ctx: TestContext) {
         .find(|(key, _)| key == "otp")
         .map(|(_, otp)| otp)
         .expect("OTP as query string parameter");
-    // let's see if the code we've sent to them is the one we peristed
+    // let's see if the code we've sent to them is the one we persisted
     assert_eq!(otp_sent, otp_stored);
 
     // now that we got our OTP, let's confirm the email

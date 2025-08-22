@@ -1,15 +1,12 @@
-use reqwest::StatusCode;
-use serde_json::json;
-
 use crate::utils::TestContext;
+use reqwest::StatusCode;
+use serde_json::{Value, json};
+use url::Url;
 
 // This token has been signed with using a secret in our `.env.example`, while
 // for each of our tests we are launching a dedicated rocker application with a
 // dedicated random secret key, and so we expect the back-end to reject us
 const _TEST_JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNWY3NTMzNy1hNWUzLTQ0YjEtOTdkNy02NjUzY2EyM2U5ZWUiLCJpYXQiOjE3NTEzMTE5NzksImV4cCI6MTc1MTkxNjc3OX0.QJXG34zRbMLin8JUr-BBbwOSQWwaJ9T2VGRDAbLTJ88";
-
-// hashed password: strong_and_complicated
-const PASSWORD_HASHED: &str = "$argon2id$v=19$m=19456,t=2,p=1$0XlThjIrqV/k9qYikOIlSw$AjZYlgq77E2JsafM+B9q2mp/TIChK8sy64uQyQZLk3A";
 
 // ------------------------- POST /api/users/login -----------------------------
 async fn login_empty_payload(ctx: TestContext) {
@@ -35,7 +32,7 @@ async fn assert_invalid_login(ctx: &TestContext, login_payload: serde_json::Valu
     assert!(!response.bytes().await.unwrap().is_empty());
 }
 
-async fn login_user_email_issues(ctx: TestContext) {
+async fn login_attempt_invalid_payload(ctx: TestContext) {
     let cases = [
         (
             json!({
@@ -73,9 +70,7 @@ async fn login_user_email_issues(ctx: TestContext) {
     for (case, msg) in cases {
         assert_invalid_login(&ctx, case, msg).await;
     }
-}
 
-async fn login_user_password_issues(ctx: TestContext) {
     let cases = [
         (
             json!({
@@ -117,19 +112,19 @@ async fn login_user_password_issues(ctx: TestContext) {
 
 // login user with correct payload
 async fn login_user(ctx: TestContext) {
-    sqlx::query(
-        r#"
-        INSERT INTO users (email, username, password_hash, status)
-        VALUES ($1, $2, $3, $4)
-    "#,
-    )
-    .bind("rob.pike@gmail.com")
-    .bind("rob.pike")
-    .bind(PASSWORD_HASHED)
-    .bind("ACTIVE")
-    .execute(&ctx.db_pool)
-    .await
-    .expect("failed to insert test user");
+    // sqlx::query(
+    //     r#"
+    //     INSERT INTO users (email, username, password_hash, status)
+    //     VALUES ($1, $2, $3, $4)
+    // "#,
+    // )
+    // .bind("rob.pike@gmail.com")
+    // .bind("rob.pike")
+    // .bind(PASSWORD_HASHED)
+    // .bind("ACTIVE")
+    // .execute(&ctx.db_pool)
+    // .await
+    // .expect("failed to insert test user");
 
     let login_payload = json!({
         "email": "rob.pike@gmail.com",
@@ -140,7 +135,97 @@ async fn login_user(ctx: TestContext) {
     let response = ctx
         .http_client
         .post(ctx.backend_url.join("/api/users/login").unwrap())
-        .json(&json!({ "user": login_payload }))
+        .json(&json!({ "user": &login_payload }))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert!(response.bytes().await.unwrap().is_empty());
+
+    // register new user
+    let url = ctx.backend_url.join("/api/users").unwrap();
+    let registration = json!({
+        "username": "rob.pike",
+        "email": "rob.pike@gmail.com",
+        "password": "strong_and_complicated",
+        "captcha": "test",
+    });
+
+    let _response: Value = ctx
+        .http_client
+        .post(url)
+        .json(&json!({
+            "user": registration
+        }))
+        .send()
+        .await
+        .expect("request to have succeeded")
+        .json()
+        .await
+        .expect("valid JSON in response");
+
+    // check with status EMAIL_CONFIRMATION_PENDING
+    let response = ctx
+        .http_client
+        .post(ctx.backend_url.join("/api/users/login").unwrap())
+        .json(&json!({ "user": &login_payload }))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert!(response.bytes().await.unwrap().is_empty());
+
+    // send email with OTP
+    let otp_email_request: Value = ctx
+        .mailer_server
+        .received_requests()
+        .await
+        .expect("requests to have been received")
+        .first()
+        .expect("letter with OTP to have been sent")
+        .body_json()
+        .expect("JSON payload");
+
+    // parse the OTP
+    let html = otp_email_request
+        .get("html")
+        .expect("'html' field to be present in request payload")
+        .as_str()
+        .expect("html content to be a string");
+
+    let finder = linkify::LinkFinder::new();
+    let links: Vec<_> = finder.links(html).collect();
+    let otp_link: Url = links[1].as_str().parse().expect("value URL");
+    let otp_sent = otp_link
+        .query_pairs()
+        .find(|(key, _)| key == "otp")
+        .map(|(_, otp)| otp)
+        .expect("OTP as query string parameter");
+
+    // now that we got our OTP, let's confirm the email
+    let url = ctx.backend_url.join("/api/users/confirm-email").unwrap();
+    let _response: Value = ctx
+        .http_client
+        .post(url)
+        .json(&json!({
+            "user": {
+                "otp": otp_sent,
+                "captcha": "test",
+            }
+        }))
+        .send()
+        .await
+        .expect("request to have succeeded")
+        .json()
+        .await
+        .expect("valid JSON in response");
+
+    let response = ctx
+        .http_client
+        .post(ctx.backend_url.join("/api/users/login").unwrap())
+        .json(&json!({ "user": &login_payload }))
         .send()
         .await
         .unwrap();
@@ -151,7 +236,6 @@ async fn login_user(ctx: TestContext) {
 
 mod tests {
     crate::async_test!(login_empty_payload);
-    crate::async_test!(login_user_email_issues);
-    crate::async_test!(login_user_password_issues);
+    crate::async_test!(login_attempt_invalid_payload);
     crate::async_test!(login_user);
 }
