@@ -3,11 +3,6 @@ use reqwest::StatusCode;
 use serde_json::{Value, json};
 use url::Url;
 
-// This token has been signed with using a secret in our `.env.example`, while
-// for each of our tests we are launching a dedicated rocker application with a
-// dedicated random secret key, and so we expect the back-end to reject us
-const _TEST_JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNWY3NTMzNy1hNWUzLTQ0YjEtOTdkNy02NjUzY2EyM2U5ZWUiLCJpYXQiOjE3NTEzMTE5NzksImV4cCI6MTc1MTkxNjc3OX0.QJXG34zRbMLin8JUr-BBbwOSQWwaJ9T2VGRDAbLTJ88";
-
 // ------------------------- POST /api/users/login -----------------------------
 async fn login_empty_payload(ctx: TestContext) {
     let url = ctx.backend_url.join("/api/users/login").unwrap();
