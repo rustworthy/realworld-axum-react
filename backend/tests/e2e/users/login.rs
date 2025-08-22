@@ -112,20 +112,6 @@ async fn login_attempt_invalid_payload(ctx: TestContext) {
 
 // login user with correct payload
 async fn login_user(ctx: TestContext) {
-    // sqlx::query(
-    //     r#"
-    //     INSERT INTO users (email, username, password_hash, status)
-    //     VALUES ($1, $2, $3, $4)
-    // "#,
-    // )
-    // .bind("rob.pike@gmail.com")
-    // .bind("rob.pike")
-    // .bind(PASSWORD_HASHED)
-    // .bind("ACTIVE")
-    // .execute(&ctx.db_pool)
-    // .await
-    // .expect("failed to insert test user");
-
     let login_payload = json!({
         "email": "rob.pike@gmail.com",
         "password": "strong_and_complicated",
