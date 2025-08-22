@@ -2,3 +2,4 @@ cd frontend
 
 npm run lint
 npm run types:check
+npm run build:prod

@@ -9,6 +9,7 @@ import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import * as S from "./MainLayout.styles";
+import "./mdeditor.css";
 
 export const MainLayout = () => {
   const { isRestoring } = useAuthSnapshotRestoration();
