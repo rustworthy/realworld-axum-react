@@ -206,7 +206,7 @@ async fn login_user(ctx: TestContext) {
     let response = ctx
         .http_client
         .post(ctx.backend_url.join("/api/users/login").unwrap())
-        .json(&json!({ "user": &login_payload }))
+        .json(&json!({ "user": login_payload }))
         .send()
         .await
         .unwrap();
