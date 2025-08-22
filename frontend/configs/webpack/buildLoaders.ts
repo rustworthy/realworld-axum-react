@@ -46,14 +46,19 @@ export function buildLoaders(options: BuildOptions): ModuleOptions["rules"] {
 
   const scssLoader = {
     test: /\.(css|scss|sass)$/i,
+    exclude: /mdeditor\.css$/i,
     use: [
       // Creates `style` nodes from JS strings
-      isDev ? "style-loader" : MiniCssExtractPlugin.loader,
-      // Translates CSS into CommonJS
-      cssLoaderWithModules,
-      // Compiles Sass to CSS
+      isDev ? "style-loader" : MiniCssExtractPlugin.loader, // Translates CSS into CommonJS
+      cssLoaderWithModules, // Compiles Sass to CSS
       "sass-loader",
     ],
+  };
+
+  // create separated css files
+  const staticCssFilesLoader = {
+    test: /mdeditor\.css$/i,
+    use: [isDev ? "style-loader" : MiniCssExtractPlugin.loader, "css-loader"],
   };
 
   const tsLoader = {
@@ -72,5 +77,5 @@ export function buildLoaders(options: BuildOptions): ModuleOptions["rules"] {
     ],
   };
 
-  return [assetLoader, scssLoader, tsLoader, svgrLoader];
+  return [assetLoader, scssLoader, staticCssFilesLoader, tsLoader, svgrLoader];
 }
