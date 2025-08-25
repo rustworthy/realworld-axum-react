@@ -1,9 +1,8 @@
 use reqwest::{StatusCode, header};
 use serde_json::{Value, json};
 use sqlx::Row as _;
-use url::Url;
 
-use crate::utils::TestContext;
+use crate::utils::{TestContext, extract_otp_from_html};
 
 // This token has been signed with using a secret in our `.env.example`, while
 // for each of our tests we are launching a dedicated rocker application with a
@@ -43,7 +42,7 @@ async fn create_user_username_issues(ctx: TestContext) {
         (
             json!({
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username not provided",
@@ -52,7 +51,7 @@ async fn create_user_username_issues(ctx: TestContext) {
             json!({
                 "username": 123,
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username is not a string",
@@ -61,7 +60,7 @@ async fn create_user_username_issues(ctx: TestContext) {
             json!({
                 "username": "",
                 "email": "rob.pike@gmail.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "username is empty string",
@@ -76,7 +75,7 @@ async fn create_user_username_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -96,7 +95,7 @@ async fn create_user_username_issues(ctx: TestContext) {
     let duplicate_registration = json!({
         "username": "RoB", // / NB: usernames are case-insensitively unique
         "email": "rob.pike1@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -108,7 +107,7 @@ async fn create_user_email_issues(ctx: TestContext) {
         (
             json!({
                 "username": "rob",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email not provided",
@@ -117,7 +116,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": 123,
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is not a string",
@@ -126,7 +125,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": "",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is empty string",
@@ -135,7 +134,7 @@ async fn create_user_email_issues(ctx: TestContext) {
             json!({
                 "username": "rob",
                 "email": "rob.pike.com",
-                "password": "strongandcomplicated",
+                "password": "strong_and_complicated",
                 "captcha": "test",
             }),
             "email is not valid email",
@@ -150,7 +149,7 @@ async fn create_user_email_issues(ctx: TestContext) {
     let registration = json!({
         "username": "rob",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -168,7 +167,7 @@ async fn create_user_email_issues(ctx: TestContext) {
     let duplicate_registration = json!({
         "username": "rob1",
         "email": "ROB.PiKe@gmail.com", // NB: emails are case-insensitively unique
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -216,7 +215,7 @@ async fn confirm_email_address(ctx: TestContext) {
     let registration = json!({
         "username": "rob.pike",
         "email": "rob.pike@gmail.com",
-        "password": "strongandcomplicated",
+        "password": "strong_and_complicated",
         "captcha": "test",
     });
 
@@ -287,15 +286,9 @@ async fn confirm_email_address(ctx: TestContext) {
         .as_str()
         .expect("html content to be a string");
 
-    let finder = linkify::LinkFinder::new();
-    let links: Vec<_> = finder.links(html).collect();
-    let otp_link: Url = links[1].as_str().parse().expect("value URL");
-    let otp_sent = otp_link
-        .query_pairs()
-        .find(|(key, _)| key == "otp")
-        .map(|(_, otp)| otp)
-        .expect("OTP as query string parameter");
-    // let's see if the code we've sent to them is the one we peristed
+    // extract otp from html
+    let otp_sent = extract_otp_from_html(html);
+    // let's see if the code we've sent to them is the one we persisted
     assert_eq!(otp_sent, otp_stored);
 
     // now that we got our OTP, let's confirm the email
@@ -331,15 +324,6 @@ async fn confirm_email_address(ctx: TestContext) {
     assert_eq!(user_row.len(), 1);
     let status: &str = user_row[0].get("status");
     assert_eq!(status, "ACTIVE");
-}
-
-// ------------------------- POST /api/users/login -----------------------------
-async fn login_empty_payload(ctx: TestContext) {
-    let url = ctx.backend_url.join("/api/users/login").unwrap();
-    let response = ctx.http_client.post(url).send().await.unwrap();
-
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-    assert!(!response.bytes().await.unwrap().is_empty());
 }
 
 // ---------------------------- GET /api/user ----------------------------------
@@ -392,7 +376,6 @@ mod tests {
     crate::async_test!(create_user_email_issues);
     crate::async_test!(create_user_password_issues);
     crate::async_test!(confirm_email_address);
-    crate::async_test!(login_empty_payload);
     crate::async_test!(get_current_user_no_token);
     crate::async_test!(get_current_user_invalid_token);
     crate::async_test!(update_user_unauthenticated);

@@ -63,6 +63,20 @@ fn gen_b64_secret_key() -> String {
     BASE64_STANDARD.encode(secret_bytes)
 }
 
+pub fn extract_otp_from_html(html: &str) -> String {
+    let finder = linkify::LinkFinder::new();
+
+    finder
+        .links(html)
+        .filter_map(|link| Url::parse(link.as_str()).ok())
+        .find_map(|url| {
+            url.query_pairs()
+                .find(|(key, _)| key == "otp")
+                .map(|(_, otp)| otp.into_owned())
+        })
+        .expect("expected at least one link with an OTP query parameter")
+}
+
 async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, Url) {
     // prepare a channel to receive the assigned port from
     let (tx, rx) = tokio::sync::oneshot::channel();
