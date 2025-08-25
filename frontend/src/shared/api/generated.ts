@@ -106,7 +106,7 @@ export type ArticlePayloadArticle = {
     /** Article's slug. */
     slug: string;
     /** Tags. */
-    tags: string[];
+    tagList: string[];
     /** Article's title.
         
         This is will be used to generate a slug for this article. */
