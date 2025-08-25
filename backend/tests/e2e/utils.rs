@@ -313,6 +313,7 @@ mod browser {
 
 pub(crate) mod fake {
     use super::TestContext;
+    use super::extract_otp_from_html;
     use serde::Deserialize;
     use serde_json::{Value, json};
     use url::Url;
@@ -360,17 +361,7 @@ pub(crate) mod fake {
             .expect("'html' field to be present in request payload")
             .as_str()
             .expect("html content to be a string");
-        // now, let's parse links out of the letter's content; note there are a few
-        // links in the OTP letter (app's homepage, email confirmation page, project's
-        // repo); the OTP link goes second
-        let finder = linkify::LinkFinder::new();
-        let links: Vec<_> = finder.links(html).collect();
-        let otp_link: Url = links[1].as_str().parse().expect("value URL");
-        let otp = otp_link
-            .query_pairs()
-            .find(|(key, _)| key == "otp")
-            .map(|(_, otp)| otp)
-            .expect("OTP as query string parameter");
+        let otp = extract_otp_from_html(html);
         // use OTP from the email to cofirm email address
         let token = ctx
             .http_client
