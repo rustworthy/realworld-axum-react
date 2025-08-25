@@ -296,3 +296,99 @@ mod browser {
             .expect("web driver to be available")
     }
 }
+
+pub(crate) mod fake {
+    use super::TestContext;
+    use serde::Deserialize;
+    use serde_json::{Value, json};
+    use url::Url;
+
+    #[derive(Debug, Clone, Deserialize)]
+    #[allow(unused)]
+    pub struct UserDetails {
+        pub username: String,
+        pub email: String,
+        pub password: String,
+        pub token: String,
+        pub bio: String,
+        pub image: Option<Url>,
+    }
+
+    pub async fn create_activated_user(ctx: &TestContext) -> UserDetails {
+        // register new user
+        let url = ctx.backend_url.join("/api/users").unwrap();
+        let registration = json!({
+            "username": "rob.pike",
+            "email": "rob.pike@gmail.com",
+            "password": "strongandcomplicated",
+            "captcha": "test",
+        });
+        ctx.http_client
+            .post(url)
+            .json(&json!({
+                "user": registration
+            }))
+            .send()
+            .await
+            .expect("request to have succeeded");
+        // fine the email verification letter in the inbox
+        let email_request = ctx
+            .mailer_server
+            .received_requests()
+            .await
+            .expect("requests to have been received")
+            .first()
+            .expect("letter with OTP to have been sent")
+            .body_json::<Value>()
+            .expect("JSON payload");
+        let html = email_request
+            .get("html")
+            .expect("'html' field to be present in request payload")
+            .as_str()
+            .expect("html content to be a string");
+        // now, let's parse links out of the letter's content; note there are a few
+        // links in the OTP letter (app's homepage, email confirmation page, project's
+        // repo); the OTP link goes second
+        let finder = linkify::LinkFinder::new();
+        let links: Vec<_> = finder.links(html).collect();
+        let otp_link: Url = links[1].as_str().parse().expect("value URL");
+        let otp = otp_link
+            .query_pairs()
+            .find(|(key, _)| key == "otp")
+            .map(|(_, otp)| otp)
+            .expect("OTP as query string parameter");
+        // use OTP from the email to cofirm email address
+        let token = ctx
+            .http_client
+            .post(ctx.backend_url.join("/api/users/confirm-email").unwrap())
+            .json(&json!({
+                "user": {
+                    "otp": otp,
+                    "captcha": "test",
+                }
+            }))
+            .send()
+            .await
+            .expect("request to have succeeded")
+            .json::<Value>()
+            .await
+            .expect("user details including fresh JWT")
+            .get("user")
+            .expect("'user' key in the payload's root")
+            .as_object()
+            .expect("user object under 'user' key")
+            .get("token")
+            .expect("token field in the user object")
+            .as_str()
+            .expect("JWT string")
+            .to_owned();
+        UserDetails {
+            username: "rob.pike".to_string(),
+            email: "rob.pike@gmail.com".to_string(),
+            password: "strongandcomplicated".to_string(),
+            image: None,
+            bio: String::default(),
+            token,
+        }
+    }
+}
