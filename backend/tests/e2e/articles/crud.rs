@@ -2,7 +2,6 @@ use crate::utils::TestContext;
 use crate::utils::fake;
 use reqwest::StatusCode;
 use serde_json::{Value, json};
-use sqlx;
 
 // ----------------------------- CREATE --------------------------------------
 async fn create_article_no_authentication(ctx: TestContext) {

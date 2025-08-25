@@ -311,6 +311,7 @@ mod browser {
     }
 }
 
+#[allow(unused)]
 pub(crate) mod fake {
     use super::TestContext;
     use super::extract_otp_from_html;
@@ -319,7 +320,6 @@ pub(crate) mod fake {
     use url::Url;
 
     #[derive(Debug, Clone, Deserialize)]
-    #[allow(unused)]
     pub struct UserDetails {
         pub username: String,
         pub email: String,
@@ -329,6 +329,7 @@ pub(crate) mod fake {
         pub image: Option<Url>,
     }
 
+    #[cfg(feature = "api-test")]
     pub async fn create_activated_user(ctx: &TestContext) -> UserDetails {
         // register new user
         let url = ctx.backend_url.join("/api/users").unwrap();
