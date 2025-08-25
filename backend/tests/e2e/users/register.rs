@@ -89,7 +89,7 @@ async fn create_user_username_issues(ctx: TestContext) {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.status(), StatusCode::CREATED);
     assert!(!response.bytes().await.unwrap().is_empty());
 
     let duplicate_registration = json!({
@@ -161,7 +161,7 @@ async fn create_user_email_issues(ctx: TestContext) {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.status(), StatusCode::CREATED);
     assert!(!response.bytes().await.unwrap().is_empty());
 
     let duplicate_registration = json!({

@@ -7,7 +7,7 @@ use utoipa_axum::router::OpenApiRouter;
 mod auth;
 mod current;
 mod register;
-mod utils;
+pub(crate) mod utils;
 
 // ---------------------------- SHARED TYPES -----------------------------------
 #[derive(Debug, Serialize, ToSchema)]

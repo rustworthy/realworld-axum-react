@@ -28,6 +28,9 @@ pub(crate) enum Error {
     #[error("unauthorized")]
     Unauthorized,
 
+    #[error("not found")]
+    NotFound,
+
     #[error("internal error")]
     Internal(#[from] anyhow::Error),
 
@@ -65,6 +68,7 @@ impl IntoResponse for Error {
                 [(header::WWW_AUTHENTICATE, "Bearer")],
             )
                 .into_response(),
+            Self::NotFound => StatusCode::NOT_FOUND.into_response(),
             Self::Unprocessable(validation) => {
                 (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
             }
