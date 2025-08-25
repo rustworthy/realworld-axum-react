@@ -2,6 +2,7 @@ use crate::utils::TestContext;
 use crate::utils::fake;
 use reqwest::StatusCode;
 use serde_json::{Value, json};
+use sqlx;
 
 // ----------------------------- CREATE --------------------------------------
 async fn create_article_no_authentication(ctx: TestContext) {
@@ -216,8 +217,98 @@ async fn create_article_payload_issues(ctx: TestContext) {
     assert_eq!(error, "article with this title already exists");
 }
 
+async fn create_article_and_read_it(ctx: TestContext) {
+    // try to read an article using slug "type-safe-programming-languages",
+    // observe that the article is not there;
+    let slug = "type-safe-programming-languages";
+    let url = ctx
+        .backend_url
+        .join(&format!("/api/articles/{}", slug))
+        .unwrap();
+    let response = ctx.http_client.get(url).send().await.unwrap();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    // check that the articles table is empty
+    let article_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "articles""#)
+        .fetch_one(&ctx.db_pool)
+        .await
+        .unwrap();
+    assert_eq!(article_count, 0);
+
+    // now, let's create an article with the title that we know will give that slug
+    let user = fake::create_activated_user(&ctx).await;
+
+    let title = "Type-Safe Programming Languages";
+    let description = "Type systems and memory safety";
+    let body = "Language design requires balancing expressiveness and safety.";
+    let tags = ["language-design", "rust"];
+
+    let article_details = json!({
+        "title": title,
+        "description": description,
+        "body": body,
+        "tagList": tags
+    });
+    let create_response = ctx
+        .http_client
+        .post(ctx.backend_url.join("/api/articles").unwrap())
+        .bearer_auth(&user.token)
+        .json(&json!({ "article": article_details }))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(create_response.status(), StatusCode::CREATED);
+
+    // let's now check that the articles table is not empty, there is one entry there
+    let article_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "articles""#)
+        .fetch_one(&ctx.db_pool)
+        .await
+        .unwrap();
+    assert_eq!(article_count, 1);
+
+    // parse response body and get the slug out of there, check that it is the
+    // slug we initially used (that gave us 404) and use this slug to
+    // retrieve the article
+    let resp: Value = create_response.json().await.unwrap();
+    let returned_slug = resp
+        .get("article")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("slug")
+        .unwrap()
+        .as_str()
+        .unwrap();
+    assert_eq!(returned_slug, slug);
+    let read_url = ctx
+        .backend_url
+        .join(&format!("/api/articles/{}", returned_slug))
+        .unwrap();
+    let read_response = ctx.http_client.get(read_url).send().await.unwrap();
+    assert_eq!(read_response.status(), StatusCode::OK);
+
+    // we can see the details of the article, including ...
+    let resp: Value = read_response.json().await.unwrap();
+    let article = resp.get("article").unwrap().as_object().unwrap();
+    assert_eq!(article.get("slug").unwrap(), returned_slug);
+    assert_eq!(article.get("title").unwrap(), title);
+    assert_eq!(article.get("description").unwrap(), description);
+    assert_eq!(article.get("body").unwrap(), body);
+    assert_eq!(article.get("tagList").unwrap(), &json!(tags));
+    assert_eq!(article.get("favoritesCount").unwrap(), 0);
+    assert_eq!(article.get("favorited").unwrap(), false);
+
+    // ... its author - the current user (reminder: usernames are unique)
+    let author = article.get("author").unwrap().as_object().unwrap();
+    assert_eq!(author.get("username").unwrap(), &user.username); // NB
+    assert_eq!(author.get("bio").unwrap(), &user.bio);
+    assert_eq!(author.get("following").unwrap(), false);
+    assert_eq!(author.get("image").unwrap(), &Value::Null);
+}
+
 mod tests {
     crate::async_test!(create_article_no_authentication);
     crate::async_test!(create_article_empty_payload);
     crate::async_test!(create_article_payload_issues);
+    crate::async_test!(create_article_and_read_it);
 }

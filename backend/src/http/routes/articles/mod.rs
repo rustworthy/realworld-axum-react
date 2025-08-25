@@ -69,6 +69,7 @@ pub(crate) struct Article {
         example = json!(vec!["programming".to_string(), "language design".to_string()]),
         min_items = 1,
     )]
+    #[serde(rename = "tagList")]
     tags: Vec<String>,
 
     /// When this article was created.
