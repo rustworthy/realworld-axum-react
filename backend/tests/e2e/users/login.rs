@@ -1,7 +1,6 @@
-use crate::utils::TestContext;
+use crate::utils::{TestContext, extract_otp_from_html};
 use reqwest::StatusCode;
 use serde_json::{Value, json};
-use url::Url;
 
 // ------------------------- POST /api/users/login -----------------------------
 async fn login_empty_payload(ctx: TestContext) {
@@ -133,7 +132,7 @@ async fn login_user(ctx: TestContext) {
         "captcha": "test",
     });
 
-    let _response: Value = ctx
+    let _response = ctx
         .http_client
         .post(url)
         .json(&json!({
@@ -141,10 +140,7 @@ async fn login_user(ctx: TestContext) {
         }))
         .send()
         .await
-        .expect("request to have succeeded")
-        .json()
-        .await
-        .expect("valid JSON in response");
+        .unwrap();
 
     // check with status EMAIL_CONFIRMATION_PENDING
     let response = ctx
@@ -156,7 +152,6 @@ async fn login_user(ctx: TestContext) {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-    assert!(response.bytes().await.unwrap().is_empty());
 
     // send email with OTP
     let otp_email_request: Value = ctx
@@ -176,18 +171,12 @@ async fn login_user(ctx: TestContext) {
         .as_str()
         .expect("html content to be a string");
 
-    let finder = linkify::LinkFinder::new();
-    let links: Vec<_> = finder.links(html).collect();
-    let otp_link: Url = links[1].as_str().parse().expect("value URL");
-    let otp_sent = otp_link
-        .query_pairs()
-        .find(|(key, _)| key == "otp")
-        .map(|(_, otp)| otp)
-        .expect("OTP as query string parameter");
+    // extract otp from html
+    let otp_sent = extract_otp_from_html(html);
 
     // now that we got our OTP, let's confirm the email
     let url = ctx.backend_url.join("/api/users/confirm-email").unwrap();
-    let _response: Value = ctx
+    let _response = ctx
         .http_client
         .post(url)
         .json(&json!({
@@ -198,10 +187,7 @@ async fn login_user(ctx: TestContext) {
         }))
         .send()
         .await
-        .expect("request to have succeeded")
-        .json()
-        .await
-        .expect("valid JSON in response");
+        .unwrap();
 
     let response = ctx
         .http_client

@@ -1,9 +1,8 @@
 use reqwest::{StatusCode, header};
 use serde_json::{Value, json};
 use sqlx::Row as _;
-use url::Url;
 
-use crate::utils::TestContext;
+use crate::utils::{TestContext, extract_otp_from_html};
 
 // This token has been signed with using a secret in our `.env.example`, while
 // for each of our tests we are launching a dedicated rocker application with a
@@ -287,14 +286,8 @@ async fn confirm_email_address(ctx: TestContext) {
         .as_str()
         .expect("html content to be a string");
 
-    let finder = linkify::LinkFinder::new();
-    let links: Vec<_> = finder.links(html).collect();
-    let otp_link: Url = links[1].as_str().parse().expect("value URL");
-    let otp_sent = otp_link
-        .query_pairs()
-        .find(|(key, _)| key == "otp")
-        .map(|(_, otp)| otp)
-        .expect("OTP as query string parameter");
+    // extract otp from html
+    let otp_sent = extract_otp_from_html(html);
     // let's see if the code we've sent to them is the one we persisted
     assert_eq!(otp_sent, otp_stored);
 
