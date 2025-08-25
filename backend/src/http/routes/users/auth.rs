@@ -64,7 +64,7 @@ pub(crate) async fn login(
     .await?
     .ok_or(Error::Unauthorized)?;
 
-    if user_row.status == "EMAIL_CONFIRMATION_PENDING" {
+    if user_row.status != "ACTIVE" {
         return Err(Error::Unauthorized);
     }
 
