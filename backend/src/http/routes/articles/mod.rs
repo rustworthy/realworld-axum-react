@@ -1,5 +1,6 @@
 use crate::AppContext;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use url::Url;
 use utoipa::ToSchema;
@@ -68,6 +69,7 @@ pub(crate) struct Article {
         example = json!(vec!["programming".to_string(), "language design".to_string()]),
         min_items = 1,
     )]
+    #[serde(rename = "tagList")]
     tags: Vec<String>,
 
     /// When this article was created.
@@ -80,6 +82,7 @@ pub(crate) struct Article {
     favorited: bool,
 
     /// How many users favorited this article.
+    #[serde(rename = "favoritesCount")]
     favorited_count: usize,
 
     /// The article's author details.
@@ -96,7 +99,8 @@ pub(crate) struct ArticlePayload<U> {
 
 // ------------------------------- ROUTER --------------------------------------
 pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
-    let articles_router = OpenApiRouter::new().routes(routes!(crud::create_article,));
+    let articles_router =
+        OpenApiRouter::new().routes(routes!(crud::create_article, crud::read_article,));
 
     OpenApiRouter::new()
         .nest("/articles", articles_router)

@@ -10,6 +10,7 @@ use anyhow::Context;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
+use axum::http::StatusCode;
 use chrono::Utc;
 use resend_rs::types::EmailId;
 use std::sync::Arc;
@@ -75,7 +76,7 @@ pub struct Registration {
 pub(crate) async fn register_user(
     ctx: State<Arc<AppContext>>,
     input: Result<Json<UserPayload<Registration>>, JsonRejection>,
-) -> Result<Json<UserPayload<User>>, Error> {
+) -> Result<(StatusCode, Json<UserPayload<User>>), Error> {
     let Json(UserPayload { mut user }) = input?;
 
     check_captcha(user.captcha.take(), &ctx).await?;
@@ -122,7 +123,7 @@ pub(crate) async fn register_user(
             },
         };
 
-        return Ok(Json(payload));
+        return Ok((StatusCode::CREATED, Json(payload)));
     };
 
     let otp = gen_numeric_string(EMAIL_CONFIRMATION_TOKEN_LEN);
@@ -155,7 +156,7 @@ pub(crate) async fn register_user(
             image: None,
         },
     };
-    Ok(Json(payload))
+    Ok((StatusCode::CREATED, Json(payload)))
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

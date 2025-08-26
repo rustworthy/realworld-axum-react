@@ -9,6 +9,9 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.articlePayloadArticleCreate,
       }),
     }),
+    readArticle: build.query<ReadArticleApiResponse, ReadArticleApiArg>({
+      query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}` }),
+    }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
     }),
@@ -47,6 +50,11 @@ export { injectedRtkApi as api };
 export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
 export type CreateArticleApiArg = {
   articlePayloadArticleCreate: ArticlePayloadArticleCreate;
+};
+export type ReadArticleApiResponse = /** status 200 Article successfully retrieved */ ArticlePayloadArticle;
+export type ReadArticleApiArg = {
+  /** Article slug identifier */
+  slug: string;
 };
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
@@ -94,11 +102,11 @@ export type ArticlePayloadArticle = {
     /** If this article is favorited by the current user. */
     favorited: boolean;
     /** How many users favorited this article. */
-    favoritedCount: number;
+    favoritesCount: number;
     /** Article's slug. */
     slug: string;
     /** Tags. */
-    tags: string[];
+    tagList: string[];
     /** Article's title.
         
         This is will be used to generate a slug for this article. */
@@ -168,6 +176,8 @@ export type UserPayloadUserUpdate = {
 };
 export type UserPayloadRegistration = {
   user: {
+    /** Turnstile captcha token. */
+    captcha: string;
     /** User's email, e.g. `rob.pike@gmail.com`.
         
         This is case-insensitively unique in the system. */
@@ -185,6 +195,8 @@ export type UserPayloadRegistration = {
 };
 export type UserPayloadEmailConfirmation = {
   user: {
+    /** Turnstile captcha token. */
+    captcha: string;
     /** One-time password.
         
         An numeric code that has been sent to them upon registration. */
@@ -203,6 +215,7 @@ export type UserPayloadLogin = {
 };
 export const {
   useCreateArticleMutation,
+  useReadArticleQuery,
   useReadCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useRegisterUserMutation,

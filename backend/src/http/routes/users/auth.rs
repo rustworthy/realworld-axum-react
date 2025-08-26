@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use super::utils;
 use super::{User, UserPayload};
 use crate::AppContext;
 use crate::http::errors::{Error, Validation};
@@ -8,7 +9,6 @@ use crate::utils::verify_password;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
-use url::Url;
 use utoipa::ToSchema;
 use validator::Validate;
 use validator_derive::Validate;
@@ -74,15 +74,7 @@ pub(crate) async fn login(
         return Err(Error::Unauthorized);
     }
 
-    let jwt_string = issue_token(user_row.user_id, &ctx.enc_key).unwrap();
-
-    let image = user_row
-        .image
-        .as_deref()
-        .map(|v| {
-            Url::parse(v).map_err(|_| anyhow::anyhow!("Failed to parse store image path as URL"))
-        })
-        .transpose()?;
+    let jwt_string = issue_token(user_row.user_id, &ctx.enc_key)?;
 
     let payload = UserPayload {
         user: User {
@@ -90,7 +82,7 @@ pub(crate) async fn login(
             token: jwt_string,
             username: user_row.username,
             bio: user_row.bio,
-            image: image,
+            image: utils::parse_image_url(user_row.image.as_deref())?,
         },
     };
 
