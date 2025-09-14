@@ -15,7 +15,6 @@ export function buildPlugins({ mode, paths, analyzer, platform }: BuildOptions):
     new HtmlWebpackPlugin({
       template: paths.html,
       favicon: path.resolve(paths.public, "favicon.svg"),
-      publicPath: "./",
     }),
     new DefinePlugin({
       __PLATFORM__: JSON.stringify(platform),

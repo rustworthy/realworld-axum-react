@@ -18,6 +18,39 @@ export const DarkTheme: AppThemeType = {
         backgroundColor: palette.c03,
       },
     },
+    article: {
+      banner: {
+        textColor: "#f8f9fa",
+        backgroundColor: "#2c3e50",
+      },
+      content: {
+        textColor: palette.c06,
+        backgroundColor: palette.c01,
+      },
+      tag: {
+        textColor: palette.c06,
+        backgroundColor: "#555",
+      },
+      separator: {
+        backgroundColor: "#555",
+      },
+      comment: {
+        borderColor: "#555",
+        backgroundColor: palette.c01,
+        footerBackgroundColor: "#333",
+        textColor: palette.c06,
+      },
+      actions: {
+        primary: {
+          textColor: palette.c03,
+          borderColor: palette.c03,
+        },
+        danger: {
+          textColor: palette.c05,
+          borderColor: palette.c05,
+        },
+      },
+    },
     signin: {
       signUpLink: {
         textColor: palette.c03,

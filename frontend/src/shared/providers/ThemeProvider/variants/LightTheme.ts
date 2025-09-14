@@ -15,6 +15,39 @@ export const LightTheme = {
         backgroundColor: palette.c03,
       },
     },
+    article: {
+      banner: {
+        textColor: palette.c02,
+        backgroundColor: "#333",
+      },
+      content: {
+        textColor: palette.c01,
+        backgroundColor: palette.c02,
+      },
+      tag: {
+        textColor: palette.c02,
+        backgroundColor: "#ccc",
+      },
+      separator: {
+        backgroundColor: "#e5e5e5",
+      },
+      comment: {
+        borderColor: "#e5e5e5",
+        backgroundColor: palette.c02,
+        footerBackgroundColor: "#f5f5f5",
+        textColor: palette.c01,
+      },
+      actions: {
+        primary: {
+          textColor: palette.c03,
+          borderColor: palette.c03,
+        },
+        danger: {
+          textColor: palette.c05,
+          borderColor: palette.c05,
+        },
+      },
+    },
     signin: {
       signUpLink: {
         textColor: palette.c03,

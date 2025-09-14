@@ -8,6 +8,10 @@ export function buildDevServer(options: BuildOptions): DevServerConfiguration {
     open: true,
     historyApiFallback: true,
     hot: true,
+    static: {
+      directory: options.paths.public,
+      publicPath: "/",
+    },
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",
