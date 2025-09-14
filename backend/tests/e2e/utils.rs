@@ -63,6 +63,20 @@ fn gen_b64_secret_key() -> String {
     BASE64_STANDARD.encode(secret_bytes)
 }
 
+pub fn extract_otp_from_html(html: &str) -> String {
+    let finder = linkify::LinkFinder::new();
+
+    finder
+        .links(html)
+        .filter_map(|link| Url::parse(link.as_str()).ok())
+        .find_map(|url| {
+            url.query_pairs()
+                .find(|(key, _)| key == "otp")
+                .map(|(_, otp)| otp.into_owned())
+        })
+        .expect("expected at least one link with an OTP query parameter")
+}
+
 async fn serve_on_available_port(app: Router) -> (JoinHandle<()>, Url) {
     // prepare a channel to receive the assigned port from
     let (tx, rx) = tokio::sync::oneshot::channel();
@@ -294,5 +308,93 @@ mod browser {
             .connect("tcp://localhost:4444")
             .await
             .expect("web driver to be available")
+    }
+}
+
+#[allow(unused)]
+pub(crate) mod fake {
+    use super::TestContext;
+    use super::extract_otp_from_html;
+    use serde::Deserialize;
+    use serde_json::{Value, json};
+    use url::Url;
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct UserDetails {
+        pub username: String,
+        pub email: String,
+        pub password: String,
+        pub token: String,
+        pub bio: String,
+        pub image: Option<Url>,
+    }
+
+    #[cfg(feature = "api-test")]
+    pub async fn create_activated_user(ctx: &TestContext) -> UserDetails {
+        // register new user
+        let url = ctx.backend_url.join("/api/users").unwrap();
+        let registration = json!({
+            "username": "rob.pike",
+            "email": "rob.pike@gmail.com",
+            "password": "strongandcomplicated",
+            "captcha": "test",
+        });
+        ctx.http_client
+            .post(url)
+            .json(&json!({
+                "user": registration
+            }))
+            .send()
+            .await
+            .expect("request to have succeeded");
+        // fine the email verification letter in the inbox
+        let email_request = ctx
+            .mailer_server
+            .received_requests()
+            .await
+            .expect("requests to have been received")
+            .first()
+            .expect("letter with OTP to have been sent")
+            .body_json::<Value>()
+            .expect("JSON payload");
+        let html = email_request
+            .get("html")
+            .expect("'html' field to be present in request payload")
+            .as_str()
+            .expect("html content to be a string");
+        let otp = extract_otp_from_html(html);
+        // use OTP from the email to cofirm email address
+        let token = ctx
+            .http_client
+            .post(ctx.backend_url.join("/api/users/confirm-email").unwrap())
+            .json(&json!({
+                "user": {
+                    "otp": otp,
+                    "captcha": "test",
+                }
+            }))
+            .send()
+            .await
+            .expect("request to have succeeded")
+            .json::<Value>()
+            .await
+            .expect("user details including fresh JWT")
+            .get("user")
+            .expect("'user' key in the payload's root")
+            .as_object()
+            .expect("user object under 'user' key")
+            .get("token")
+            .expect("token field in the user object")
+            .as_str()
+            .expect("JWT string")
+            .to_owned();
+        UserDetails {
+            username: "rob.pike".to_string(),
+            email: "rob.pike@gmail.com".to_string(),
+            password: "strongandcomplicated".to_string(),
+            image: None,
+            bio: String::default(),
+            token,
+        }
     }
 }

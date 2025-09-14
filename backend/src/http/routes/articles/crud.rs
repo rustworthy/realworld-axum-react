@@ -1,4 +1,5 @@
 use super::{Article, ArticlePayload, Author};
+use crate::http::errors::ResultExt as _;
 use crate::http::routes::users;
 use crate::{
     http::{
@@ -9,12 +10,15 @@ use crate::{
 };
 use axum::Json;
 use axum::extract::{Path, State, rejection::JsonRejection};
+use axum::http::StatusCode;
 use serde::Deserialize;
 use std::sync::Arc;
 use utoipa::ToSchema;
+use validator::Validate;
+use validator_derive::Validate;
 
 #[allow(unused)]
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema, Validate)]
 pub struct ArticleCreate {
     /// Article's title.
     ///
@@ -23,6 +27,7 @@ pub struct ArticleCreate {
         examples("Your very own programming language", "Deploying with Kamal"),
         min_length = 1
     )]
+    #[validate(length(min = 1, message = "title should be at least 1 character long"))]
     title: String,
 
     /// Article's description.
@@ -30,6 +35,7 @@ pub struct ArticleCreate {
         examples("This articles shares our knowledge on how to design a programming language",),
         min_length = 1
     )]
+    #[validate(length(min = 1, message = "description should be at least 1 character long"))]
     description: String,
 
     /// Article's contents.
@@ -37,6 +43,7 @@ pub struct ArticleCreate {
         examples("Before we begin ... And that's pretty much it. Happy coding!",),
         min_length = 1
     )]
+    #[validate(length(min = 1, message = "body should be at least 1 character long"))]
     body: String,
 
     /// Tags.
@@ -44,6 +51,7 @@ pub struct ArticleCreate {
         example = json!(vec!["programming".to_string(), "language design".to_string()]),
         min_items = 1,
     )]
+    #[validate(length(min = 1, message = "tags list should contain at least 1 item"))]
     #[serde(rename = "tagList")]
     tags: Vec<String>,
 }
@@ -73,8 +81,9 @@ pub async fn create_article(
     ctx: State<Arc<AppContext>>,
     id: UserID,
     input: Result<Json<ArticlePayload<ArticleCreate>>, JsonRejection>,
-) -> Result<Json<ArticlePayload<Article>>, Error> {
+) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
     let ArticlePayload { article } = input?.0;
+    article.validate()?;
     let slug = slug::slugify(&article.title);
     let details = sqlx::query!(
         r#"
@@ -99,9 +108,12 @@ pub async fn create_article(
         &article.tags,
     )
     .fetch_one(&ctx.db)
-    .await?;
+    .await
+    .on_constraint("articles_slug_key", |_| {
+        Error::unprocessable_entity([("title", "article with this title already exists")])
+    })?;
 
-    Ok(Json(ArticlePayload {
+    let payload = ArticlePayload {
         article: Article {
             slug,
             title: article.title,
@@ -121,7 +133,8 @@ pub async fn create_article(
                 following: false,
             },
         },
-    }))
+    };
+    Ok((StatusCode::CREATED, Json(payload)))
 }
 
 /// Read article by slug.
@@ -196,7 +209,7 @@ pub async fn read_article(
                 bio: details.author_bio,
                 image: users::utils::parse_image_url(details.author_image.as_deref())?,
                 username: details.author_username,
-                // Similat to `favorited`, we cannot tell if they are following
+                // Similar to `favorited`, we cannot tell if they are following
                 // the author and we are defaulting this to `false`
                 following: false,
             },
