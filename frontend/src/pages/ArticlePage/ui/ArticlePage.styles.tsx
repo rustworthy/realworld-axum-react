@@ -12,13 +12,19 @@ export const PageWrapper = styled.div`
 export const Banner = styled.div`
   background: ${({ theme }) => theme.page.article.banner.backgroundColor};
   color: ${({ theme }) => theme.page.article.banner.textColor};
-  padding: 32px 0;
+  padding: 2rem 0.5rem;
 `;
 
 export const BannerContainer = styled(LayoutContainer)`
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+export const MainContent = styled(LayoutContainer)`
+  max-width: 1000px;
+  padding: 2rem 0.5rem;
 `;
 
 export const ArticleTitle = styled.h1`
@@ -31,18 +37,28 @@ export const ArticleTitle = styled.h1`
 export const ArticleMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 2rem;
+  flex-wrap: wrap;
 `;
 
 export const AuthorInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+`;
+
+export const AuthorInfoNameBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
 `;
 
 export const AuthorImage = styled.img`
   width: 32px;
   height: 32px;
+  object-fit: cover;
+  object-position: top center;
   border-radius: 50%;
 `;
 
@@ -65,42 +81,60 @@ export const ArticleActions = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
+  flex-wrap: wrap;
 `;
 
 export const ActionButton = styled.button`
   background: transparent;
   border: 1px solid currentColor;
   color: inherit;
-  padding: 4px 8px;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
+  height: 2.3rem;
+  max-width: 11.55rem;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
+  &.btn-outline-primary {
+    color: ${({ theme }) => theme.shared.button.primary.textColor};
+    background-color: ${({ theme }) => theme.shared.button.primary.backgroundColor};
+    border-color: ${({ theme }) => theme.shared.button.primary.borderColor};
+    &:active,
+    &:hover,
+    &:focus {
+      color: ${({ theme }) => theme.shared.button.primary.active.textColor};
+      background-color: ${({ theme }) => theme.shared.button.primary.active.backgroundColor};
+    }
   }
 
   &.btn-outline-secondary {
-    opacity: 0.8;
-  }
-
-  &.btn-outline-primary {
-    color: ${({ theme }) => theme.page.article.actions.primary.textColor};
-    border-color: ${({ theme }) => theme.page.article.actions.primary.borderColor};
+    color: ${({ theme }) => theme.shared.button.secondary.textColor};
+    background-color: ${({ theme }) => theme.shared.button.secondary.backgroundColor};
+    border-color: ${({ theme }) => theme.shared.button.secondary.borderColor};
+    &:active,
+    &:hover,
+    &:focus {
+      color: ${({ theme }) => theme.shared.button.secondary.active.textColor};
+      background-color: ${({ theme }) => theme.shared.button.secondary.active.backgroundColor};
+    }
   }
 
   &.btn-outline-danger {
-    color: ${({ theme }) => theme.page.article.actions.danger.textColor};
-    border-color: ${({ theme }) => theme.page.article.actions.danger.borderColor};
+    color: ${({ theme }) => theme.shared.button.danger.textColor};
+    border-color: ${({ theme }) => theme.shared.button.danger.borderColor};
+    background-color: ${({ theme }) => theme.shared.button.danger.backgroundColor};
+    &:active,
+    &:hover,
+    &:focus {
+      color: ${({ theme }) => theme.shared.button.danger.active.textColor};
+      background-color: ${({ theme }) => theme.shared.button.danger.active.backgroundColor};
+    }
   }
-`;
-
-export const MainContent = styled(LayoutContainer)`
-  padding: 32px 15px;
+  }
 `;
 
 export const ArticleContent = styled.div`
@@ -235,7 +269,6 @@ export const CommentFooter = styled.div`
 `;
 
 export const CommentAuthor = styled.a`
-  color: ${({ theme }) => theme.page.article.actions.primary.textColor};
   text-decoration: none;
   font-weight: 500;
 
@@ -253,7 +286,6 @@ export const ModOptions = styled.span`
   cursor: pointer;
 
   &:hover {
-    color: ${({ theme }) => theme.page.article.actions.danger.textColor};
     opacity: 1;
   }
 `;

@@ -5,6 +5,7 @@ const palette = {
   c03: "#5CB85B",
   c04: "#449d44",
   c05: "#B85C5C",
+  c06: "#CCCCCC",
 };
 
 export const LightTheme = {
@@ -36,16 +37,6 @@ export const LightTheme = {
         backgroundColor: palette.c02,
         footerBackgroundColor: "#f5f5f5",
         textColor: palette.c01,
-      },
-      actions: {
-        primary: {
-          textColor: palette.c03,
-          borderColor: palette.c03,
-        },
-        danger: {
-          textColor: palette.c05,
-          borderColor: palette.c05,
-        },
       },
     },
     signin: {
@@ -91,6 +82,24 @@ export const LightTheme = {
       backgroundColor: palette.c03,
       backgroundColorActive: palette.c04,
 
+      primary: {
+        textColor: palette.c03,
+        borderColor: palette.c03,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c03,
+        },
+      },
+      secondary: {
+        textColor: palette.c06,
+        borderColor: palette.c06,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c06,
+        },
+      },
       danger: {
         textColor: palette.c05,
         borderColor: palette.c05,
