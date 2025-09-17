@@ -217,6 +217,21 @@ pub async fn read_article(
     }))
 }
 
+/// List articles.
+#[utoipa::path(
+    get,
+    path = "",
+    tags = ["Articles"],
+    responses(
+        (status = 200, description = "Articles list successfully retrieved"),
+        (status = 500, description = "Internal server error."),
+    ),
+)]
+#[instrument(name = "LIST ARTICLES", skip_all)]
+pub async fn list_articles(_ctx: State<Arc<AppContext>>) -> Result<(), Error> {
+    todo!()
+}
+
 /// Delete article by slug.
 ///
 /// This will delete the article with the specified unique slug identifier.
