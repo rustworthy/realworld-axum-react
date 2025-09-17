@@ -35,9 +35,7 @@ pub async fn check_captcha(captcha: Option<String>, ctx: &AppContext) -> Result<
 /// <https://github.com/petere/pguri>
 pub fn parse_image_url(raw: Option<&str>) -> Result<Option<Url>, Error> {
     let image_url = raw
-        .map(|v| {
-            Url::parse(v).map_err(|_| anyhow::anyhow!("Failed to parse stored image path as URL"))
-        })
+        .map(|v| Url::parse(v).map_err(|_| anyhow!("Failed to parse stored image path as URL")))
         .transpose()?;
     Ok(image_url)
 }

@@ -3,34 +3,46 @@ use argon2::Argon2;
 use argon2::PasswordHash;
 use argon2::PasswordHasher as _;
 use argon2::PasswordVerifier;
+use argon2::password_hash::Salt;
 use argon2::password_hash::SaltString;
 use rand::Rng as _;
-use rand::distributions::Alphanumeric;
+use rand::TryRngCore;
+use rand::distr::Alphanumeric;
 use rand::rngs::OsRng;
 
 #[allow(unused)]
 pub fn gen_alphanum_string(length: usize) -> String {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     std::iter::repeat_with(|| rng.sample(Alphanumeric) as char)
         .take(length)
         .collect()
 }
 
 pub fn gen_numeric_string(length: usize) -> String {
-    let mut rng = rand::thread_rng();
-    std::iter::repeat_with(|| rng.gen_range(0..10).to_string())
+    let mut rng = rand::rng();
+    std::iter::repeat_with(|| rng.random_range(0..10).to_string())
         .take(length)
         .collect()
 }
 
-pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
-    // generate a salt
+// with rand@0.8 we generated the salt with `SaltString::generate(&mut OsRng)`,
+// while rand@0.9's `OsRng` does not implement the trait expected by the mentioned
+// consructor, so we are doing so manually:
+pub fn gen_salt_string() -> anyhow::Result<SaltString> {
+    let mut bytes = [0u8; Salt::RECOMMENDED_LENGTH];
     let mut rng = OsRng;
-    let salt = SaltString::generate(&mut rng);
+    rng.try_fill_bytes(&mut bytes)?;
+    let salt =
+        SaltString::encode_b64(&bytes).map_err(|_| anyhow!("salt string invariant violated"))?;
+    Ok(salt)
+}
+
+pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
+    let salt = gen_salt_string()?;
     // hash password to PHC string ($argon2id$v=19$...)
     let password_hash = Argon2::default()
         .hash_password(password.as_ref(), &salt)
-        .map_err(|e| anyhow::anyhow!(e))
+        .map_err(|e| anyhow!(e))
         .context("failed to hash password")?
         .to_string();
     Ok(password_hash)
@@ -43,7 +55,7 @@ pub fn verify_password(
 ) -> anyhow::Result<bool> {
     // parse the PHC string we've created earlier
     let parsed_hash = PasswordHash::new(password_hash.as_ref())
-        .map_err(|e| anyhow::anyhow!(e))
+        .map_err(|e| anyhow!(e))
         .context("failed to parse argon2's 'PasswordHash' from string")?;
     // compare with the provided password
     let checks_out = Argon2::default()
