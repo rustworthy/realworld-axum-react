@@ -8,6 +8,7 @@ const palette = {
   c04: "#449d44",
   c05: "#B85C5C",
   c06: "#EFEFEF",
+  c07: "#CCCCCC",
 };
 
 export const DarkTheme: AppThemeType = {
@@ -16,6 +17,29 @@ export const DarkTheme: AppThemeType = {
       bannner: {
         textColor: palette.c01,
         backgroundColor: palette.c03,
+      },
+    },
+    article: {
+      banner: {
+        textColor: "#f8f9fa",
+        backgroundColor: "#2c3e50",
+      },
+      content: {
+        textColor: palette.c06,
+        backgroundColor: palette.c01,
+      },
+      tag: {
+        textColor: palette.c06,
+        backgroundColor: "#555",
+      },
+      separator: {
+        backgroundColor: "#555",
+      },
+      comment: {
+        borderColor: "#555",
+        backgroundColor: palette.c01,
+        footerBackgroundColor: "#333",
+        textColor: palette.c06,
       },
     },
     signin: {
@@ -58,6 +82,24 @@ export const DarkTheme: AppThemeType = {
       borderColor: palette.c03,
       backgroundColor: palette.c03,
       backgroundColorActive: palette.c04,
+      primary: {
+        textColor: palette.c03,
+        borderColor: palette.c03,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c03,
+        },
+      },
+      secondary: {
+        textColor: palette.c07,
+        borderColor: palette.c07,
+        backgroundColor: "transparent",
+        active: {
+          textColor: palette.c02,
+          backgroundColor: palette.c07,
+        },
+      },
       danger: {
         textColor: palette.c05,
         borderColor: palette.c05,

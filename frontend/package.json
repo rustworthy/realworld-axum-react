@@ -15,6 +15,7 @@
     "lint:fix": "eslint . --fix",
     "build:dev": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production",
+    "preview": "npm run build:prod && npx serve -s build -p 8006",
     "health": "echo \"👀 ----- Test line for testing -----👀\" && exit 0",
     "codegen": "npx @rtk-query/codegen-openapi openapi-config.ts && eslint . --fix",
     "types:check": "tsc --noEmit --pretty"
@@ -62,6 +63,7 @@
     "react-refresh-typescript": "^2.0.10",
     "sass": "^1.91.0",
     "sass-loader": "^16.0.5",
+    "serve": "^14.2.5",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",

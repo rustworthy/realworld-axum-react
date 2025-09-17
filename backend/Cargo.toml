@@ -93,3 +93,7 @@ serde_json = "1.0.140"
 testcontainers-modules = { version = "0.12.1", features = ["postgres"] }
 uuid = { version = "1.17", features = ["v4"] }
 wiremock = "0.6.4"
+
+[target.'cfg(any())'.dependencies]
+# https://github.com/open-telemetry/opentelemetry-rust/issues/3169
+opentelemetry-proto = "=0.30.0"

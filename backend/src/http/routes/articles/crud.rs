@@ -209,7 +209,7 @@ pub async fn read_article(
                 bio: details.author_bio,
                 image: users::utils::parse_image_url(details.author_image.as_deref())?,
                 username: details.author_username,
-                // Similat to `favorited`, we cannot tell if they are following
+                // Similar to `favorited`, we cannot tell if they are following
                 // the author and we are defaulting this to `false`
                 following: false,
             },
