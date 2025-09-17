@@ -99,8 +99,11 @@ pub(crate) struct ArticlePayload<U> {
 
 // ------------------------------- ROUTER --------------------------------------
 pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
-    let articles_router =
-        OpenApiRouter::new().routes(routes!(crud::create_article, crud::read_article,));
+    let articles_router = OpenApiRouter::new().routes(routes!(
+        crud::create_article,
+        crud::read_article,
+        crud::delete_article
+    ));
 
     OpenApiRouter::new()
         .nest("/articles", articles_router)

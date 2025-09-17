@@ -31,7 +31,7 @@ pub fn issue_token(sub: Uuid, key: &EncodingKey) -> anyhow::Result<String> {
         exp: issued_at + TOKEN_TTL,
     };
     let token = encode(&Header::default(), &claims, key)
-        .map_err(|e| anyhow::anyhow!(e))
+        .map_err(|e| anyhow!(e))
         .context("failed to issue jwt token")?;
     Ok(token)
 }
