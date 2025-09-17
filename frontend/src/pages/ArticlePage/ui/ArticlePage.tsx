@@ -110,12 +110,11 @@ const ArticleComments: FC<{ user: UserPayloadUser["user"] | null }> = ({ user })
 export const ArticlePage: FC = () => {
   const { slug } = useParams<{ slug: string }>();
   if (!slug) return <NotFoundPage />;
-
   const { data } = useReadArticleQuery({ slug: slug! });
-  if (!data) return null;
-
   const { user } = useAuth();
   const { isDarkMode } = useTernaryDarkMode();
+
+  if (!data) return null;
   const article = data.article;
   const isAuthor = user?.username === article.author.username;
 

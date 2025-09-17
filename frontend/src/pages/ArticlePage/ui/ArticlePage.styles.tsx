@@ -103,11 +103,16 @@ export const ActionButton = styled.button`
     color: ${({ theme }) => theme.shared.button.primary.textColor};
     background-color: ${({ theme }) => theme.shared.button.primary.backgroundColor};
     border-color: ${({ theme }) => theme.shared.button.primary.borderColor};
-    &:active,
-    &:hover,
-    &:focus {
+
+    &:active:not([disabled]),
+    &:hover:not([disabled]),
+    &:focus:not([disabled]) {
       color: ${({ theme }) => theme.shared.button.primary.active.textColor};
       background-color: ${({ theme }) => theme.shared.button.primary.active.backgroundColor};
+    }
+
+    &:disabled {
+      cursor: not-allowed;
     }
   }
 
@@ -115,11 +120,16 @@ export const ActionButton = styled.button`
     color: ${({ theme }) => theme.shared.button.secondary.textColor};
     background-color: ${({ theme }) => theme.shared.button.secondary.backgroundColor};
     border-color: ${({ theme }) => theme.shared.button.secondary.borderColor};
-    &:active,
-    &:hover,
-    &:focus {
+
+    &:active:not([disabled]),
+    &:hover:not([disabled]),
+    &:focus:not([disabled]) {
       color: ${({ theme }) => theme.shared.button.secondary.active.textColor};
       background-color: ${({ theme }) => theme.shared.button.secondary.active.backgroundColor};
+    }
+
+    &:disabled {
+      cursor: not-allowed;
     }
   }
 
