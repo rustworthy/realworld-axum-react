@@ -305,9 +305,132 @@ async fn create_article_and_read_it(ctx: TestContext) {
     assert_eq!(author.get("image").unwrap(), &Value::Null);
 }
 
+async fn delete_article(ctx: TestContext) {
+    let user1 = fake::create_activated_user(&ctx).await;
+    let user2 = fake::create_activated_user(&ctx).await;
+
+    let article_details = json!({
+        "title": "Delete article test",
+        "description": "Delete article test",
+        "body": "Delete artcile test",
+        "tagList": ["test"]
+    });
+    let resp_payload = ctx // "delete-article-test"
+        .http_client
+        .post(ctx.backend_url.join("/api/articles").unwrap())
+        .bearer_auth(&user1.token) // this will be first user's article
+        .json(&json!({ "article": article_details }))
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
+        .await
+        .unwrap();
+    let slug = resp_payload
+        .get("article")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("slug")
+        .unwrap()
+        .as_str()
+        .unwrap();
+
+    // let's first check that users cannot DELETE w/o authentication
+    assert_eq!(
+        ctx.http_client
+            .delete(
+                ctx.backend_url
+                    .join("/api/articles/")
+                    .unwrap()
+                    .join(slug)
+                    .unwrap()
+            )
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::UNAUTHORIZED
+    );
+
+    // now, we will use the token, but try to DELETE an article that
+    // we know does not exist
+    assert_eq!(
+        ctx.http_client
+            .delete(
+                ctx.backend_url
+                    .join("/api/articles/")
+                    .unwrap()
+                    .join("does-not-exist")
+                    .unwrap()
+            )
+            .bearer_auth(&user2.token)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::NOT_FOUND
+    );
+
+    // ok, but what if our _authenticated_ second user now tries to DELETE
+    // the first user's article?
+    assert_eq!(
+        ctx.http_client
+            .delete(
+                ctx.backend_url
+                    .join("/api/articles/")
+                    .unwrap()
+                    .join(slug) // first user's article
+                    .unwrap()
+            )
+            .bearer_auth(&user2.token) // second user's token
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::FORBIDDEN // not allowed
+    );
+
+    // let's make sure the author can delete their article
+    assert_eq!(
+        ctx.http_client
+            .delete(
+                ctx.backend_url
+                    .join("/api/articles/")
+                    .unwrap()
+                    .join(slug) // first user's article
+                    .unwrap()
+            )
+            .bearer_auth(&user1.token) // and first user's token
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::NO_CONTENT // deletes just fine
+    );
+
+    // sanity: let's check that the article is not longer there
+    assert_eq!(
+        ctx.http_client
+            .get(
+                ctx.backend_url
+                    .join("/api/articles/")
+                    .unwrap()
+                    .join(slug) // first user's article
+                    .unwrap()
+            )
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::NOT_FOUND
+    )
+}
+
 mod tests {
     crate::async_test!(create_article_no_authentication);
     crate::async_test!(create_article_empty_payload);
     crate::async_test!(create_article_payload_issues);
     crate::async_test!(create_article_and_read_it);
+    crate::async_test!(delete_article);
 }

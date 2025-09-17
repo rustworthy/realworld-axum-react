@@ -216,3 +216,63 @@ pub async fn read_article(
         },
     }))
 }
+
+/// Delete article by slug.
+///
+/// This will delete the article with the specified unique slug identifier.
+/// Authentication _is_ required to delete articles.
+#[utoipa::path(
+    delete,
+    path = "/{slug}",
+    tags = ["Articles"],
+    params(
+        (
+            "slug" = String, Path, 
+            format = "slug",
+            description = "Article slug identifier",
+            example = "how-to-design-a-programming-language"
+        ),
+    ),
+    responses(
+        (status = 204, description = "Article successfully deleted."),
+        (status = 401, description = "Token missing or invalid."),
+        (status = 403, description = "User does not have permissions to delete this article."),
+        (status = 404, description = "Article not found"),
+        (status = 500, description = "Internal server error."),
+    ),
+)]
+#[instrument(name = "DELETE ARTICLE", skip(ctx))]
+pub async fn delete_article(
+    ctx: State<Arc<AppContext>>,
+    Path(slug): Path<String>,
+    uid: UserID,
+) -> Result<StatusCode, Error> {
+    let details = sqlx::query!(
+        r#"
+        WITH deleted_article as (
+            DELETE FROM articles
+            WHERE slug = $1 AND user_id = $2
+            RETURNING article_id
+        )
+        SELECT 
+            EXISTS(SELECT article_id FROM articles WHERE slug = $1) "existed!",
+            EXISTS(SELECT article_id FROM deleted_article) "deleted!";
+        "#,
+        slug,
+        *uid,
+    )
+    .fetch_one(&ctx.db)
+    .await?;
+
+    if details.deleted {
+        return Ok(StatusCode::NO_CONTENT);
+    }
+
+    let err = if details.existed {
+        warn!("user tried to delete article w/o proper permissions");
+        Error::Forbidden
+    } else {
+        Error::NotFound
+    };
+    Err(err)
+}

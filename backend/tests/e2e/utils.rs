@@ -315,6 +315,10 @@ mod browser {
 pub(crate) mod fake {
     use super::TestContext;
     use super::extract_otp_from_html;
+    use fake::Fake as _;
+    use fake::faker::internet::en::FreeEmail;
+    use fake::faker::internet::en::Password;
+    use fake::faker::internet::en::Username;
     use serde::Deserialize;
     use serde_json::{Value, json};
     use url::Url;
@@ -333,10 +337,13 @@ pub(crate) mod fake {
     pub async fn create_activated_user(ctx: &TestContext) -> UserDetails {
         // register new user
         let url = ctx.backend_url.join("/api/users").unwrap();
+        let email: String = FreeEmail().fake();
+        let username: String = Username().fake();
+        let password: String = Password(12..15).fake();
         let registration = json!({
-            "username": "rob.pike",
-            "email": "rob.pike@gmail.com",
-            "password": "strongandcomplicated",
+            "username": &username,
+            "email": &email,
+            "password": &password,
             "captcha": "test",
         });
         ctx.http_client
@@ -353,7 +360,7 @@ pub(crate) mod fake {
             .received_requests()
             .await
             .expect("requests to have been received")
-            .first()
+            .last()
             .expect("letter with OTP to have been sent")
             .body_json::<Value>()
             .expect("JSON payload");
@@ -389,9 +396,9 @@ pub(crate) mod fake {
             .expect("JWT string")
             .to_owned();
         UserDetails {
-            username: "rob.pike".to_string(),
-            email: "rob.pike@gmail.com".to_string(),
-            password: "strongandcomplicated".to_string(),
+            email,
+            username,
+            password,
             image: None,
             bio: String::default(),
             token,

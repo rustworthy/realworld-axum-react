@@ -25,6 +25,9 @@ pub(crate) enum Error {
     #[error("unprocessable entity")]
     Unprocessable(Validation),
 
+    #[error("forbidden")]
+    Forbidden,
+
     #[error("unauthorized")]
     Unauthorized,
 
@@ -69,6 +72,7 @@ impl IntoResponse for Error {
             )
                 .into_response(),
             Self::NotFound => StatusCode::NOT_FOUND.into_response(),
+            Self::Forbidden => StatusCode::FORBIDDEN.into_response(),
             Self::Unprocessable(validation) => {
                 (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response()
             }
