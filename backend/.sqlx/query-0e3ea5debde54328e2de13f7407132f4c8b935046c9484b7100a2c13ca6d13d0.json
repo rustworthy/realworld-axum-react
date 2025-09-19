@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                coalesce(count(*), 0) \"count!\"\n            FROM\n                articles JOIN users USING (user_id)\n            WHERE\n                ($1::text IS NULL OR username = $1::text) AND\n                ($2::text IS NULL OR tags @> ARRAY[$2::text])\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "0e3ea5debde54328e2de13f7407132f4c8b935046c9484b7100a2c13ca6d13d0"
+}
