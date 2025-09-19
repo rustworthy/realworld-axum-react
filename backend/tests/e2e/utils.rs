@@ -316,11 +316,17 @@ pub(crate) mod fake {
     use super::TestContext;
     use super::extract_otp_from_html;
     use fake::Fake as _;
+    use fake::Faker;
     use fake::faker::internet::en::FreeEmail;
     use fake::faker::internet::en::Password;
     use fake::faker::internet::en::Username;
+    use fake::faker::lorem::en::Paragraph;
+    use fake::faker::lorem::en::Sentence;
+    use fake::faker::lorem::en::Words;
+    use reqwest::StatusCode;
     use serde::Deserialize;
     use serde_json::{Value, json};
+    use tower_http::body;
     use url::Url;
 
     #[derive(Debug, Clone, Deserialize)]
@@ -403,5 +409,73 @@ pub(crate) mod fake {
             bio: String::default(),
             token,
         }
+    }
+
+    /// Generate random articles return their slugs.
+    ///
+    /// Will use `token` to authenicate a call (or many calls - depends on the
+    /// provided `count`) to the create article endpoint. If `tags` are specified,
+    /// they will be used when creating a articles (or articles), otherwise random
+    /// tags will be generated. If you provide `tags`, make sure the slice is
+    /// not empty, otherwise the endoint will error back and the test will fail.
+    pub async fn gen_articles(
+        backend_url: &Url,
+        token: &str,
+        count: usize,
+        tags: Option<&[&str]>,
+    ) -> Vec<String> {
+        let url = backend_url.join("/api/articles").unwrap();
+        let title = Sentence(5..15);
+        let description = Sentence(10..20);
+        let body = Paragraph(5..20);
+        let random_tags = Words(1..5);
+
+        let mut set = tokio::task::JoinSet::new();
+        for _ in (0..count) {
+            let title: String = title.fake();
+            let description: String = description.fake();
+            // fake article details ...
+            let body: String = body.fake();
+            let tags: Vec<String> = tags
+                // if tags are provided, then use them ...
+                .map(|tags| tags.iter().map(|&tag| tag.to_owned()).collect())
+                // ... otherwise generate some random tags
+                .unwrap_or_else(|| random_tags.fake::<Vec<String>>());
+            let url = url.clone();
+            let token = token.to_owned();
+            let article_details = json!({
+                "title": title,
+                "description": description,
+                "body": body,
+                "tagList": tags,
+            });
+            // ... and submit them ...
+            set.spawn(async move {
+                let resp = reqwest::Client::new()
+                    .post(url)
+                    .bearer_auth(token)
+                    .json(&json!({ "article": article_details }))
+                    .send()
+                    .await
+                    .unwrap();
+                let status = resp.status();
+                let payload = resp.json::<Value>().await.unwrap();
+                if status != StatusCode::CREATED {
+                    panic!("{:?}", payload);
+                }
+                payload
+                    .get("article")
+                    .unwrap()
+                    .as_object()
+                    .unwrap()
+                    // ... returing the slug
+                    .get("slug")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_owned()
+            });
+        }
+        set.join_all().await
     }
 }

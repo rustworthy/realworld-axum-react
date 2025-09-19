@@ -1,5 +1,6 @@
 use axum::Json;
 use axum::extract::rejection::JsonRejection;
+use axum::extract::rejection::QueryRejection;
 use axum::http::{StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use sqlx::error::DatabaseError;
@@ -44,6 +45,12 @@ pub(crate) enum Error {
 impl From<JsonRejection> for Error {
     fn from(value: JsonRejection) -> Self {
         let errors = BTreeMap::from([("body".to_string(), vec![value.to_string()])]);
+        Self::Unprocessable(Validation { errors })
+    }
+}
+impl From<QueryRejection> for Error {
+    fn from(value: QueryRejection) -> Self {
+        let errors = BTreeMap::from([("query".to_string(), vec![value.to_string()])]);
         Self::Unprocessable(Validation { errors })
     }
 }

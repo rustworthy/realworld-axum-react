@@ -9,6 +9,7 @@ use utoipa_axum::router::OpenApiRouter;
 mod comments;
 mod crud;
 mod favorite;
+mod list;
 
 // ---------------------------- SHARED TYPES -----------------------------------
 
@@ -99,11 +100,10 @@ pub(crate) struct ArticlePayload<U> {
 
 // ------------------------------- ROUTER --------------------------------------
 pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
-    let articles_router = OpenApiRouter::new().routes(routes!(
-        crud::create_article,
-        crud::read_article,
-        crud::delete_article
-    ));
+    let articles_router = OpenApiRouter::new()
+        .routes(routes!(crud::create_article, crud::delete_article))
+        .routes(routes!(crud::read_article))
+        .routes(routes!(list::list_articles));
 
     OpenApiRouter::new()
         .nest("/articles", articles_router)

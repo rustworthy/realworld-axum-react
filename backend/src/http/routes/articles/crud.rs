@@ -17,7 +17,6 @@ use utoipa::ToSchema;
 use validator::Validate;
 use validator_derive::Validate;
 
-#[allow(unused)]
 #[derive(Debug, Deserialize, ToSchema, Validate)]
 pub struct ArticleCreate {
     /// Article's title.
