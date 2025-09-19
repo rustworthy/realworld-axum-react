@@ -31,6 +31,7 @@ pub(crate) struct ArticlesList {
 }
 
 #[derive(Debug, Deserialize, ToSchema, IntoParams, Validate)]
+#[into_params(parameter_in = Query)]
 pub(crate) struct ListQuery {
     /// Filter articles by tag.
     #[param(nullable = false, example = "Compilers")]
