@@ -2,6 +2,18 @@ import { base as api } from "./base";
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    listArticles: build.query<ListArticlesApiResponse, ListArticlesApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles`,
+        params: {
+          tag: queryArg.tag,
+          author: queryArg.author,
+          favorited: queryArg.favorited,
+          limit: queryArg.limit,
+          offset: queryArg.offset,
+        },
+      }),
+    }),
     createArticle: build.mutation<CreateArticleApiResponse, CreateArticleApiArg>({
       query: (queryArg) => ({
         url: `/api/articles`,
@@ -11,6 +23,12 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     readArticle: build.query<ReadArticleApiResponse, ReadArticleApiArg>({
       query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}` }),
+    }),
+    deleteArticle: build.mutation<DeleteArticleApiResponse, DeleteArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}`,
+        method: "DELETE",
+      }),
     }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
@@ -47,12 +65,30 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
+export type ListArticlesApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList[];
+export type ListArticlesApiArg = {
+  /** Filter articles by tag. */
+  tag?: string;
+  /** Filter articles by author (username). */
+  author?: string;
+  /** Filter articles favorited by user (username). */
+  favorited?: string;
+  /** Limit number of returned articles. */
+  limit?: number;
+  /** Offset/skip number of articles. */
+  offset?: number;
+};
 export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
 export type CreateArticleApiArg = {
   articlePayloadArticleCreate: ArticlePayloadArticleCreate;
 };
 export type ReadArticleApiResponse = /** status 200 Article successfully retrieved */ ArticlePayloadArticle;
 export type ReadArticleApiArg = {
+  /** Article slug identifier */
+  slug: string;
+};
+export type DeleteArticleApiResponse = unknown;
+export type DeleteArticleApiArg = {
   /** Article slug identifier */
   slug: string;
 };
@@ -88,6 +124,35 @@ export type Author = {
     This is  - just like the user's `email` - case-insensitively unique
     in the system. */
   username: string;
+};
+export type Article = {
+  /** The article's author details. */
+  author: Author;
+  /** Article's contents. */
+  body: string;
+  /** When this article was created. */
+  createdAt: string;
+  /** Article's description. */
+  description: string;
+  /** If this article is favorited by the current user. */
+  favorited: boolean;
+  /** How many users favorited this article. */
+  favoritesCount: number;
+  /** Article's slug. */
+  slug: string;
+  /** Tags. */
+  tagList: string[];
+  /** Article's title.
+    
+    This is will be used to generate a slug for this article. */
+  title: string;
+  /** When this article was last update. */
+  updatedAt: string;
+};
+export type ArticlesList = {
+  /** List of articles. */
+  articles: Article[];
+  articlesCount: number;
 };
 export type ArticlePayloadArticle = {
   article: {
@@ -214,8 +279,10 @@ export type UserPayloadLogin = {
   };
 };
 export const {
+  useListArticlesQuery,
   useCreateArticleMutation,
   useReadArticleQuery,
+  useDeleteArticleMutation,
   useReadCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useRegisterUserMutation,
