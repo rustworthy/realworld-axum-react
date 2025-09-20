@@ -305,6 +305,7 @@ async fn create_article_and_read_it(ctx: TestContext) {
     assert_eq!(author.get("image").unwrap(), &Value::Null);
 }
 
+// ---------------------------- DELETE ----------------------------------------
 async fn delete_article(ctx: TestContext) {
     let user1 = fake::create_activated_user(&ctx).await;
     let user2 = fake::create_activated_user(&ctx).await;

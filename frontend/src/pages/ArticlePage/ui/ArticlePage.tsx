@@ -1,10 +1,15 @@
-import { FC } from "react";
-import { useParams } from "react-router";
+import { FC, useCallback } from "react";
+import { useNavigate, useParams } from "react-router";
+
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { ArticlePayloadArticle, UserPayloadUser, useReadArticleQuery } from "@/shared/api/generated";
+import { ArticlePayloadArticle, UserPayloadUser, useDeleteArticleMutation, useReadArticleQuery } from "@/shared/api/generated";
+import { ROUTES } from "@/shared/constants/routes.constants";
+import { ANY_TODO } from "@/shared/types/common.types";
 import MDEditor from "@uiw/react-md-editor";
+import { toast } from "sonner";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import * as S from "./ArticlePage.styles";
@@ -23,6 +28,38 @@ const formatDate = (dateString: string) => {
 const ArticleMeta: FC<{ article: ArticlePayloadArticle["article"]; isAuthor: boolean }> = ({ article, isAuthor }) => {
   const username = article.author.username;
   const profilePath = `/profile/${username}`;
+  const navigate = useNavigate();
+  const [deleteArticle, { isLoading: isDeleteLoading }] = useDeleteArticleMutation();
+  const isLoading = isDeleteLoading;
+
+  const performAction = useCallback(
+    async (action: string) => {
+      let result;
+      switch (action) {
+        case "delete":
+          result = await deleteArticle({ slug: article.slug });
+          break;
+        default:
+          return;
+      }
+      if (result.error) {
+        if ((result.error as FetchBaseQueryError).status === 422) {
+          // TODO: think about how to simplify extracting error messages
+          const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
+          toast.error(`Action failed. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+        }
+        if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
+          toast.error("Action failed. Please check your internet connection and retry.");
+        }
+        return;
+      }
+
+      toast.success("Your article has been delete.");
+      navigate(`${ROUTES.EDITOR}`);
+    },
+    [article],
+  );
+
   return (
     <S.ArticleMeta>
       <S.AuthorInfo>
@@ -38,19 +75,19 @@ const ArticleMeta: FC<{ article: ArticlePayloadArticle["article"]; isAuthor: boo
         </S.AuthorInfoNameBlock>
       </S.AuthorInfo>
       <S.ArticleActions>
-        <S.ActionButton disabled={isAuthor} className="btn-outline-secondary">
+        <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-secondary">
           <i className="ion-plus-round" />
           Follow {article.author.username}
         </S.ActionButton>
-        <S.ActionButton disabled={isAuthor} className="btn-outline-primary">
+        <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-primary">
           <i className="ion-heart" />
           Favorite Article <span>({article.favoritesCount})</span>
         </S.ActionButton>
-        <S.ActionButton disabled={!isAuthor} className="btn-outline-secondary">
+        <S.ActionButton disabled={!isAuthor || isLoading} className="btn-outline-secondary">
           <i className="ion-edit" />
           Edit Article
         </S.ActionButton>
-        <S.ActionButton disabled={!isAuthor} className="btn-outline-danger">
+        <S.ActionButton onClick={() => performAction("delete")} disabled={!isAuthor || isLoading} className="btn-outline-danger">
           <i className="ion-trash-a" />
           Delete Article
         </S.ActionButton>

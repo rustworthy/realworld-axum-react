@@ -9,7 +9,7 @@ where
 {
     let origins = RegexSet::new(allowed_origins).expect("valid expressions");
     CorsLayer::new()
-        .allow_methods([Method::GET, Method::PATCH, Method::PUT])
+        .allow_methods([Method::GET, Method::PATCH, Method::PUT, Method::DELETE])
         .allow_headers([header::AUTHORIZATION, header::ACCEPT, header::CONTENT_TYPE])
         .allow_credentials(true)
         .allow_origin(AllowOrigin::predicate(move |origin, _| {
