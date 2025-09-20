@@ -5,7 +5,7 @@ import { SrOnly } from "@/shared/ui/SrOnly";
 import * as S from "../inputs.styles";
 import { IInputProps } from "../inputs.types";
 
-export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, autoComplete, error, field }) => {
+export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, autoComplete, autoFocus, error, field }) => {
   return (
     <S.FormInputContainer>
       <SrOnly>
@@ -13,6 +13,7 @@ export const TextInput: FC<IInputProps> = ({ id, label, required, placeholder, a
       </SrOnly>
       <S.FormInput
         {...field}
+        autoFocus={autoFocus}
         required={required}
         id={id}
         type="text"

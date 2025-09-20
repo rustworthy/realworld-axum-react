@@ -18,6 +18,7 @@ export interface IInputProps {
   required: boolean;
   placeholder?: string;
   autoComplete?: string;
+  autoFocus?: boolean;
   error?: string;
   field?: RHFFieldProps;
 }

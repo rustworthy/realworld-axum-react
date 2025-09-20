@@ -54,7 +54,7 @@ export const EditorPage = () => {
           control={control}
           name="title"
           render={({ field }) => (
-            <TextInput field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
+            <TextInput autoFocus field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
           )}
         />
 
@@ -86,7 +86,13 @@ export const EditorPage = () => {
           control={control}
           name="tagList"
           render={({ field }) => (
-            <TextInput field={field} required id="editor_tags" label="Enter tags" error={errors.tagList?.message} />
+            <TextInput
+              field={field}
+              required
+              id="editor_tags"
+              label="Enter tags (comma separated)"
+              error={errors.tagList?.message}
+            />
           )}
         />
 
