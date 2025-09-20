@@ -5,6 +5,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useCreateArticleMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
@@ -37,8 +38,14 @@ export const EditorPage = () => {
     });
 
     if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === 422) {
+        // TODO: think about how to simplify extracting error messages
+        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
+
+        toast.error(`Action failed. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+      }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
-        toast.error("Failed to publush the article. Please check your internet connection and retry.");
+        toast.error("Action failed. Please check your internet connection and retry.");
       }
       return;
     }
@@ -54,7 +61,7 @@ export const EditorPage = () => {
           control={control}
           name="title"
           render={({ field }) => (
-            <TextInput field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
+            <TextInput autoFocus field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
           )}
         />
 
@@ -86,7 +93,13 @@ export const EditorPage = () => {
           control={control}
           name="tagList"
           render={({ field }) => (
-            <TextInput field={field} required id="editor_tags" label="Enter tags" error={errors.tagList?.message} />
+            <TextInput
+              field={field}
+              required
+              id="editor_tags"
+              label="Enter tags (comma separated)"
+              error={errors.tagList?.message}
+            />
           )}
         />
 

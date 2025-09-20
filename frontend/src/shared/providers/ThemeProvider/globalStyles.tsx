@@ -50,6 +50,16 @@ export const GlobalStyles = () => {
 
         body {
           overflow-x: hidden;
+
+          .w-md-editor-text-pre > code,
+          .w-md-editor-preview,
+          .w-md-editor-text-input {
+            font-size: 22px !important;
+            line-height: 23px !important;
+          }
+          .wmde-markdown {
+            background: inherit;
+          }
         }
       `}
     />

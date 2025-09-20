@@ -2,6 +2,7 @@ import { FC } from "react";
 
 import { SrOnly } from "@/shared/ui/SrOnly";
 import MDEditor from "@uiw/react-md-editor";
+import rehypeSanitize from "rehype-sanitize";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import { FormInputContainer, FormInputError, FormInputErrorContainer } from "../inputs.styles";
@@ -17,7 +18,13 @@ export const EditorInput: FC<IEditorInputProps> = ({ id, label, placeholder, req
         <label htmlFor={id}>{label}</label>
       </SrOnly>
       <S.EditorContainer data-color-mode={isDarkMode ? "dark" : "light"} className="container">
-        <MDEditor textareaProps={{ placeholder: placeholder ?? label, required, id, name }} value={value} onChange={onChange} />
+        <MDEditor
+          textareaProps={{ placeholder: placeholder ?? label, required, id, name }}
+          value={value}
+          onChange={onChange}
+          // https://github.com/uiwjs/react-md-editor?tab=readme-ov-file#security
+          previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+        />
       </S.EditorContainer>
       <FormInputErrorContainer>
         {error ? <FormInputError id={`${id}_error`}>{error}</FormInputError> : null}
