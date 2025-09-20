@@ -5,6 +5,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useCreateArticleMutation } from "@/shared/api/generated";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
@@ -37,8 +38,14 @@ export const EditorPage = () => {
     });
 
     if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === 422) {
+        // TODO: think about how to simplify extracting error messages
+        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
+
+        toast.error(`Failed to register. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+      }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
-        toast.error("Failed to publush the article. Please check your internet connection and retry.");
+        toast.error("Failed to register. Please check your internet connection and retry.");
       }
       return;
     }

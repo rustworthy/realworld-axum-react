@@ -57,6 +57,9 @@ export const GlobalStyles = () => {
             font-size: 22px !important;
             line-height: 23px !important;
           }
+          .wmde-markdown {
+            background: inherit;
+          }
         }
       `}
     />

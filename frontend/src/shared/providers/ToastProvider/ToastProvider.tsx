@@ -1,3 +1,8 @@
 import { Toaster } from "sonner";
+import { useTernaryDarkMode } from "usehooks-ts";
 
-export const ToastProvider = () => <Toaster duration={10_000} position="top-center" />;
+export const ToastProvider = () => {
+  const { ternaryDarkMode } = useTernaryDarkMode();
+
+  return <Toaster theme={ternaryDarkMode} duration={10_000} position="top-center" />;
+};
