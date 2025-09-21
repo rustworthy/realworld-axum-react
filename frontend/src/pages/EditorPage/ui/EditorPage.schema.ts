@@ -13,7 +13,16 @@ export const editorPageSchema = z.object({
   body: nonempty("Article body"),
   tagList: z.preprocess(
     (csvTags) => {
+      // the tags are already preprocessed, e.g. when
+      // they are updating the existing articles; we are
+      // not deduplicating here relying on us having done
+      // this at the point when the article was created
+      if (Array.isArray(csvTags)) return csvTags;
+      // should not really happen, but we are handling
+      // this case to "exhaust" the types
       if (typeof csvTags !== "string") return [];
+      // they typed in comma separated tags, so we should
+      // partse and deduplicate those
       const tags = csvTags
         .split(",")
         .map((tag) => tag.trim())
