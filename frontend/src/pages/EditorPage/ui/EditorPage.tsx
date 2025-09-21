@@ -1,5 +1,5 @@
-import { FC } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
+import { FieldErrors } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -9,17 +9,15 @@ import { useCreateArticleMutation, useReadArticleQuery } from "@/shared/api/gene
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
-import { Button } from "@/shared/ui/controls/Button";
-import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
-import * as S from "./EditorPage.styles";
+import { EditorForm } from "./EditorForm";
+import { TEditorPageSchema } from "./EditorPage.schema";
 
 const CreateArcticle = () => {
   const navigate = useNavigate();
   const [create, { isLoading }] = useCreateArticleMutation();
+  const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
     const result = await create({
@@ -30,10 +28,13 @@ const CreateArcticle = () => {
 
     if (result.error) {
       if ((result.error as FetchBaseQueryError).status === 422) {
-        // TODO: think about how to simplify extracting error messages
-        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
-
-        toast.error(`Action failed. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+        const validationErrors: Record<keyof TEditorPageSchema, string[]> = (result.error as ANY_TODO).data.errors;
+        const initialErrors: FieldErrors<TEditorPageSchema> = {};
+        for (const [field, errors] of Object.entries(validationErrors)) {
+          initialErrors[field as keyof TEditorPageSchema] = { type: "value", message: errors.join(". ") };
+        }
+        setInitialErrors(initialErrors);
+        toast.error("Failed to publish the article. Please check field errors and re-submit.");
       }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
         toast.error("Action failed. Please check your internet connection and retry.");
@@ -47,7 +48,7 @@ const CreateArcticle = () => {
 
   return (
     <FormPage.Container title="New Article">
-      <EditorForm onSubmit={onSubmit} disabled={isLoading} />
+      <EditorForm initialErrors={initialErrors} onSubmit={onSubmit} disabled={isLoading} />
     </FormPage.Container>
   );
 };
@@ -65,6 +66,7 @@ const UpdateArticle = () => {
 
   const navigate = useNavigate();
   const [create, { isLoading: isCreateArticleLoading }] = useCreateArticleMutation(); // TODO: update mutation
+  const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
     const result = await create({
@@ -75,10 +77,13 @@ const UpdateArticle = () => {
 
     if (result.error) {
       if ((result.error as FetchBaseQueryError).status === 422) {
-        // TODO: think about how to simplify extracting error messages
-        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
-
-        toast.error(`Action failed. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+        const validationErrors: Record<keyof TEditorPageSchema, string[]> = (result.error as ANY_TODO).data.errors;
+        const initialErrors: FieldErrors<TEditorPageSchema> = {};
+        for (const [field, errors] of Object.entries(validationErrors)) {
+          initialErrors[field as keyof TEditorPageSchema] = { type: "value", message: errors.join(". ") };
+        }
+        setInitialErrors(initialErrors);
+        toast.error("Failed to publish the article. Please check field errors and re-submit.");
       }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
         toast.error("Action failed. Please check your internet connection and retry.");
@@ -92,82 +97,13 @@ const UpdateArticle = () => {
 
   return isLoading ? null : (
     <FormPage.Container title="Update Article">
-      <EditorForm defaultValues={data?.article} onSubmit={onSubmit} disabled={isCreateArticleLoading} />
+      <EditorForm
+        initialValues={data!.article}
+        initialErrors={initialErrors}
+        onSubmit={onSubmit}
+        disabled={isCreateArticleLoading}
+      />
     </FormPage.Container>
-  );
-};
-
-export type EditorFormProps = {
-  onSubmit: (article: TEditorPageSchema) => void;
-  disabled: boolean;
-  defaultValues?: TEditorPageSchema;
-};
-export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, defaultValues }) => {
-  const {
-    control,
-    setValue,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(editorPageSchema),
-    defaultValues: defaultValues ?? { ...editorPageDefaultValues },
-  });
-
-  return (
-    <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={disabled}>
-      <Controller
-        control={control}
-        name="title"
-        render={({ field }) => (
-          <TextInput autoFocus field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <TextInput
-            field={field}
-            required
-            id="editor_description"
-            label="What's this article about?"
-            error={errors.description?.message}
-          />
-        )}
-      />
-
-      <EditorInput
-        value={watch("body") as string}
-        onChange={(value) => setValue("body", value)}
-        error={errors.body?.message}
-        label="Write your article (in markdown)"
-        required
-        id="editor_body"
-        name="body"
-      />
-
-      <Controller
-        control={control}
-        name="tagList"
-        render={({ field }) => (
-          <TextInput
-            field={field}
-            required
-            id="editor_tags"
-            label="Enter tags (comma separated)"
-            error={errors.tagList?.message}
-          />
-        )}
-      />
-
-      <S.SubmitButtonContainer>
-        <Button dataTestId="editor_submit_button" isDisabled={disabled}>
-          Publish Article
-        </Button>
-      </S.SubmitButtonContainer>
-    </S.EditorForm>
   );
 };
 
