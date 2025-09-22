@@ -15,7 +15,7 @@ use validator::ValidationErrors;
 pub(crate) struct Validation {
     #[schema(
         example = json!(
-            BTreeMap::from([("body".to_string(), vec!["can't be empty".to_string()])])
+            BTreeMap::from([("title".to_string(), vec!["article with this title already exists".to_string()])])
         )
     )]
     pub errors: BTreeMap<String, Vec<String>>,
