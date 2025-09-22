@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH updated_article as (\n            UPDATE articles\n            SET\n                slug = COALESCE($3, slug),\n                title = COALESCE($4, title),\n                description = COALESCE($5, description),\n                body = COALESCE($6, body),\n                tags = COALESCE($7, tags)\n            WHERE slug = $1 AND user_id = $2\n            RETURNING slug\n        )\n        SELECT\n            EXISTS(SELECT article_id FROM articles WHERE slug = $1) \"existed!\",\n            (SELECT slug FROM updated_article) \"new_slug\";\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "existed!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "new_slug",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "c2910ea8140b1eb01b83fd88ab87190451954e19aebbb7672479579bc994dc46"
+}
