@@ -1,34 +1,23 @@
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { FieldErrors } from "react-hook-form";
+import { useNavigate, useParams } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import { useCreateArticleMutation } from "@/shared/api/generated";
+import { NotFoundPage } from "@/pages/NotFoundPage";
+import { useCreateArticleMutation, useReadArticleQuery, useUpdateArticleMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
-import { Button } from "@/shared/ui/controls/Button";
-import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
-import * as S from "./EditorPage.styles";
+import { EditorForm } from "./EditorForm";
+import { TEditorPageSchema } from "./EditorPage.schema";
 
-export const EditorPage = () => {
+const CreateArcticle = () => {
   const navigate = useNavigate();
   const [create, { isLoading }] = useCreateArticleMutation();
-
-  const {
-    control,
-    setValue,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(editorPageSchema),
-    defaultValues: { ...editorPageDefaultValues },
-  });
+  const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
     const result = await create({
@@ -39,10 +28,13 @@ export const EditorPage = () => {
 
     if (result.error) {
       if ((result.error as FetchBaseQueryError).status === 422) {
-        // TODO: think about how to simplify extracting error messages
-        const fieldType = Object.keys((result.error as ANY_TODO).data?.errors)[0];
-
-        toast.error(`Action failed. Reason: ${(result.error as ANY_TODO).data?.errors?.[fieldType]?.[0]}`);
+        const validationErrors: Record<keyof TEditorPageSchema, string[]> = (result.error as ANY_TODO).data.errors;
+        const initialErrors: FieldErrors<TEditorPageSchema> = {};
+        for (const [field, errors] of Object.entries(validationErrors)) {
+          initialErrors[field as keyof TEditorPageSchema] = { type: "value", message: errors.join(". ") };
+        }
+        setInitialErrors(initialErrors);
+        toast.error("Failed to publish the article. Please check field errors and re-submit.");
       }
       if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
         toast.error("Action failed. Please check your internet connection and retry.");
@@ -56,59 +48,67 @@ export const EditorPage = () => {
 
   return (
     <FormPage.Container title="New Article">
-      <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={isLoading}>
-        <Controller
-          control={control}
-          name="title"
-          render={({ field }) => (
-            <TextInput autoFocus field={field} required id="editor_title" label="Article's title" error={errors.title?.message} />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="description"
-          render={({ field }) => (
-            <TextInput
-              field={field}
-              required
-              id="editor_description"
-              label="What's this article about?"
-              error={errors.description?.message}
-            />
-          )}
-        />
-
-        <EditorInput
-          value={watch("body") as string}
-          onChange={(value) => setValue("body", value)}
-          error={errors.body?.message}
-          label="Write your article (in markdown)"
-          required
-          id="editor_body"
-          name="body"
-        />
-
-        <Controller
-          control={control}
-          name="tagList"
-          render={({ field }) => (
-            <TextInput
-              field={field}
-              required
-              id="editor_tags"
-              label="Enter tags (comma separated)"
-              error={errors.tagList?.message}
-            />
-          )}
-        />
-
-        <S.SubmitButtonContainer>
-          <Button dataTestId="editor_submit_button" isDisabled={isLoading}>
-            Publish Article
-          </Button>
-        </S.SubmitButtonContainer>
-      </S.EditorForm>
+      <EditorForm initialErrors={initialErrors} onSubmit={onSubmit} disabled={isLoading} />
     </FormPage.Container>
   );
 };
+
+const UpdateArticle = () => {
+  const { slug } = useParams();
+  // if the `slug` is not in path params, we are rending create
+  // article view and so we are expecting slug to be there
+  const { data, isLoading } = useReadArticleQuery({ slug: slug! });
+
+  // meaning the fetch operation finished and no data returned
+  // from the server; apparently, the slug is wrong and the article
+  // has been deleted
+  if (!isLoading && !data) return <NotFoundPage />;
+
+  const navigate = useNavigate();
+  const [update, { isLoading: isUpdateArticleLoading }] = useUpdateArticleMutation();
+  const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
+
+  const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
+    const result = await update({
+      slug: slug!,
+      articlePayloadArticleUpdate: {
+        article: data,
+      },
+    });
+
+    if (result.error) {
+      if ((result.error as FetchBaseQueryError).status === 422) {
+        const validationErrors: Record<keyof TEditorPageSchema, string[]> = (result.error as ANY_TODO).data.errors;
+        const initialErrors: FieldErrors<TEditorPageSchema> = {};
+        for (const [field, errors] of Object.entries(validationErrors)) {
+          initialErrors[field as keyof TEditorPageSchema] = { type: "value", message: errors.join(". ") };
+        }
+        setInitialErrors(initialErrors);
+        toast.error("Failed to update the article. Please check field errors and re-submit.");
+      } else if ((result.error as FetchBaseQueryError).status === 404) {
+        toast.error("Failed to update the article. Looks like article has been deleted.");
+      } else if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
+        toast.error("Action failed. Please check your internet connection and retry.");
+      }
+      return;
+    }
+
+    toast.success("Success! Your article has been published.");
+    navigate(`${ROUTES.ARTICLE}/${result.data.article.slug}`);
+  };
+
+  return isLoading ? null : (
+    <FormPage.Container title="Update Article">
+      <EditorForm
+        initialValues={data!.article}
+        initialErrors={initialErrors}
+        onSubmit={onSubmit}
+        disabled={isUpdateArticleLoading}
+      />
+    </FormPage.Container>
+  );
+};
+
+export const EditorPage = () => null;
+EditorPage.CreateView = CreateArcticle;
+EditorPage.UpdateView = UpdateArticle;

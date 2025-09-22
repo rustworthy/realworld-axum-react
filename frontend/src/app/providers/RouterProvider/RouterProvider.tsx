@@ -34,7 +34,8 @@ export const RouterProvider = () => {
 
           <Route element={<ProtectedRoutes />}>
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
-            <Route path={ROUTES.EDITOR} element={<EditorPage />} />
+            <Route path={ROUTES.EDITOR} element={<EditorPage.CreateView />} />
+            <Route path={`${ROUTES.EDITOR}/:slug`} element={<EditorPage.UpdateView />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

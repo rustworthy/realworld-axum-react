@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { UserPayloadUser } from "@/shared/api/generated";
+import { UserPayloadUser } from "@/shared/api";
 
 import { AuthSliceState } from "./authSlice.schema";
 
