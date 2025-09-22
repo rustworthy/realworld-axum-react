@@ -51,6 +51,7 @@ pub(crate) async fn read_current_user(
 pub struct UserUpdate {
     /// User's email, e.g. `rob.pike@gmail.com`.
     #[schema(nullable = false, example = "rob.pike@gmail.com", format = "email")]
+    #[validate(email(message = "invalid email format"))]
     email: Option<String>,
 
     /// User's name or nickname.
@@ -58,6 +59,7 @@ pub struct UserUpdate {
     /// This is  - just like the user's `email` - case-insensitively unique
     /// in the system.
     #[schema(nullable = false, example = "rob.pike1984")]
+    #[validate(length(min = 1, message = "username cannot be empty"))]
     username: Option<String>,
 
     /// User's biography.
@@ -70,7 +72,8 @@ pub struct UserUpdate {
     bio: Option<String>,
 
     /// New password.
-    #[schema(nullable = false, min_length = 1, example = "Whoami@g00gle")]
+    #[schema(nullable = false, min_length = 12, example = "Whoami@g00gle")]
+    #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: Option<String>,
 
     /// New image URL.
