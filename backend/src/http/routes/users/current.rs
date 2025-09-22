@@ -1,14 +1,18 @@
+use super::utils;
 use super::{User, UserPayload};
 use crate::AppContext;
-use crate::http::errors::{Error, Validation};
+use crate::http::errors::{Error, ResultExt, Validation};
 use crate::http::extractors::UserID;
 use crate::http::jwt::issue_token;
+use crate::utils::hash_password;
 use axum::Json;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use std::sync::Arc;
 use url::Url;
 use utoipa::ToSchema;
+use validator::Validate;
+use validator_derive::Validate;
 
 /// Read current user.
 ///
@@ -43,7 +47,7 @@ pub(crate) async fn read_current_user(
     Ok(Json(payload))
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema, Validate)]
 pub struct UserUpdate {
     /// User's email, e.g. `rob.pike@gmail.com`.
     #[schema(nullable = false, example = "rob.pike@gmail.com", format = "email")]
@@ -98,34 +102,59 @@ pub(crate) async fn update_current_user(
     input: Result<Json<UserPayload<UserUpdate>>, JsonRejection>,
 ) -> Result<Json<UserPayload<User>>, Error> {
     let Json(UserPayload { user }) = input?;
-    drop(user.password);
-    let (email, username, image, bio) = if let Some(image_url) = user.image {
-        // TODO: let's include image URL update into the user update query
-        (
-            user.email.unwrap_or("r.pike@gmail.com".to_string()),
-            user.username.unwrap_or("r.pike1994".into()),
-            image_url,
-            user.bio.unwrap_or_default(),
-        )
+
+    user.validate()?;
+
+    let password_hash = if let Some(password) = user.password {
+        Some(hash_password(password)?)
     } else {
-        // TODO: without image update;
-        (
-            user.email.unwrap_or("r.pike@gmail.com".to_string()),
-            user.username.unwrap_or("r.pike10984".into()),
-            None,
-            user.bio.unwrap_or_default(),
-        )
+        None
     };
 
+    let updated_image = match &user.image {
+        None => None,
+        Some(None) => Some(""),
+        Some(Some(url)) => Some(url.as_str()),
+    };
+
+    let updated_user = sqlx::query!(
+        r#"
+            UPDATE "users"
+            SET email = coalesce($1, "users".email),
+                username = coalesce($2, "users".username),
+                bio = coalesce($3, "users".bio),
+                password_hash = coalesce($4, "users".password_hash),
+                image = coalesce($5, "users".image)
+            WHERE user_id = $6
+            returning email, username, bio, image
+        "#,
+        user.email,
+        user.username,
+        user.bio,
+        password_hash,
+        updated_image,
+        id.0
+    )
+    .fetch_one(&ctx.db)
+    .await
+    .on_constraint("user_username_key", |_| {
+        Error::unprocessable_entity([("username", "username taken")])
+    })
+    .on_constraint("user_email_key", |_| {
+        Error::unprocessable_entity([("email", "email taken")])
+    })?;
+
     let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
+
     let payload = UserPayload {
         user: User {
-            email,
+            email: updated_user.email,
             token: jwt_string,
-            username,
-            bio,
-            image,
+            username: updated_user.username,
+            bio: updated_user.bio,
+            image: utils::parse_image_url(updated_user.image.as_deref())?,
         },
     };
+
     Ok(Json(payload))
 }

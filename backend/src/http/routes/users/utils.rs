@@ -34,8 +34,13 @@ pub async fn check_captcha(captcha: Option<String>, ctx: &AppContext) -> Result<
 /// As a side-note, there is an extension that provides URI datatype in PostgreSQL:
 /// <https://github.com/petere/pguri>
 pub fn parse_image_url(raw: Option<&str>) -> Result<Option<Url>, Error> {
-    let image_url = raw
-        .map(|v| Url::parse(v).map_err(|_| anyhow!("Failed to parse stored image path as URL")))
-        .transpose()?;
-    Ok(image_url)
+    match raw {
+        None => Ok(None),
+        Some(s) if s.trim().is_empty() => Ok(None),
+        Some(s) => {
+            let url =
+                Url::parse(s).map_err(|_| anyhow!("Failed to parse stored image path as URL"))?;
+            Ok(Some(url))
+        }
+    }
 }
