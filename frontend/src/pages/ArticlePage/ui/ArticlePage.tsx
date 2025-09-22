@@ -5,7 +5,8 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { ArticlePayloadArticle, UserPayloadUser, useDeleteArticleMutation, useReadArticleQuery } from "@/shared/api/generated";
+import { useDeleteArticleMutation, useReadArticleQuery } from "@/shared/api";
+import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
 import MDEditor from "@uiw/react-md-editor";

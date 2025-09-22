@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useCreateArticleMutation, useReadArticleQuery } from "@/shared/api/generated";
+import { useCreateArticleMutation, useReadArticleQuery } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";

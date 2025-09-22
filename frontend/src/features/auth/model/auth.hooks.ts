@@ -5,15 +5,8 @@ import { useNavigate } from "react-router";
 import { SerializedError } from "@reduxjs/toolkit";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import {
-  ConfirmEmailApiArg,
-  LoginApiArg,
-  UpdateCurrentUserApiArg,
-  UserPayloadUser,
-  useConfirmEmailMutation,
-  useLoginMutation,
-  useUpdateCurrentUserMutation,
-} from "@/shared/api/generated";
+import { useConfirmEmailMutation, useLoginMutation, useUpdateCurrentUserMutation } from "@/shared/api";
+import type { ConfirmEmailApiArg, LoginApiArg, UpdateCurrentUserApiArg, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { AppState } from "@/shared/types/store.types";
 import z, { ZodError } from "zod";

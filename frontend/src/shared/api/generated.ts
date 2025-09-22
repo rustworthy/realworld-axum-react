@@ -278,14 +278,3 @@ export type UserPayloadLogin = {
     password: string;
   };
 };
-export const {
-  useListArticlesQuery,
-  useCreateArticleMutation,
-  useReadArticleQuery,
-  useDeleteArticleMutation,
-  useReadCurrentUserQuery,
-  useUpdateCurrentUserMutation,
-  useRegisterUserMutation,
-  useConfirmEmailMutation,
-  useLoginMutation,
-} = injectedRtkApi;
