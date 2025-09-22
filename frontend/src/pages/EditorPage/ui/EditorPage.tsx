@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useCreateArticleMutation, useReadArticleQuery } from "@/shared/api";
+import { useCreateArticleMutation, useReadArticleQuery, useUpdateArticleMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
@@ -65,12 +65,13 @@ const UpdateArticle = () => {
   if (!isLoading && !data) return <NotFoundPage />;
 
   const navigate = useNavigate();
-  const [create, { isLoading: isCreateArticleLoading }] = useCreateArticleMutation(); // TODO: update mutation
+  const [update, { isLoading: isUpdateArticleLoading }] = useUpdateArticleMutation();
   const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
 
   const onSubmit = async (data: TEditorPageSchema): Promise<void> => {
-    const result = await create({
-      articlePayloadArticleCreate: {
+    const result = await update({
+      slug: slug!,
+      articlePayloadArticleUpdate: {
         article: data,
       },
     });
@@ -101,7 +102,7 @@ const UpdateArticle = () => {
         initialValues={data!.article}
         initialErrors={initialErrors}
         onSubmit={onSubmit}
-        disabled={isCreateArticleLoading}
+        disabled={isUpdateArticleLoading}
       />
     </FormPage.Container>
   );

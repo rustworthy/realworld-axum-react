@@ -24,6 +24,13 @@ const injectedRtkApi = api.injectEndpoints({
     readArticle: build.query<ReadArticleApiResponse, ReadArticleApiArg>({
       query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}` }),
     }),
+    updateArticle: build.mutation<UpdateArticleApiResponse, UpdateArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}`,
+        method: "PUT",
+        body: queryArg.articlePayloadArticleUpdate,
+      }),
+    }),
     deleteArticle: build.mutation<DeleteArticleApiResponse, DeleteArticleApiArg>({
       query: (queryArg) => ({
         url: `/api/articles/${queryArg.slug}`,
@@ -87,9 +94,15 @@ export type ReadArticleApiArg = {
   /** Article slug identifier */
   slug: string;
 };
+export type UpdateArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
+export type UpdateArticleApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+  articlePayloadArticleUpdate: ArticlePayloadArticleUpdate;
+};
 export type DeleteArticleApiResponse = unknown;
 export type DeleteArticleApiArg = {
-  /** Article slug identifier */
+  /** Article's slug identifier. */
   slug: string;
 };
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -197,6 +210,20 @@ export type ArticlePayloadArticleCreate = {
         
         This is will be used to generate a slug for this article. */
     title: string;
+  };
+};
+export type ArticlePayloadArticleUpdate = {
+  article: {
+    /** Article's contents. */
+    body?: string;
+    /** Article's description. */
+    description?: string;
+    /** Tags. */
+    tagList?: string[];
+    /** Article's title.
+        
+        This is will be used to generate a slug for this article. */
+    title?: string;
   };
 };
 export type UserPayloadUser = {
