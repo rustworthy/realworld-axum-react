@@ -16,8 +16,8 @@ export default (() => {
     // we do not want the codegen to destructure and export hooks,
     // e.g. `useReadArtcileQuery`, `useCreateaArticleMutation`, etc.,
     // for us. Istead, we want to first enhance the generated `api`
-    // and after that export the hooks
-    // see: https://redux-toolkit.js.org/rtk-query/api/created-api/code-splitting#enhanceendpoints
+    // and after that export the hooks;
+    // see: https://redux-toolkit.js.org/rtk-query/api/created-api/code-splitting
     hooks: false,
   } satisfies ConfigFile;
 })();
