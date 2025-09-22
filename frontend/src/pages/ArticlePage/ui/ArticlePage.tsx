@@ -51,7 +51,7 @@ const ArticleMeta: FC<{ article: ArticlePayloadArticle["article"]; isAuthor: boo
             return;
           }
           toast.success("Your article has been delete.");
-          navigate(`${ROUTES.EDITOR}`, { replace: true });
+          navigate(ROUTES.EDITOR);
           break;
         }
         case "edit":

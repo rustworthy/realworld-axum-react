@@ -84,9 +84,10 @@ const UpdateArticle = () => {
           initialErrors[field as keyof TEditorPageSchema] = { type: "value", message: errors.join(". ") };
         }
         setInitialErrors(initialErrors);
-        toast.error("Failed to publish the article. Please check field errors and re-submit.");
-      }
-      if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
+        toast.error("Failed to update the article. Please check field errors and re-submit.");
+      } else if ((result.error as FetchBaseQueryError).status === 404) {
+        toast.error("Failed to update the article. Looks like article has been deleted.");
+      } else if ((result.error as FetchBaseQueryError).status === "FETCH_ERROR") {
         toast.error("Action failed. Please check your internet connection and retry.");
       }
       return;
