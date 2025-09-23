@@ -27,6 +27,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use tokio::net::TcpListener;
+use tower_http::services::ServeDir;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 
@@ -38,42 +39,6 @@ pub use config::{Config, MailerTransport};
 pub use telemetry::init_tracing;
 
 static OPENAPI_JSON: OnceLock<&'static str> = OnceLock::new();
-
-/// Scalar initial html.
-///
-/// Using [`solarized`](https://guides.scalar.com/scalar/scalar-api-references/themes)
-/// theme and ["suppressing"](https://stackoverflow.com/a/13416784) browser's favicon
-/// not found error.
-///
-/// If there is a need for a customized icon or there is a requirement to
-/// serve all the assets (scripts, fonts, images) from our server, this html
-/// can be placed to a directory like `docs` or `templates` (especially if a template
-/// engine is used) and co-located with the vendors' assets (including the scalar build
-/// that we can download from the CDN ahead of time), which then can be served
-/// with [`ServeDir`](https://docs.rs/tower-http/latest/tower_http/services/struct.ServeDir.html)
-static SCALAR_HTML: &str = r#"
-    <!doctype html>
-    <html>
-    <head>
-        <title>Realworld Axum React | API Docs</title>
-        <meta charset="utf-8"/>
-        <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    </head>
-    <body>
-        <noscript>
-            Scalar requires Javascript to function. Please enable it to browse the documentation.
-        </noscript>
-        <script 
-            id="api-reference" 
-            data-configuration='{"theme": "solarized"}' 
-            data-url="openapi.json" 
-        >
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-    </body>
-    </html>
-"#;
 
 pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
@@ -102,10 +67,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
                     )
                 }),
             )
-            .route(
-                &config.docs_ui_path.unwrap_or("/".to_string()),
-                get(|| async { ([(header::CONTENT_TYPE, "text/html")], SCALAR_HTML) }),
-            ),
+            .fallback_service(ServeDir::new("./static")),
     );
 
     // -------------------------- ATTACH DEBUG ROUTES --------------------------
