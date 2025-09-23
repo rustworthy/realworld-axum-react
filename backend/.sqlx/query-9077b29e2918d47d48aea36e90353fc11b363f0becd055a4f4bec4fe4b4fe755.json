@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH\n            existing_article AS (SELECT article_id FROM articles WHERE slug = $1),\n            _unfavorite_action AS (\n                DELETE FROM favorites\n                WHERE article_id = (SELECT article_id FROM existing_article) AND user_id = $2\n            )\n        SELECT article_id FROM existing_article\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "article_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9077b29e2918d47d48aea36e90353fc11b363f0becd055a4f4bec4fe4b4fe755"
+}

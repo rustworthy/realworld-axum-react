@@ -403,10 +403,34 @@ pub async fn favorite_article(
     Path(slug): Path<String>,
     uid: UserID,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
-    todo!()
+    let _article_id = sqlx::query_scalar!(
+        r#"
+        WITH
+            existing_article AS (SELECT article_id FROM articles WHERE slug = $1),
+            _favorite_action AS (
+                INSERT INTO favorites (article_id, user_id)
+                SELECT article_id, $2 FROM existing_article
+                ON CONFLICT DO NOTHING
+            )
+        SELECT article_id FROM existing_article
+        "#,
+        slug,
+        *uid
+    )
+    .fetch_optional(&ctx.db)
+    .await
+    // edge-case: a user has been deleted (or their ID has been changed which is
+    // less likely) but the token is still valid; we are signalling that they
+    // are not unathenticated so that we client-side app navigates they to try
+    // and login which should make things more clear
+    .on_constraint("favorites_user_id_fkey", |_| Error::Unauthorized)?
+    .ok_or(Error::NotFound)?;
+    let article = db::read_article(&ctx, &slug, Some(&uid)).await?;
+    Ok(Json(ArticlePayload { article }))
 }
 
 /// Unfavorite article.
+///
 ///
 /// This is essentially revoking the previously given "like" (see the `favorite`
 /// endpoint).
@@ -444,7 +468,29 @@ pub async fn unfavorite_article(
     Path(slug): Path<String>,
     uid: UserID,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
-    todo!()
+    let _article_id = sqlx::query_scalar!(
+        r#"
+        WITH
+            existing_article AS (SELECT article_id FROM articles WHERE slug = $1),
+            _unfavorite_action AS (
+                DELETE FROM favorites
+                WHERE article_id = (SELECT article_id FROM existing_article) AND user_id = $2
+            )
+        SELECT article_id FROM existing_article
+        "#,
+        slug,
+        *uid
+    )
+    .fetch_optional(&ctx.db)
+    .await
+    // edge-case: a user has been deleted (or their ID has been changed which is
+    // less likely) but the token is still valid; we are signalling that they
+    // are not unathenticated so that we client-side app navigates they to try
+    // and login which should make things more clear
+    .on_constraint("favorites_user_id_fkey", |_| Error::Unauthorized)?
+    .ok_or(Error::NotFound)?;
+    let article = db::read_article(&ctx, &slug, Some(&uid)).await?;
+    Ok(Json(ArticlePayload { article }))
 }
 
 mod db {

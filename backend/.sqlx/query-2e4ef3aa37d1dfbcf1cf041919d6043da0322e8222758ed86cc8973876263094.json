@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH\n            existing_article AS (SELECT article_id FROM articles WHERE slug = $1),\n            _favorite_action AS (\n                INSERT INTO favorites (article_id, user_id)\n                SELECT article_id, $2 FROM existing_article\n                ON CONFLICT DO NOTHING\n            )\n        SELECT article_id FROM existing_article\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "article_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2e4ef3aa37d1dfbcf1cf041919d6043da0322e8222758ed86cc8973876263094"
+}
