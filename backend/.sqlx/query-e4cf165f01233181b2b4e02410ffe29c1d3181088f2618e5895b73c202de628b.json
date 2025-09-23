@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                article.slug,\n                article.title,\n                article.description,\n                article.body,\n                article.tags,\n                article.created_at,\n                article.updated_at,\n                (\n                    $2::UUID IS NOT NULL AND\n                    EXISTS(\n                        SELECT 1 FROM favorites\n                        WHERE article_id = article.article_id AND user_id = $2::UUID\n                    )\n                ) AS \"favorited!\",\n                (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,\n                author.username AS author_username,\n                author.bio AS author_bio,\n                author.image AS author_image\n            FROM \"articles\" article\n            JOIN \"users\" author USING (user_id)\n            WHERE slug = $1;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "body",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "tags",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "favorited!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "favorited_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "author_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "author_bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "author_image",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      null,
+      null,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "e4cf165f01233181b2b4e02410ffe29c1d3181088f2618e5895b73c202de628b"
+}

@@ -2,6 +2,7 @@
 
 use super::Article;
 use crate::http::errors::Error;
+use crate::http::extractors::MaybeUserID;
 use crate::http::routes::articles::{self, Author};
 use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
@@ -12,6 +13,7 @@ use sqlx::Acquire;
 use std::sync::Arc;
 use tower_http::follow_redirect::policy::PolicyExt;
 use utoipa::{IntoParams, ToSchema};
+use uuid::Uuid;
 use validator::Validate;
 use validator_derive::Validate;
 
@@ -56,6 +58,10 @@ pub(crate) struct ListQuery {
 }
 
 /// List articles.
+///
+/// Authentication is _optional_, but needed to learn if, for each article,
+/// the article has been favorited (a.k.a. liked) by the user, or whether
+/// the user is following the article's author.
 #[utoipa::path(
     get,
     path = "",
@@ -63,7 +69,12 @@ pub(crate) struct ListQuery {
     params(ListQuery),
     responses(
         (status = 200, description = "Articles list successfully retrieved", body = [ArticlesList]),
+        (status = 401, description = "Token missing or invalid (in case authenicated access has been used)"),
         (status = 500, description = "Internal server error."),
+    ),
+    security(
+        (),
+        ("HttpAuthBearerJWT" = []),
     ),
 )]
 #[instrument(name = "LIST ARTICLES", skip_all)]
@@ -77,6 +88,7 @@ pub async fn list_articles(
     // fir the same reason, see for example how we are extracting article details
     // in `create_article` handler in `http::routes::articles::crud` module;
     q: Result<Query<ListQuery>, QueryRejection>,
+    uid: MaybeUserID,
 ) -> Result<Json<ArticlesList>, Error> {
     let Query(q) = q?;
     q.validate()?;
@@ -91,6 +103,14 @@ pub async fn list_articles(
             article.tags,
             article.created_at,
             article.updated_at,
+            (
+                $5::UUID IS NOT NULL AND
+                EXISTS(
+                    SELECT 1 FROM favorites
+                    WHERE article_id = article.article_id AND user_id = $5::UUID
+                )
+            ) AS "favorited!",
+            (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,
             author.username as "author_username",
             author.bio as "author_bio",
             author.image as "author_image"
@@ -107,6 +127,7 @@ pub async fn list_articles(
         q.tag,
         q.offset.unwrap_or(DEFAULT_OFFSET) as i64,
         q.limit.unwrap_or(DEFAULT_LIMIT) as i64,
+        uid.0.as_deref(),
     )
     .fetch_all(&ctx.db)
     .await?;
@@ -170,14 +191,15 @@ pub async fn list_articles(
                 tags: item.tags,
                 created_at: item.created_at,
                 updated_at: item.updated_at.unwrap_or(item.created_at),
-                favorited: false, // TODO: update once supported for authed user is added
-                favorited_count: 0, // TODO: upadte once "favorites" table is added
+                favorited: item.favorited,
+                favorited_count: item.favorited_count.unwrap_or_default() as usize,
                 author: {
                     Author {
                         username: item.author_username,
                         bio: item.author_bio,
                         image: parse_image_url(item.author_image.as_deref())?,
-                        following: false, // TODO: upd once authed user case is added
+                        // TODO: update once the follow/unfollow logic is there
+                        following: false,
                     }
                 },
             };

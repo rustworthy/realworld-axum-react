@@ -1,5 +1,6 @@
 use super::{Article, ArticlePayload, Author};
 use crate::http::errors::ResultExt as _;
+use crate::http::extractors::MaybeUserID;
 use crate::http::routes::users;
 use crate::{
     http::{
@@ -257,7 +258,7 @@ pub async fn update_article(
     })?;
 
     if let Some(slug) = details.new_slug {
-        let article = db::read_article(&ctx, &slug).await?;
+        let article = db::read_article(&ctx, &slug, Some(&uid)).await?;
         return Ok((StatusCode::OK, Json(ArticlePayload { article })));
     }
 
@@ -274,7 +275,9 @@ pub async fn update_article(
 /// Read article by slug.
 ///
 /// This will fetch an article by its unique slug identifier.
-/// No authentication is required to read articles.
+/// Authentication is _optional_, but needed to learn if the article has been
+/// favorited (a.k.a. liked) by the user, or whether the user is following
+/// the article's author.
 #[utoipa::path(
     get,
     path = "/{slug}",
@@ -289,16 +292,23 @@ pub async fn update_article(
     ),
     responses(
         (status = 200, description = "Article successfully retrieved", body = ArticlePayload<Article>),
+        (status = 401, description = "Token missing or invalid (in case authenicated access has been used)"),
         (status = 404, description = "Article not found"),
         (status = 500, description = "Internal server error."),
+    ),
+    security(
+        (),
+        ("HttpAuthBearerJWT" = []),
     ),
 )]
 #[instrument(name = "READ ARTICLE", skip(ctx))]
 pub async fn read_article(
     ctx: State<Arc<AppContext>>,
     Path(slug): Path<String>,
+    uid: MaybeUserID,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
-    let article = db::read_article(&ctx, &slug).await?;
+    let uid = uid.0.as_deref();
+    let article = db::read_article(&ctx, &slug, uid).await?;
     Ok(Json(ArticlePayload { article }))
 }
 
@@ -363,34 +373,49 @@ pub async fn delete_article(
     Err(err)
 }
 
+// ------------------------ FAVORITE / UNFAVORITE -----------------------------
+
 mod db {
     use crate::AppContext;
     use crate::http::errors::Error;
     use crate::http::routes::articles::Article;
     use crate::http::routes::articles::Author;
     use crate::http::routes::users::utils as users_utils;
+    use uuid::Uuid;
 
     #[instrument(name = "FETCH ARTICLE FROM DATABASE", skip(ctx))]
-    pub async fn read_article(ctx: &AppContext, slug: &str) -> Result<Article, Error> {
+    pub async fn read_article(
+        ctx: &AppContext,
+        slug: &str,
+        user_id: Option<&Uuid>,
+    ) -> Result<Article, Error> {
         let details = sqlx::query!(
             r#"
-        SELECT
-            article.slug,
-            article.title,
-            article.description,
-            article.body,
-            article.tags,
-            article.created_at,
-            article.updated_at,
-            article.favorited_count,
-            author.username as author_username,
-            author.bio as author_bio,
-            author.image as author_image
-        FROM "articles" article
-        JOIN "users" author USING (user_id)
-        WHERE slug = $1;
-        "#,
+            SELECT
+                article.slug,
+                article.title,
+                article.description,
+                article.body,
+                article.tags,
+                article.created_at,
+                article.updated_at,
+                (
+                    $2::UUID IS NOT NULL AND
+                    EXISTS(
+                        SELECT 1 FROM favorites
+                        WHERE article_id = article.article_id AND user_id = $2::UUID
+                    )
+                ) AS "favorited!",
+                (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,
+                author.username AS author_username,
+                author.bio AS author_bio,
+                author.image AS author_image
+            FROM "articles" article
+            JOIN "users" author USING (user_id)
+            WHERE slug = $1;
+            "#,
             slug,
+            user_id
         )
         .fetch_optional(&ctx.db)
         .await?
@@ -404,16 +429,13 @@ mod db {
             tags: details.tags,
             created_at: details.created_at,
             updated_at: details.updated_at.unwrap_or(details.created_at),
-            // since this endpoint does not require authentication, there is
-            // no way to tell if the article has been favorited by them
-            favorited: false,
-            favorited_count: details.favorited_count.try_into().unwrap_or(0),
+            favorited: details.favorited,
+            favorited_count: details.favorited_count.unwrap_or_default() as usize,
             author: Author {
                 bio: details.author_bio,
                 image: users_utils::parse_image_url(details.author_image.as_deref())?,
                 username: details.author_username,
-                // Similar to `favorited`, we cannot tell if they are following
-                // the author and we are defaulting this to `false`
+                // TODO: update once the follow/unfollow logic is there
                 following: false,
             },
         })
