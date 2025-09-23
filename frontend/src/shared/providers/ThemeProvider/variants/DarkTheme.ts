@@ -14,7 +14,7 @@ const palette = {
 export const DarkTheme: AppThemeType = {
   page: {
     home: {
-      bannner: {
+      banner: {
         textColor: palette.c01,
         backgroundColor: palette.c03,
       },

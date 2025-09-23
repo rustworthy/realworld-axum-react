@@ -10,8 +10,8 @@ export const PageWrapper = styled.div`
 
 export const Banner = styled.div`
   height: 170px;
-  color: ${({ theme }) => theme.page.home.bannner.textColor};
-  background-color: ${({ theme }) => theme.page.home.bannner.backgroundColor};
+  color: ${({ theme }) => theme.page.home.banner.textColor};
+  background-color: ${({ theme }) => theme.page.home.banner.backgroundColor};
 `;
 
 export const BannerContainer = styled(LayoutContainer)`

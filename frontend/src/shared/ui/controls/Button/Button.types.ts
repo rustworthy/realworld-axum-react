@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export interface IButton {
+export interface IButtonProps {
   dataTestId: string;
   className?: string;
   children?: ReactNode;

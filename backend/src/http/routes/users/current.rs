@@ -72,7 +72,7 @@ pub struct UserUpdate {
     bio: Option<String>,
 
     /// New password.
-    #[schema(nullable = false, min_length = 12, example = "Whoami@g00gle")]
+    #[schema(nullable = true, min_length = 12, example = "Whoami@g00gle")]
     #[validate(length(min = 12, message = "password should be at least 12 characters long"))]
     password: Option<String>,
 

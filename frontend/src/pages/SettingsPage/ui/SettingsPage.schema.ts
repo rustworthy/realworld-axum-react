@@ -6,8 +6,11 @@ export const settingsPageSchema = z.object({
   username: z.string().nonempty({ error: "Cannot be empty." }),
   password: z
     .string()
-    .min(PASSWORD_MIN_LENGTH, `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`)
-    .or(z.literal("")),
+    .transform((val) => (val.trim() === "" ? null : val))
+    .nullable()
+    .refine((val) => val === null || val.length >= PASSWORD_MIN_LENGTH, {
+      message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`,
+    }),
   bio: z.string(),
   image: z.preprocess((val) => (val === "" ? null : val), z.url({ message: "Valid URL required." }).nullable()),
 });

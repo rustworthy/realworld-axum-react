@@ -11,7 +11,7 @@ const palette = {
 export const LightTheme = {
   page: {
     home: {
-      bannner: {
+      banner: {
         textColor: palette.c02,
         backgroundColor: palette.c03,
       },
