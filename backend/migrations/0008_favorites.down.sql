@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "favorites";
+
+ALTER TABLE "articles" ADD COLUMN favorited_count INTEGER NOT NULL DEFAULT 0;
