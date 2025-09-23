@@ -77,7 +77,6 @@ pub struct ArticleCreate {
     fields(slug = tracing::field::Empty)
     skip_all,
 )]
-#[allow(unused_variables)]
 pub async fn create_article(
     ctx: State<Arc<AppContext>>,
     id: UserID,
@@ -222,7 +221,7 @@ pub async fn update_article(
     Path(slug): Path<String>,
     uid: UserID,
     input: Result<Json<ArticlePayload<ArticleUpdate>>, JsonRejection>,
-) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
+) -> Result<Json<ArticlePayload<Article>>, Error> {
     let ArticlePayload { article: patch } = input?.0;
     patch.validate()?;
     let new_slug = patch.title.as_deref().map(slug::slugify);
@@ -259,7 +258,7 @@ pub async fn update_article(
 
     if let Some(slug) = details.new_slug {
         let article = db::read_article(&ctx, &slug, Some(&uid)).await?;
-        return Ok((StatusCode::OK, Json(ArticlePayload { article })));
+        return Ok(Json(ArticlePayload { article }));
     }
 
     let err = if details.existed {
@@ -374,6 +373,79 @@ pub async fn delete_article(
 }
 
 // ------------------------ FAVORITE / UNFAVORITE -----------------------------
+/// Favorite article.
+///
+/// Note that this operation is idempotent: if this user already liked
+/// the article in question, a successful response will be returned.
+#[utoipa::path(
+    post,
+    path = "/{slug}/favorite",
+    tags = ["Articles"],
+    params(
+        (
+            "slug" = String, Path,
+            format = "slug",
+            description = "Article's slug identifier.",
+            example = "how-to-design-a-programming-language"
+        ),
+    ),
+    responses(
+        (status = 200, description = "Article successfully updated", body = ArticlePayload<Article>),
+        (status = 401, description = "Token missing or invalid."),
+        (status = 404, description = "Article not found"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(("HttpAuthBearerJWT" = [])),
+)]
+#[instrument(name = "FAVORITE ARTICLE", skip(ctx))]
+pub async fn favorite_article(
+    ctx: State<Arc<AppContext>>,
+    Path(slug): Path<String>,
+    uid: UserID,
+) -> Result<Json<ArticlePayload<Article>>, Error> {
+    todo!()
+}
+
+/// Unfavorite article.
+///
+/// This is essentially revoking the previously given "like" (see the `favorite`
+/// endpoint).
+///
+/// Similar to the `favorite` endpoint, this operation is idempotent: if this
+/// user already revoked their like (or never liked in the first place), a successful
+/// response will be returned.
+///
+/// Note that in the docs a generic example of a returned `article` may have
+/// `"favited": true`, but in reality this will havae `false` since they are
+/// revoking their "like".
+#[utoipa::path(
+    delete,
+    path = "/{slug}/favorite",
+    tags = ["Articles"],
+    params(
+        (
+            "slug" = String, Path,
+            format = "slug",
+            description = "Article's slug identifier.",
+            example = "how-to-design-a-programming-language"
+        ),
+    ),
+    responses(
+        (status = 200, description = "Article successfully updated", body = ArticlePayload<Article>),
+        (status = 401, description = "Token missing or invalid."),
+        (status = 404, description = "Article not found"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(("HttpAuthBearerJWT" = [])),
+)]
+#[instrument(name = "UNFAVORITE ARTICLE", skip(ctx))]
+pub async fn unfavorite_article(
+    ctx: State<Arc<AppContext>>,
+    Path(slug): Path<String>,
+    uid: UserID,
+) -> Result<Json<ArticlePayload<Article>>, Error> {
+    todo!()
+}
 
 mod db {
     use crate::AppContext;
