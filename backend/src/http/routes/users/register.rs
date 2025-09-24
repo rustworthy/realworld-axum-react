@@ -70,7 +70,11 @@ pub struct Registration {
 )]
 #[instrument(
     name = "REGISTER USER",
-    fields(email_id = tracing::field::Empty)
+    fields(
+        email_id = tracing::field::Empty,
+        email = tracing::field::Empty,
+        username = tracing::field::Empty
+    )
     skip_all,
 )]
 pub(crate) async fn register_user(
@@ -78,6 +82,8 @@ pub(crate) async fn register_user(
     input: Result<Json<UserPayload<Registration>>, JsonRejection>,
 ) -> Result<(StatusCode, Json<UserPayload<User>>), Error> {
     let Json(UserPayload { mut user }) = input?;
+    Span::current().record("email", &user.email);
+    Span::current().record("username", &user.username);
 
     check_captcha(user.captcha.take(), &ctx).await?;
 
