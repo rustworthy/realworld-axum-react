@@ -1,5 +1,6 @@
 use crate::utils::TestContext;
 use crate::utils::fake;
+use crate::utils::fake::gen_articles;
 use reqwest::StatusCode;
 use serde_json::{Value, json};
 
@@ -428,10 +429,190 @@ async fn delete_article(ctx: TestContext) {
     )
 }
 
+async fn favorite_article(ctx: TestContext) {
+    // user1 will be the aricle's author ...
+    let user1 = fake::create_activated_user(&ctx).await;
+    let articles = gen_articles(&ctx.backend_url, &user1.token, 1, None).await;
+    let slug = articles.first().unwrap();
+    // and user2 will be the article's reader
+    let user2 = fake::create_activated_user(&ctx).await;
+
+    // authenticated user2 reads the article and observes that
+    // they never favorited it, and in general no one have (just yet)
+    let article = utils::read_article(&ctx, slug, Some(user2.token.as_str())).await;
+    assert_eq!(article.get("favoritesCount").unwrap(), 0);
+    assert_eq!(article.get("favorited").unwrap(), false);
+    // sanity: let's verify user1 authored this article indeed
+    let author = article.get("author").unwrap().as_object().unwrap();
+    assert_eq!(author.get("username").unwrap(), &user1.username);
+
+    // now let's try to favorite the artcile w/o auth
+    let favorite_url = ctx
+        .backend_url
+        .join(&format!("/api/articles/{}/favorite", slug))
+        .unwrap();
+    let resp = ctx
+        .http_client
+        .post(favorite_url.clone())
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNAUTHORIZED); // auth required
+
+    // let's send an authenticated request but trying to favorite
+    // an article that does not exist
+    let resp = ctx
+        .http_client
+        .post(
+            ctx.backend_url
+                // we are pretty sure 404 slug is not there
+                .join(&format!("/api/articles/{}/favorite", 404))
+                .unwrap(),
+        )
+        .bearer_auth(&user2.token)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+
+    // let's not send authenticated "like" for our article ...
+    let resp = ctx
+        .http_client
+        .post(favorite_url.clone())
+        .bearer_auth(&user2.token)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    // ... and inspect the returned article details
+    let resp: Value = resp.json().await.unwrap();
+    let article = resp.get("article").unwrap().to_owned();
+    assert_eq!(article.get("favoritesCount").unwrap(), 1);
+    assert_eq!(article.get("favorited").unwrap(), true);
+
+    // favoriting twice does nothing
+    let resp = ctx
+        .http_client
+        .post(favorite_url.clone()) // same article
+        .bearer_auth(&user2.token) // same user
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    // ... and inspect the returned article details
+    let resp: Value = resp.json().await.unwrap();
+    let article = resp.get("article").unwrap().to_owned();
+    assert_eq!(article.get("favoritesCount").unwrap(), 1); // same result
+    assert_eq!(article.get("favorited").unwrap(), true);
+
+    // let's imagine the article's author now decided to read it
+    let article = utils::read_article(&ctx, slug, Some(&user1.token)).await;
+    // user2's like is there, but ...
+    assert_eq!(article.get("favoritesCount").unwrap(), 1);
+    // ... user1 never favorited their own article
+    assert_eq!(article.get("favorited").unwrap(), false);
+
+    // user1 now decides to "like" their own article
+    let resp = ctx
+        .http_client
+        .post(favorite_url.clone()) // user1's article
+        .bearer_auth(&user1.token) // user1's "like"
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let resp: Value = resp.json().await.unwrap();
+    let article = resp.get("article").unwrap().to_owned();
+    assert_eq!(article.get("favoritesCount").unwrap(), 2); // user1 + user2
+    assert_eq!(article.get("favorited").unwrap(), true);
+
+    // let's check "likes" in the database
+    let nlikes: i64 = sqlx::query_scalar(
+        r#"
+        SELECT COUNT(*) FROM favorites JOIN articles USING (article_id)
+        WHERE articles.slug = $1
+        "#,
+    )
+    .bind(slug)
+    .fetch_one(&ctx.db_pool)
+    .await
+    .unwrap();
+    assert_eq!(nlikes, 2);
+
+    // let's now roll everything back;
+    // user2 - who was first to like the article - descides to
+    // revoke their "like""
+    let resp = ctx
+        .http_client
+        // NB it's same URL, but it's DELETE verb
+        .delete(favorite_url.clone())
+        .bearer_auth(&user2.token)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let resp: Value = resp.json().await.unwrap();
+    let article = resp.get("article").unwrap().to_owned();
+    // user1's "like" is still there
+    assert_eq!(article.get("favoritesCount").unwrap(), 1);
+    // but user2 does not like this article any more
+    assert_eq!(article.get("favorited").unwrap(), false);
+
+    // user1 decides to revoke their "like" as well
+    let resp = ctx
+        .http_client
+        .delete(favorite_url)
+        .bearer_auth(&user1.token)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let resp: Value = resp.json().await.unwrap();
+    let article = resp.get("article").unwrap().to_owned();
+    // we are in our initial state now
+    assert_eq!(article.get("favoritesCount").unwrap(), 0);
+    assert_eq!(article.get("favorited").unwrap(), false);
+
+    // db check
+    let nlikes: i64 = sqlx::query_scalar(
+        r#"
+        SELECT COUNT(*) FROM favorites JOIN articles USING (article_id)
+        WHERE articles.slug = $1
+        "#,
+    )
+    .bind(slug)
+    .fetch_one(&ctx.db_pool)
+    .await
+    .unwrap();
+    assert_eq!(nlikes, 0);
+}
+
+mod utils {
+    use crate::utils::TestContext;
+    use reqwest::StatusCode;
+    use serde_json::Value;
+
+    pub async fn read_article(ctx: &TestContext, slug: &str, token: Option<&str>) -> Value {
+        let read_url = ctx
+            .backend_url
+            .join(&format!("/api/articles/{}", slug))
+            .unwrap();
+        let mut request = ctx.http_client.get(read_url);
+        if let Some(token) = token {
+            request = request.bearer_auth(token);
+        };
+        let read_response = request.send().await.unwrap();
+        assert_eq!(read_response.status(), StatusCode::OK);
+        let resp: Value = read_response.json().await.unwrap();
+        resp.get("article").unwrap().to_owned()
+    }
+}
+
 mod tests {
     crate::async_test!(create_article_no_authentication);
     crate::async_test!(create_article_empty_payload);
     crate::async_test!(create_article_payload_issues);
     crate::async_test!(create_article_and_read_it);
     crate::async_test!(delete_article);
+    crate::async_test!(favorite_article);
 }
