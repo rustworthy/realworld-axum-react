@@ -104,8 +104,9 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
         .routes(routes!(
             crud::create_article,
             crud::update_article,
-            crud::delete_article
+            crud::delete_article,
         ))
+        .routes(routes!(crud::favorite_article, crud::unfavorite_article,))
         .routes(routes!(crud::read_article))
         .routes(routes!(list::list_articles));
 
