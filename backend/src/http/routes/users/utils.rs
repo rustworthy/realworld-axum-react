@@ -5,8 +5,13 @@ use url::Url;
 pub async fn check_captcha(captcha: Option<String>, ctx: &AppContext) -> Result<(), Error> {
     match captcha {
         Some(token) => {
-            let result = ctx.captcha.verify(token).await?;
+            let result = ctx.captcha.verify(&token).await?;
             if !result.success {
+                warn!(
+                    failed_token = token,
+                    error_codes = ?result.error_codes,
+                    "captcha verification failed"
+                );
                 Err(Error::unprocessable_entity([(
                     "captcha",
                     "invalid or expired",

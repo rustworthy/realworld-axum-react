@@ -11,11 +11,13 @@ pub struct Captcha {
 
 /// Tursntile server response payload.
 ///
-/// Decribe other props (will be an enum of successful and faield check) if needed
+/// Describe other props (will be an enum of successful and faield check) if needed
 /// as per [docs](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/#api-response-format)
 #[derive(Debug, Clone, Deserialize)]
 pub struct VerificationResult {
     pub success: bool,
+    #[serde(rename = "error-codes")]
+    pub error_codes: Vec<String>,
 }
 
 impl Captcha {
