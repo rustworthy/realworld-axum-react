@@ -258,7 +258,7 @@ export type UserPayloadUserUpdate = {
         Specifying `null` means removing the image altogether. */
     image?: string | null;
     /** New password. */
-    password?: string | null;
+    password?: string;
     /** User's name or nickname.
         
         This is  - just like the user's `email` - case-insensitively unique
