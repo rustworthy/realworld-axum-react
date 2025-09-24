@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            coalesce(count(*) OVER(), 0) \"count!\",\n            article.slug,\n            article.title,\n            article.description,\n            article.tags,\n            article.created_at,\n            article.updated_at,\n            (\n                $5::UUID IS NOT NULL AND\n                EXISTS(\n                    SELECT 1 FROM favorites\n                    WHERE article_id = article.article_id AND user_id = $5::UUID\n                )\n            ) AS \"favorited!\",\n            (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,\n            author.username as \"author_username\",\n            author.bio as \"author_bio\",\n            author.image as \"author_image\"\n        FROM\n            \"articles\" article JOIN \"users\" author USING (user_id)\n        WHERE\n            ($1::text IS NULL OR author.username = $1::text) AND\n            ($2::text IS NULL OR article.tags @> ARRAY[$2::text])\n        ORDER BY article.created_at DESC\n        OFFSET $3\n        LIMIT $4\n    ",
+  "query": "\n        SELECT\n            coalesce(count(*) OVER(), 0) \"count!\",\n            article.slug,\n            article.title,\n            article.description,\n            article.tags,\n            article.created_at,\n            article.updated_at,\n            (\n                $6::UUID IS NOT NULL AND\n                EXISTS(\n                    SELECT 1 FROM favorites\n                    WHERE article_id = article.article_id AND user_id = $6::UUID\n                )\n            ) AS \"favorited!\",\n            (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,\n            author.username as \"author_username\",\n            author.bio as \"author_bio\",\n            author.image as \"author_image\"\n        FROM\n            \"articles\" article JOIN \"users\" author USING (user_id)\n        WHERE\n            ($1::text IS NULL OR author.username = $1::text) AND\n            ($2::text IS NULL OR article.tags @> ARRAY[$2::text]) AND\n            (\n                $3::text IS NULL OR\n                EXISTS(\n                    SELECT 1 FROM favorites fav JOIN users USING (user_id)\n                    WHERE fav.article_id = article.article_id AND username = $3\n                )\n            )\n        ORDER BY article.created_at DESC\n        OFFSET $4\n        LIMIT $5\n    ",
   "describe": {
     "columns": [
       {
@@ -68,6 +68,7 @@
       "Left": [
         "Text",
         "Text",
+        "Text",
         "Int8",
         "Int8",
         "Uuid"
@@ -88,5 +89,5 @@
       true
     ]
   },
-  "hash": "b8bf980123f41bb3b9b49b7637a9c73df90c4d09bd7791e44411f0c98fa77d00"
+  "hash": "400eab5dab9cbd22078239276153f20141ba126286d5d598239bc1f31ab8c9b5"
 }

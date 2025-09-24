@@ -48,7 +48,6 @@ pub fn hash_password(password: impl AsRef<[u8]>) -> anyhow::Result<String> {
     Ok(password_hash)
 }
 
-#[allow(unused)]
 pub fn verify_password(
     password: impl AsRef<[u8]>,
     password_hash: impl AsRef<str>,

@@ -215,7 +215,6 @@ pub struct ArticleUpdate {
     security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "UPDATE ARTICLE", skip(ctx, input))]
-#[allow(unused_variables)]
 pub async fn update_article(
     ctx: State<Arc<AppContext>>,
     Path(slug): Path<String>,

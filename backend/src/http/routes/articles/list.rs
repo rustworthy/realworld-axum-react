@@ -1,19 +1,14 @@
-#![allow(unused)]
-
 use super::Article;
 use crate::http::errors::Error;
 use crate::http::extractors::MaybeUserID;
-use crate::http::routes::articles::{self, Author};
+use crate::http::routes::articles::Author;
 use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
 use axum::Json;
-use axum::extract::rejection::{FailedToDeserializeQueryString, QueryRejection};
+use axum::extract::rejection::QueryRejection;
 use axum::extract::{Query, State};
-use sqlx::Acquire;
 use std::sync::Arc;
-use tower_http::follow_redirect::policy::PolicyExt;
 use utoipa::{IntoParams, ToSchema};
-use uuid::Uuid;
 use validator::Validate;
 use validator_derive::Validate;
 
@@ -104,10 +99,10 @@ pub async fn list_articles(
             article.created_at,
             article.updated_at,
             (
-                $5::UUID IS NOT NULL AND
+                $6::UUID IS NOT NULL AND
                 EXISTS(
                     SELECT 1 FROM favorites
-                    WHERE article_id = article.article_id AND user_id = $5::UUID
+                    WHERE article_id = article.article_id AND user_id = $6::UUID
                 )
             ) AS "favorited!",
             (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,
@@ -118,13 +113,21 @@ pub async fn list_articles(
             "articles" article JOIN "users" author USING (user_id)
         WHERE
             ($1::text IS NULL OR author.username = $1::text) AND
-            ($2::text IS NULL OR article.tags @> ARRAY[$2::text])
+            ($2::text IS NULL OR article.tags @> ARRAY[$2::text]) AND
+            (
+                $3::text IS NULL OR
+                EXISTS(
+                    SELECT 1 FROM favorites fav JOIN users USING (user_id)
+                    WHERE fav.article_id = article.article_id AND username = $3
+                )
+            )
         ORDER BY article.created_at DESC
-        OFFSET $3
-        LIMIT $4
+        OFFSET $4
+        LIMIT $5
     "#,
         q.author,
         q.tag,
+        q.favorited,
         q.offset.unwrap_or(DEFAULT_OFFSET) as i64,
         q.limit.unwrap_or(DEFAULT_LIMIT) as i64,
         uid.0.as_deref(),
