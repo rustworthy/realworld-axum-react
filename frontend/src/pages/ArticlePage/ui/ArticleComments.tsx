@@ -1,9 +1,9 @@
 import { FC } from "react";
 
 import type { UserPayloadUser } from "@/shared/api";
+import { formatDate } from "@/shared/lib/utils";
 
 import * as S from "./ArticlePage.styles";
-import { formatDate } from "./utils";
 
 export const ArticleComments: FC<{ user: UserPayloadUser["user"] | null }> = ({ user }) => {
   const comments = [

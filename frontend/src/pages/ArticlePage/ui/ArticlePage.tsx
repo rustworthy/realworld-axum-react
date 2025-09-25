@@ -7,7 +7,7 @@ import { useReadArticleQuery } from "@/shared/api";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { ArticleComments } from "./ArtcileComments";
+import { ArticleComments } from "./ArticleComments";
 import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
 
