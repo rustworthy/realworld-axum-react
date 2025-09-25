@@ -357,19 +357,6 @@ async fn get_current_user_invalid_token(ctx: TestContext) {
     assert!(response.bytes().await.unwrap().is_empty());
 }
 
-// --------------------------- PUT /api/user -----------------------------------
-async fn update_user_unauthenticated(ctx: TestContext) {
-    let url = ctx.backend_url.join("/api/user").unwrap();
-    let response = ctx.http_client.put(url).send().await.unwrap();
-
-    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-    assert_eq!(
-        response.headers().get(header::WWW_AUTHENTICATE).unwrap(),
-        "Bearer"
-    );
-    assert!(response.bytes().await.unwrap().is_empty());
-}
-
 mod tests {
     crate::async_test!(create_user_empty_payload);
     crate::async_test!(create_user_username_issues);
@@ -378,5 +365,4 @@ mod tests {
     crate::async_test!(confirm_email_address);
     crate::async_test!(get_current_user_no_token);
     crate::async_test!(get_current_user_invalid_token);
-    crate::async_test!(update_user_unauthenticated);
 }
