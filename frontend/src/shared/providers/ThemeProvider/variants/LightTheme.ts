@@ -6,6 +6,7 @@ const palette = {
   c04: "#449d44",
   c05: "#B85C5C",
   c06: "#CCCCCC",
+  c07: "#AAAAAA",
 };
 
 export const LightTheme = {
@@ -25,10 +26,7 @@ export const LightTheme = {
         textColor: palette.c01,
         backgroundColor: palette.c02,
       },
-      tag: {
-        textColor: palette.c02,
-        backgroundColor: "#ccc",
-      },
+
       separator: {
         backgroundColor: "#e5e5e5",
       },
@@ -74,6 +72,26 @@ export const LightTheme = {
         separator: {
           backgroundColor: palette.c03,
         },
+      },
+    },
+    tabs: {
+      container: {
+        borderColor: palette.c06,
+      },
+      link: {
+        color: palette.c07,
+        borderColor: "transparent",
+        active: {
+          color: palette.c07,
+          borderColor: palette.c03,
+        },
+      },
+    },
+    tag: {
+      textColor: palette.c02,
+      backgroundColor: "#818a91",
+      active: {
+        backgroundColor: "#687077",
       },
     },
     button: {

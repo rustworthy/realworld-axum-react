@@ -167,22 +167,6 @@ export const ArticleContent = styled.div`
   }
 `;
 
-export const TagList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
-  display: flex;
-  gap: 8px;
-`;
-
-export const Tag = styled.li`
-  background: ${({ theme }) => theme.page.article.tag.backgroundColor};
-  color: ${({ theme }) => theme.page.article.tag.textColor};
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-`;
-
 export const Separator = styled.hr`
   border: none;
   height: 1px;
