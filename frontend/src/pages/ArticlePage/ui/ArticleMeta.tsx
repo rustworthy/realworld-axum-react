@@ -3,11 +3,11 @@ import { useNavigate } from "react-router";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import { useDeleteArticleMutation } from "@/shared/api";
+import { useDeleteArticleMutation, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "@/shared/api";
 import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { ANY_TODO } from "@/shared/types/common.types";
-import { HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
+import { HeartFilledIcon, HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
 import * as S from "./ArticlePage.styles";
@@ -24,10 +24,12 @@ export type ArticleMetaProps = {
 export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
   const navigate = useNavigate();
   const [deleteArticle, { isLoading: isDeleteLoading }] = useDeleteArticleMutation();
+  const [favArticle, { isLoading: isFavLoading }] = useFavoriteArticleMutation();
+  const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();
 
   const username = article.author.username;
   const profilePath = `/profile/${username}`;
-  const isLoading = isDeleteLoading;
+  const isLoading = isDeleteLoading || isFavLoading || isUnfavLoading;
   const isAuthor = username === user?.username;
 
   const performAction = useCallback(
@@ -48,7 +50,15 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
           }
           toast.success("Your article has been delete.");
           navigate(ROUTES.EDITOR);
-          break;
+          return;
+        }
+        case "favorite": {
+          const _result = await favArticle({ slug: article.slug });
+          return;
+        }
+        case "unfavorite": {
+          const _result = await unfavArticle({ slug: article.slug });
+          return;
         }
         case "edit":
           navigate(`${ROUTES.EDITOR}/${article.slug}`);
@@ -75,27 +85,47 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
         </S.AuthorInfoNameBlock>
       </S.AuthorInfo>
 
-      <S.ArticleActions>
-        <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-secondary">
-          <PlusCircledIcon />
-          Follow {article.author.username}
-        </S.ActionButton>
+      {user ? (
+        <S.ArticleActions>
+          <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-secondary">
+            <PlusCircledIcon />
+            Follow {article.author.username}
+          </S.ActionButton>
 
-        <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-primary">
-          <HeartIcon />
-          Favorite Article <span>({article.favoritesCount})</span>
-        </S.ActionButton>
+          {/* --------------------- favorite/unfavorite ------------------ */}
+          {article.favorited ? (
+            <S.ActionButton onClick={() => performAction("unfavorite")} disabled={isLoading} className="btn-outline-primary">
+              <HeartFilledIcon />
+              Unfavorite Article <span>({article.favoritesCount})</span>
+            </S.ActionButton>
+          ) : (
+            <S.ActionButton onClick={() => performAction("favorite")} disabled={isLoading} className="btn-outline-primary">
+              <HeartIcon />
+              Favorite Article <span>({article.favoritesCount})</span>
+            </S.ActionButton>
+          )}
 
-        <S.ActionButton disabled={!isAuthor || isLoading} onClick={() => performAction("edit")} className="btn-outline-secondary">
-          <Pencil2Icon />
-          Edit Article
-        </S.ActionButton>
+          {/* --------------------------- edit --------------------------- */}
+          <S.ActionButton
+            disabled={!isAuthor || isLoading}
+            onClick={() => performAction("edit")}
+            className="btn-outline-secondary"
+          >
+            <Pencil2Icon />
+            Edit Article
+          </S.ActionButton>
 
-        <S.ActionButton disabled={!isAuthor || isLoading} onClick={() => performAction("delete")} className="btn-outline-danger">
-          <TrashIcon />
-          Delete Article
-        </S.ActionButton>
-      </S.ArticleActions>
+          {/* -------------------------- delete -------------------------- */}
+          <S.ActionButton
+            disabled={!isAuthor || isLoading}
+            onClick={() => performAction("delete")}
+            className="btn-outline-danger"
+          >
+            <TrashIcon />
+            Delete Article
+          </S.ActionButton>
+        </S.ArticleActions>
+      ) : null}
     </S.ArticleMeta>
   );
 };
