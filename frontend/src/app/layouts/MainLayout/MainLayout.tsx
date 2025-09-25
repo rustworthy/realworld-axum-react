@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth, useAuthSnapshotRestoration } from "@/features/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { formatUsername } from "@/shared/lib/utils";
 import { useIsGlobalLoading } from "@/shared/store/loading";
 import { Loader } from "@/shared/ui/Loader";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
@@ -54,7 +55,7 @@ export const MainLayout = () => {
                       src={user!.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
                       alt="User's avatar"
                     />
-                    {user!.username}
+                    {formatUsername(user!.username, 20)}
                   </S.HeaderNavItem>
                 </S.HeaderNavList>
               </nav>

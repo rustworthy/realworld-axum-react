@@ -43,6 +43,38 @@ const api = generatedApi.enhanceEndpoints({
         }
       },
     },
+
+    // favoriting/unfavorting are less critical operations and so we can actually
+    // use optimistic update for both of them;
+    // https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
+    favoriteArticle: {
+      async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          api.util.updateQueryData("readArticle", { slug }, (draft) => {
+            Object.assign(draft.article, { favorited: true, favoritesCount: draft.article.favoritesCount + 1 });
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+    },
+    unfavoriteArticle: {
+      async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          api.util.updateQueryData("readArticle", { slug }, (draft) => {
+            Object.assign(draft.article, { favorited: false, favoritesCount: Math.max(0, draft.article.favoritesCount - 1) });
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+    },
   },
 });
 
@@ -57,6 +89,8 @@ export const {
   useRegisterUserMutation,
   useConfirmEmailMutation,
   useLoginMutation,
+  useFavoriteArticleMutation,
+  useUnfavoriteArticleMutation,
 } = api;
 
 export type {

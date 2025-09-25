@@ -95,7 +95,7 @@ export const ActionButton = styled.button`
   align-items: center;
   gap: 4px;
   height: 2.3rem;
-  max-width: 11.55rem;
+  width: 14rem;
   font-size: 1rem;
   padding: 0.5rem 1rem;
 
@@ -144,6 +144,9 @@ export const ActionButton = styled.button`
       background-color: ${({ theme }) => theme.shared.button.danger.active.backgroundColor};
     }
   }
+
+  &.compact {
+    width: 9.5rem;
   }
 `;
 

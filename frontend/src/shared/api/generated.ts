@@ -37,6 +37,18 @@ const injectedRtkApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    favoriteArticle: build.mutation<FavoriteArticleApiResponse, FavoriteArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/favorite`,
+        method: "POST",
+      }),
+    }),
+    unfavoriteArticle: build.mutation<UnfavoriteArticleApiResponse, UnfavoriteArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/favorite`,
+        method: "DELETE",
+      }),
+    }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
     }),
@@ -102,6 +114,16 @@ export type UpdateArticleApiArg = {
 };
 export type DeleteArticleApiResponse = unknown;
 export type DeleteArticleApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+};
+export type FavoriteArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
+export type FavoriteArticleApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+};
+export type UnfavoriteArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
+export type UnfavoriteArticleApiArg = {
   /** Article's slug identifier. */
   slug: string;
 };
