@@ -12,4 +12,3 @@ export const PreviewMeta = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-

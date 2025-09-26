@@ -1,10 +1,10 @@
 import { FC } from "react";
+import { Link } from "react-router";
 
 import { ArticlePayloadArticle } from "@/shared/api";
 import { formatDate, truncateText } from "@/shared/lib/utils";
 
 import * as S from "./AuthorInfo.styles";
-import { Link } from "react-router";
 
 export type AuthorInfoProps = {
   article: ArticlePayloadArticle["article"];

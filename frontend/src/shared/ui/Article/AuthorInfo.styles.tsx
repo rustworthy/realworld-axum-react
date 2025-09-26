@@ -1,5 +1,6 @@
-import styled from "@emotion/styled";
 import { Link } from "react-router";
+
+import styled from "@emotion/styled";
 
 export const AuthorInfo = styled.div`
   display: flex;

@@ -102,11 +102,13 @@ const api = generatedApi.enhanceEndpoints({
     unfavoriteArticle: {
       async onQueryStarted({ slug }, { dispatch, queryFulfilled, getState }) {
         const patchResults = [];
-        patchResults.push(dispatch(
-          api.util.updateQueryData("readArticle", { slug }, (draft) => {
-            Object.assign(draft.article, { favorited: false, favoritesCount: Math.max(0, draft.article.favoritesCount - 1) });
-          }),
-        ));
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("readArticle", { slug }, (draft) => {
+              Object.assign(draft.article, { favorited: false, favoritesCount: Math.max(0, draft.article.favoritesCount - 1) });
+            }),
+          ),
+        );
         // similar to `favoriteArticle` operation
         for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
           if (endpointName !== "listArticles") continue;
