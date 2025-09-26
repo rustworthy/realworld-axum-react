@@ -29,8 +29,8 @@ export function formatDate(dateString: string): string {
   });
 }
 
-export function formatUsername(username: string, maxLen = 15): string {
-  return username.length > maxLen ? `${username.slice(0, maxLen - 3)}...` : username;
+export function truncateText(text: string, maxLen = 15): string {
+  return text.length > maxLen ? `${text.slice(0, maxLen - 3)}...` : text;
 }
 
 /**

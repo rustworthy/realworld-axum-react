@@ -9,6 +9,7 @@ const palette = {
   c05: "#B85C5C",
   c06: "#EFEFEF",
   c07: "#CCCCCC",
+  c08: "#AAAAAA",
 };
 
 export const DarkTheme: AppThemeType = {
@@ -27,10 +28,6 @@ export const DarkTheme: AppThemeType = {
       content: {
         textColor: palette.c06,
         backgroundColor: palette.c01,
-      },
-      tag: {
-        textColor: palette.c06,
-        backgroundColor: "#555",
       },
       separator: {
         backgroundColor: "#555",
@@ -75,6 +72,28 @@ export const DarkTheme: AppThemeType = {
         separator: {
           backgroundColor: palette.c03,
         },
+      },
+    },
+    tabs: {
+      container: {
+        borderColor: "#333",
+      },
+
+      link: {
+        borderColor: "transparent",
+        active: {
+          borderColor: palette.c03,
+        },
+      },
+    },
+    tag: {
+      textColor: palette.c02,
+      backgroundColor: "#818a91",
+      active: {
+        backgroundColor: "#687077",
+      },
+      outline: {
+        textColor: palette.c07,
       },
     },
     button: {

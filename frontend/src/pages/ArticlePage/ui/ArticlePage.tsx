@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useReadArticleQuery } from "@/shared/api";
+import { TagList } from "@/shared/ui/Article";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
@@ -35,11 +36,7 @@ export const ArticlePage: FC = () => {
       <S.MainContent>
         <S.ArticleContent data-color-mode={isDarkMode ? "dark" : "light"}>
           <MDEditor.Markdown source={article.body} />
-          <S.TagList>
-            {article.tagList.map((tag) => (
-              <S.Tag key={tag}>{tag}</S.Tag>
-            ))}
-          </S.TagList>
+          <TagList tags={article.tagList} />
         </S.ArticleContent>
 
         <S.Separator />
