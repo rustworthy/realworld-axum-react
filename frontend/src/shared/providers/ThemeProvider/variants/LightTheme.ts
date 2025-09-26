@@ -79,10 +79,8 @@ export const LightTheme = {
         borderColor: palette.c06,
       },
       link: {
-        color: palette.c07,
         borderColor: "transparent",
         active: {
-          color: palette.c07,
           borderColor: palette.c03,
         },
       },
@@ -92,6 +90,9 @@ export const LightTheme = {
       backgroundColor: "#818a91",
       active: {
         backgroundColor: "#687077",
+      },
+      outline: {
+        textColor: palette.c07,
       },
     },
     button: {

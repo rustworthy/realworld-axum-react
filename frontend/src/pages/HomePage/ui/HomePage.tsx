@@ -1,11 +1,29 @@
 import { FC } from "react";
+import { useSearchParams } from "react-router";
 
+import { useAuth } from "@/features/auth";
+import { useListArticlesQuery } from "@/shared/api";
+import { TagList } from "@/shared/ui/Article";
+import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
-import { TagList } from "@/shared/ui/TagList";
 
 import * as S from "./HomePage.styles";
 
+const IS_PAGINATION_FEATURE_FINISHED = false;
+
+export type FeedType = "personal" | "global";
+
+export type FeedSearchParams = {
+  feed?: FeedType;
+};
+
 export const HomePage: FC = () => {
+  const { isAuthenticated } = useAuth();
+  const [searchParams, _setSearchParams] = useSearchParams({ feed: "global" });
+  const isPersonalFeed = searchParams.get("feed") === "personal";
+  const { data, isLoading } = useListArticlesQuery({ limit: 10 });
+  const empty = !isLoading && (!data || data.articlesCount === 0);
+
   return (
     <S.PageWrapper>
       <S.Banner>
@@ -21,79 +39,39 @@ export const HomePage: FC = () => {
             <S.TabContainer>
               <S.TabList>
                 <S.TabItem>
-                  <S.TabLink href="">Your Feed</S.TabLink>
+                  <S.TabLink $isActive={isPersonalFeed} to="/?feed=personal">
+                    Your Feed
+                  </S.TabLink>
                 </S.TabItem>
                 <S.TabItem>
-                  <S.TabLink $isActive href="">
+                  <S.TabLink $isActive={!isPersonalFeed} to="/?feed=global">
                     Global Feed
                   </S.TabLink>
                 </S.TabItem>
               </S.TabList>
             </S.TabContainer>
-            <div className="article-preview">
-              <div className="article-meta">
-                <a href="/profile/eric-simons">
-                  <img src="http://i.imgur.com/Qr71crq.jpg" />
-                </a>
-                <div className="info">
-                  <a href="/profile/eric-simons" className="author">
-                    Eric Simons
+            {empty
+              ? null
+              : isLoading
+                ? // TODO: add skeleton while loading
+                  null
+                : data!.articles.map((article) => (
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
+            {IS_PAGINATION_FEATURE_FINISHED ? (
+              <ul className="pagination">
+                <li className="page-item active">
+                  <a className="page-link" href="">
+                    1
                   </a>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart" /> 29
-                </button>
-              </div>
-              <a href="/article/how-to-build-webapps-that-scale" className="preview-link">
-                <h1>How to build webapps that scale</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">realworld</li>
-                  <li className="tag-default tag-pill tag-outline">implementations</li>
-                </ul>
-              </a>
-            </div>
-
-            <div className="article-preview">
-              <div className="article-meta">
-                <a href="/profile/albert-pai">
-                  <img src="http://i.imgur.com/N4VcUeJ.jpg" />
-                </a>
-                <div className="info">
-                  <a href="/profile/albert-pai" className="author">
-                    Albert Pai
+                </li>
+                <li className="page-item">
+                  <a className="page-link" href="">
+                    2
                   </a>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart" /> 32
-                </button>
-              </div>
-              <a href="/article/the-song-you" className="preview-link">
-                <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">realworld</li>
-                  <li className="tag-default tag-pill tag-outline">implementations</li>
-                </ul>
-              </a>
-            </div>
-
-            <ul className="pagination">
-              <li className="page-item active">
-                <a className="page-link" href="">
-                  1
-                </a>
-              </li>
-              <li className="page-item">
-                <a className="page-link" href="">
-                  2
-                </a>
-              </li>
-            </ul>
+                </li>
+              </ul>
+            ) : null}
           </S.FeedContainer>
           <S.TagsContainer>
             <p>Popular tags</p>

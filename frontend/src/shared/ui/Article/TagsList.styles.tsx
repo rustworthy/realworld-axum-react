@@ -1,11 +1,8 @@
 import styled from "@emotion/styled";
 
 export const TagList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 `;
 
 export const Tag = styled.li<{ $interactive?: boolean }>`
@@ -20,5 +17,11 @@ export const Tag = styled.li<{ $interactive?: boolean }>`
   &:hover {
     cursor: ${({ $interactive }) => ($interactive ? "pointer" : "default")};
     background: ${({ $interactive, theme }) => ($interactive ? theme.shared.tag.active.backgroundColor : "")};
+  }
+
+  &.outline {
+    background: transparent;
+    border: 1px solid ${({ theme }) => theme.shared.tag.outline.textColor};
+    color: ${({ theme }) => theme.shared.tag.outline.textColor};
   }
 `;

@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 import styled from "@emotion/styled";
 
 import { TABLET_WIDTH } from "@/shared/constants/styles.constants";
@@ -37,6 +39,7 @@ export const BannerDescription = styled.p`
 
 export const MainContent = styled.div`
   width: 100%;
+  padding: 1rem 0.5rem;
   display: flex;
   gap: 1rem;
 
@@ -60,16 +63,17 @@ export const TabList = styled.ul``;
 export const TabItem = styled.li`
   float: left;
 `;
-export const TabLink = styled.a<{ $isActive?: boolean }>`
+export const TabLink = styled(Link) <{ $isActive?: boolean }>`
+  text-decoration: none;
   display: block;
   padding: 0.5em 1em;
   cursor: ${({ $isActive }) => ($isActive ? "default" : "pointer")};
   border-bottom: 2px solid
     ${({ $isActive, theme }) => ($isActive ? theme.shared.tabs.link.active.borderColor : theme.shared.tabs.link.borderColor)};
-  color: ${({ $isActive, theme }) => ($isActive ? theme.shared.tabs.link.active.color : theme.shared.tabs.link.color)};
+  opacity: ${({ $isActive }) => ($isActive ? 1 : 0.5)};
 
   &:hover {
-    opacity: ${({ $isActive }) => ($isActive ? "1" : "0.6")};
+    opacity: ${({ $isActive }) => ($isActive ? "1" : 0.8)};
     text-decoration: none;
   }
 `;
@@ -77,5 +81,8 @@ export const TabLink = styled.a<{ $isActive?: boolean }>`
 export const TagsContainer = styled.div`
   width: 100%;
   flex: 1;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;

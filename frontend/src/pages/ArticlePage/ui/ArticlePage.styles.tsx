@@ -41,113 +41,11 @@ export const ArticleMeta = styled.div`
   flex-wrap: wrap;
 `;
 
-export const AuthorInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-export const AuthorInfoNameBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1.2;
-`;
-
-export const AuthorImage = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-  object-position: top center;
-  border-radius: 50%;
-`;
-
-export const AuthorName = styled.a`
-  color: inherit;
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-export const ArticleDate = styled.span`
-  opacity: 0.7;
-  font-size: 14px;
-`;
-
 export const ArticleActions = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-`;
-
-export const ActionButton = styled.button`
-  background: transparent;
-  border: 1px solid currentColor;
-  color: inherit;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 2.3rem;
-  width: 14rem;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-
-  &.btn-outline-primary {
-    color: ${({ theme }) => theme.shared.button.primary.textColor};
-    background-color: ${({ theme }) => theme.shared.button.primary.backgroundColor};
-    border-color: ${({ theme }) => theme.shared.button.primary.borderColor};
-
-    &:active:not([disabled]),
-    &:hover:not([disabled]),
-    &:focus:not([disabled]) {
-      color: ${({ theme }) => theme.shared.button.primary.active.textColor};
-      background-color: ${({ theme }) => theme.shared.button.primary.active.backgroundColor};
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-    }
-  }
-
-  &.btn-outline-secondary {
-    color: ${({ theme }) => theme.shared.button.secondary.textColor};
-    background-color: ${({ theme }) => theme.shared.button.secondary.backgroundColor};
-    border-color: ${({ theme }) => theme.shared.button.secondary.borderColor};
-
-    &:active:not([disabled]),
-    &:hover:not([disabled]),
-    &:focus:not([disabled]) {
-      color: ${({ theme }) => theme.shared.button.secondary.active.textColor};
-      background-color: ${({ theme }) => theme.shared.button.secondary.active.backgroundColor};
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-    }
-  }
-
-  &.btn-outline-danger {
-    color: ${({ theme }) => theme.shared.button.danger.textColor};
-    border-color: ${({ theme }) => theme.shared.button.danger.borderColor};
-    background-color: ${({ theme }) => theme.shared.button.danger.backgroundColor};
-    &:active,
-    &:hover,
-    &:focus {
-      color: ${({ theme }) => theme.shared.button.danger.active.textColor};
-      background-color: ${({ theme }) => theme.shared.button.danger.active.backgroundColor};
-    }
-  }
-
-  &.compact {
-    width: 9.5rem;
-  }
 `;
 
 export const ArticleContent = styled.div`

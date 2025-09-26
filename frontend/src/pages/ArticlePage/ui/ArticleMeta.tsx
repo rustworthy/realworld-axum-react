@@ -4,7 +4,9 @@ import { useNavigate } from "react-router";
 import { useDeleteArticleMutation, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "@/shared/api";
 import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
-import { formatDate, formatEventsCount, formatUsername, parseOutErrorMessage } from "@/shared/lib/utils";
+import { formatEventsCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
+import { AuthorInfo } from "@/shared/ui/Article";
+import { ActionButton } from "@/shared/ui/controls/Button";
 import { HeartFilledIcon, HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
@@ -25,7 +27,6 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
   const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();
 
   const authorUsername = article.author.username;
-  const profilePath = `/profile/${authorUsername}`;
   const isLoading = isDeleteLoading || isFavLoading || isUnfavLoading;
   const isAuthor = authorUsername === user?.username;
 
@@ -72,59 +73,49 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
 
   return (
     <S.ArticleMeta>
-      <S.AuthorInfo>
-        <a href={profilePath}>
-          <S.AuthorImage
-            src={article.author.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
-            alt={`${authorUsername}'s profile picture`}
-          />
-        </a>
-        <S.AuthorInfoNameBlock>
-          <S.AuthorName href={profilePath}>{formatUsername(authorUsername, 20)}</S.AuthorName>
-          <S.ArticleDate>{formatDate(article.createdAt)}</S.ArticleDate>
-        </S.AuthorInfoNameBlock>
-      </S.AuthorInfo>
+      <AuthorInfo article={article} />
 
       {user ? (
         <S.ArticleActions>
           {/* -----------------------  follow/unfollow -------------------- */}
-          <S.ActionButton disabled={isAuthor || isLoading} className="btn-outline-secondary">
+
+          <ActionButton isDisabled={isAuthor || isLoading} className="btn-outline-secondary">
             <PlusCircledIcon />
-            {`Follow ${formatUsername(authorUsername)}`}
-          </S.ActionButton>
+            {`Follow ${truncateText(authorUsername)}`}
+          </ActionButton>
 
           {/* --------------------- favorite/unfavorite ------------------- */}
           {article.favorited ? (
-            <S.ActionButton onClick={() => performAction("unfavorite")} disabled={isLoading} className="btn-outline-primary">
+            <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary">
               <HeartFilledIcon />
               Unfavorite Article <span>({formatEventsCount(article.favoritesCount)})</span>
-            </S.ActionButton>
+            </ActionButton>
           ) : (
-            <S.ActionButton onClick={() => performAction("favorite")} disabled={isLoading} className="btn-outline-primary">
+            <ActionButton onClick={() => performAction("favorite")} isDisabled={isLoading} className="btn-outline-primary">
               <HeartIcon />
               Favorite Article <span>({article.favoritesCount})</span>
-            </S.ActionButton>
+            </ActionButton>
           )}
 
           {/* --------------------------- edit --------------------------- */}
-          <S.ActionButton
-            disabled={!isAuthor || isLoading}
+          <ActionButton
+            isDisabled={!isAuthor || isLoading}
             onClick={() => performAction("edit")}
             className="btn-outline-secondary compact"
           >
             <Pencil2Icon />
             Edit Article
-          </S.ActionButton>
+          </ActionButton>
 
           {/* -------------------------- delete -------------------------- */}
-          <S.ActionButton
-            disabled={!isAuthor || isLoading}
+          <ActionButton
+            isDisabled={!isAuthor || isLoading}
             onClick={() => performAction("delete")}
             className="btn-outline-danger compact"
           >
             <TrashIcon />
             Delete Article
-          </S.ActionButton>
+          </ActionButton>
         </S.ArticleActions>
       ) : null}
     </S.ArticleMeta>

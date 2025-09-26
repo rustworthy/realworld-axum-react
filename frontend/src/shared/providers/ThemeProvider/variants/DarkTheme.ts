@@ -80,10 +80,8 @@ export const DarkTheme: AppThemeType = {
       },
 
       link: {
-        color: palette.c08,
         borderColor: "transparent",
         active: {
-          color: palette.c03,
           borderColor: palette.c03,
         },
       },
@@ -93,6 +91,9 @@ export const DarkTheme: AppThemeType = {
       backgroundColor: "#818a91",
       active: {
         backgroundColor: "#687077",
+      },
+      outline: {
+        textColor: palette.c07,
       },
     },
     button: {

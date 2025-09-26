@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useReadArticleQuery } from "@/shared/api";
-import { TagList } from "@/shared/ui/TagList";
+import { TagList } from "@/shared/ui/Article";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
