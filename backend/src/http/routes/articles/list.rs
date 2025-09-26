@@ -63,7 +63,7 @@ pub(crate) struct ListQuery {
     tags = ["Articles"],
     params(ListQuery),
     responses(
-        (status = 200, description = "Articles list successfully retrieved", body = [ArticlesList]),
+        (status = 200, description = "Articles list successfully retrieved", body = ArticlesList),
         (status = 401, description = "Token missing or invalid (in case authenicated access has been used)"),
         (status = 500, description = "Internal server error."),
     ),
