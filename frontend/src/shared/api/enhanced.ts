@@ -11,7 +11,14 @@ import { api as generatedApi } from "./generated";
  */
 const api = generatedApi.enhanceEndpoints({
   endpoints: {
+    listArticles: {
+      providesTags: ["Article"],
+    },
     createArticle: {
+      // TODO: we can be smarter here and prepend this article to
+      // 1) their global feed and 2) list of articles by tag; for
+      // now though we are going with invalidation
+      invalidatesTags: ["Article"],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
@@ -22,7 +29,7 @@ const api = generatedApi.enhanceEndpoints({
       },
     },
     updateArticle: {
-      async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ slug }, { dispatch, queryFulfilled, getState }) {
         try {
           const { data } = await queryFulfilled;
           if (data.article.slug === slug) {
@@ -38,6 +45,19 @@ const api = generatedApi.enhanceEndpoints({
             // so we need to insert a brand new cache entry
             dispatch(generatedApi.util.upsertQueryData("readArticle", { slug: data.article.slug }, data));
           }
+          // we also need to update this item in the feeds for which we can
+          // utilize an rtk's `selectInvalidatedBy` helper that returns all
+          // the chache registries this item is found in:
+          // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#selectinvalidatedby
+          api.util.selectInvalidatedBy(getState(), ["Article"]).forEach(({ endpointName, originalArgs }) => {
+            if (endpointName !== "listArticles") return;
+            dispatch(
+              api.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                const article = draft.articles.find((article) => article.slug === slug);
+                if (article) Object.assign(article, data.article);
+              }),
+            );
+          });
         } catch {
           // no-op
         }
@@ -48,30 +68,63 @@ const api = generatedApi.enhanceEndpoints({
     // use optimistic update for both of them;
     // https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
     favoriteArticle: {
-      async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          api.util.updateQueryData("readArticle", { slug }, (draft) => {
-            Object.assign(draft.article, { favorited: true, favoritesCount: draft.article.favoritesCount + 1 });
-          }),
+      async onQueryStarted({ slug }, { dispatch, queryFulfilled, getState }) {
+        const patchResults = [];
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("readArticle", { slug }, (draft) => {
+              Object.assign(draft.article, { favorited: true, favoritesCount: draft.article.favoritesCount + 1 });
+            }),
+          ),
         );
+        // just like in `updateArticle` operation, search for this article in
+        // cache registries and only surgically update it in each registry
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+          if (endpointName !== "listArticles") continue;
+          patchResults.push(
+            dispatch(
+              api.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                const article = draft.articles.find((article) => article.slug === slug);
+                if (article) {
+                  Object.assign(article, { favorited: true, favoritesCount: article.favoritesCount + 1 });
+                }
+              }),
+            ),
+          );
+        }
         try {
           await queryFulfilled;
         } catch {
-          patchResult.undo();
+          patchResults.forEach((result) => result.undo());
         }
       },
     },
     unfavoriteArticle: {
-      async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
+      async onQueryStarted({ slug }, { dispatch, queryFulfilled, getState }) {
+        const patchResults = [];
+        patchResults.push(dispatch(
           api.util.updateQueryData("readArticle", { slug }, (draft) => {
             Object.assign(draft.article, { favorited: false, favoritesCount: Math.max(0, draft.article.favoritesCount - 1) });
           }),
-        );
+        ));
+        // similar to `favoriteArticle` operation
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+          if (endpointName !== "listArticles") continue;
+          patchResults.push(
+            dispatch(
+              api.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                const article = draft.articles.find((article) => article.slug === slug);
+                if (article) {
+                  Object.assign(article, { favorited: false, favoritesCount: Math.max(0, article.favoritesCount - 1) });
+                }
+              }),
+            ),
+          );
+        }
         try {
           await queryFulfilled;
         } catch {
-          patchResult.undo();
+          patchResults.forEach((result) => result.undo());
         }
       },
     },
@@ -98,6 +151,7 @@ export type {
   LoginApiArg,
   UpdateCurrentUserApiArg,
   ArticlePayloadArticle,
+  ListArticlesApiResponse,
   UpdateArticleApiArg,
   UserPayloadUser,
 } from "./generated";

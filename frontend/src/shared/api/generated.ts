@@ -84,7 +84,7 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
-export type ListArticlesApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList[];
+export type ListArticlesApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList;
 export type ListArticlesApiArg = {
   /** Filter articles by tag. */
   tag?: string;
