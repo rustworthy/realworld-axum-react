@@ -1,4 +1,5 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
+import ReactPaginate, { ReactPaginateProps } from "react-paginate";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
@@ -9,7 +10,7 @@ import { LayoutContainer } from "@/shared/ui/Container";
 
 import * as S from "./HomePage.styles";
 
-const IS_PAGINATION_FEATURE_FINISHED = false;
+const ARTICLES_PER_PAGE = 2;
 
 export type FeedType = "personal" | "global";
 
@@ -19,10 +20,28 @@ export type FeedSearchParams = {
 
 export const HomePage: FC = () => {
   const { isAuthenticated } = useAuth();
-  const [searchParams, _setSearchParams] = useSearchParams({ feed: "global" });
+
+  const [searchParams, setSearchParams] = useSearchParams({ feed: "global", page: "1" });
   const isPersonalFeed = searchParams.get("feed") === "personal";
-  const { data, isLoading } = useListArticlesQuery({ limit: 10 });
-  const empty = !isLoading && (!data || data.articlesCount === 0);
+  const parsedPage = parseInt(searchParams.get("page")!);
+  const page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+  const offset = (page - 1) * ARTICLES_PER_PAGE;
+  const { data, isLoading } = useListArticlesQuery({ limit: ARTICLES_PER_PAGE, offset });
+  const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
+  // it's possible that url contains page that is past the aricles: e.g. they might
+  // have manullay inserted the parameter (which is less likely) or the number of
+  // articles decreased prior to them refreshing the page, and so there _are_ articles,
+  // but not at this offset; so we need to check both `artcilesCount` and `articles.length`
+  const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
+  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 0 && !empty;
+
+  const handlePageClick: ReactPaginateProps["onPageChange"] = ({ selected }) => {
+    setSearchParams((params) => {
+      params.set("page", (selected + 1).toString());
+      return params;
+    });
+    return selected;
+  };
 
   return (
     <S.PageWrapper>
@@ -58,19 +77,24 @@ export const HomePage: FC = () => {
                 : data!.articles.map((article) => (
                     <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
                   ))}
-            {IS_PAGINATION_FEATURE_FINISHED ? (
-              <ul className="pagination">
-                <li className="page-item active">
-                  <a className="page-link" href="">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="">
-                    2
-                  </a>
-                </li>
-              </ul>
+            {shouldPaginate ? (
+              <S.Pagination>
+                <ReactPaginate
+                  className="SimplePagination"
+                  pageLinkClassName="Page"
+                  activeLinkClassName="ActivePage"
+                  previousLinkClassName="PreviousPage"
+                  nextLinkClassName="NextPage"
+                  breakLabel="..."
+                  nextLabel=">"
+                  pageRangeDisplayed={2}
+                  marginPagesDisplayed={2}
+                  onPageChange={handlePageClick}
+                  pageCount={pagesCount}
+                  previousLabel="<"
+                  renderOnZeroPageCount={null}
+                />
+              </S.Pagination>
             ) : null}
           </S.FeedContainer>
           <S.TagsContainer>
