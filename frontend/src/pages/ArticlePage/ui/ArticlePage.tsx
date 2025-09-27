@@ -1,9 +1,10 @@
 import { FC } from "react";
-import { useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useReadArticleQuery } from "@/shared/api";
+import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
 import { TagList } from "@/shared/ui/Article";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
@@ -14,12 +15,23 @@ import * as S from "./ArticlePage.styles";
 
 const IS_COMMENT_FEAUTURE_FINISHED = false;
 
+/**
+ * Adjust links to work with browser router.
+ *
+ * @see https://github.com/uiwjs/react-md-editor/issues/356
+ */
+function urlTransform(link: string, path: string): string {
+  return link.startsWith("#") ? `${path}${link}` : link;
+}
+
 export const ArticlePage: FC = () => {
   const { slug } = useParams<{ slug: string }>();
   if (!slug) return <NotFoundPage />;
+  const location = useLocation();
   const { data, isLoading } = useReadArticleQuery({ slug: slug! });
   const { user } = useAuth();
   const { isDarkMode } = useTernaryDarkMode();
+  useHashScrollIn(data);
 
   if (!data) return isLoading ? null : <NotFoundPage />;
   const article = data.article;
@@ -35,7 +47,7 @@ export const ArticlePage: FC = () => {
 
       <S.MainContent>
         <S.ArticleContent data-color-mode={isDarkMode ? "dark" : "light"}>
-          <MDEditor.Markdown source={article.body} />
+          <MDEditor.Markdown source={article.body} urlTransform={(url) => urlTransform(url, location.pathname)} />
           <TagList tags={article.tagList} />
         </S.ArticleContent>
 
