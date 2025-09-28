@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
@@ -6,10 +6,11 @@ import { useListArticlesQuery } from "@/shared/api";
 import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
+import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 
 import * as S from "./HomePage.styles";
 
-const IS_PAGINATION_FEATURE_FINISHED = false;
+const ARTICLES_PER_PAGE = 8;
 
 export type FeedType = "personal" | "global";
 
@@ -19,10 +20,29 @@ export type FeedSearchParams = {
 
 export const HomePage: FC = () => {
   const { isAuthenticated } = useAuth();
-  const [searchParams, _setSearchParams] = useSearchParams({ feed: "global" });
+
+  const [searchParams, setSearchParams] = useSearchParams({ feed: "global", page: "1" });
   const isPersonalFeed = searchParams.get("feed") === "personal";
-  const { data, isLoading } = useListArticlesQuery({ limit: 10 });
-  const empty = !isLoading && (!data || data.articlesCount === 0);
+  const parsedPage = parseInt(searchParams.get("page")!);
+  const page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+  const offset = (page - 1) * ARTICLES_PER_PAGE;
+  const { data, isLoading } = useListArticlesQuery({ limit: ARTICLES_PER_PAGE, offset });
+  const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
+  // it's possible that url contains page that is past the aricles: e.g. they might
+  // have manullay inserted the parameter (which is less likely) or the number of
+  // articles decreased prior to them refreshing the page, and so there _are_ articles,
+  // but not at this offset; so we need to check both `artcilesCount` and `articles.length`;
+  // note that we prefer not to render pagination controls, if there is only one page
+  const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
+  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
+
+  const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
+    setSearchParams((params) => {
+      params.set("page", (selected + 1).toString());
+      return params;
+    });
+    return selected;
+  };
 
   return (
     <S.PageWrapper>
@@ -44,34 +64,24 @@ export const HomePage: FC = () => {
                   </S.TabLink>
                 </S.TabItem>
                 <S.TabItem>
+                  {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
                   <S.TabLink $isActive={!isPersonalFeed} to="/?feed=global">
                     Global Feed
                   </S.TabLink>
                 </S.TabItem>
               </S.TabList>
             </S.TabContainer>
-            {empty
-              ? null
-              : isLoading
-                ? // TODO: add skeleton while loading
-                  null
-                : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
-            {IS_PAGINATION_FEATURE_FINISHED ? (
-              <ul className="pagination">
-                <li className="page-item active">
-                  <a className="page-link" href="">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="">
-                    2
-                  </a>
-                </li>
-              </ul>
-            ) : null}
+            <S.PreviewList>
+              {empty
+                ? null
+                : isLoading
+                  ? // TODO: add skeleton while loading
+                    null
+                  : data!.articles.map((article) => (
+                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    ))}
+            </S.PreviewList>
+            {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
           <S.TagsContainer>
             <p>Popular tags</p>

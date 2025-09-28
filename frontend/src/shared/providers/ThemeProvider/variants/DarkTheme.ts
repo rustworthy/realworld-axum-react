@@ -96,6 +96,15 @@ export const DarkTheme: AppThemeType = {
         textColor: palette.c07,
       },
     },
+    pagination: {
+      color: palette.c04,
+      borderColor: palette.c04,
+      active: {
+        backgroundColor: palette.c04,
+        color: palette.c01,
+      },
+    },
+
     button: {
       textColor: palette.c02,
       borderColor: palette.c03,

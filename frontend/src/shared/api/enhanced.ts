@@ -130,6 +130,19 @@ const api = generatedApi.enhanceEndpoints({
         }
       },
     },
+    deleteArticle: {
+      // we could try and scan the cache entries (namely, feeds) and filter
+      // our this item from them, but then we should also be accounting for
+      // "broken" pagination in this case; we are keeping things simple and
+      // just re-fetch the data from server;
+      //
+      // note that it seems like we should not be updating the personal feed,
+      // since the author cannot follow themselves and so this article should
+      // not be in the personal feed and so there is no need to refetch, but
+      // then, if we decide that there should be other roles capable of deleting
+      // articles this can get messy;
+      invalidatesTags: ["Article"],
+    },
   },
 });
 

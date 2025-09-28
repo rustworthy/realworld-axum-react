@@ -95,6 +95,14 @@ export const LightTheme = {
         textColor: palette.c07,
       },
     },
+    pagination: {
+      color: palette.c04,
+      borderColor: palette.c06,
+      active: {
+        backgroundColor: palette.c04,
+        color: palette.c06,
+      },
+    },
     button: {
       textColor: palette.c02,
       borderColor: palette.c03,

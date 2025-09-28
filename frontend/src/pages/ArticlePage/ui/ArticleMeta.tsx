@@ -61,7 +61,7 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
             return;
           }
           toast.success("Your article has been delete.");
-          navigate(ROUTES.EDITOR);
+          navigate(ROUTES.HOME);
           return;
         }
         default:
