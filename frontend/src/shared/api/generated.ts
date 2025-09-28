@@ -21,6 +21,18 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.articlePayloadArticleCreate,
       }),
     }),
+    personalFeed: build.query<PersonalFeedApiResponse, PersonalFeedApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/feed`,
+        params: {
+          tag: queryArg.tag,
+          author: queryArg.author,
+          favorited: queryArg.favorited,
+          limit: queryArg.limit,
+          offset: queryArg.offset,
+        },
+      }),
+    }),
     readArticle: build.query<ReadArticleApiResponse, ReadArticleApiArg>({
       query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}` }),
     }),
@@ -100,6 +112,19 @@ export type ListArticlesApiArg = {
 export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
 export type CreateArticleApiArg = {
   articlePayloadArticleCreate: ArticlePayloadArticleCreate;
+};
+export type PersonalFeedApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList;
+export type PersonalFeedApiArg = {
+  /** Filter articles by tag. */
+  tag?: string;
+  /** Filter articles by author (username). */
+  author?: string;
+  /** Filter articles favorited by user (username). */
+  favorited?: string;
+  /** Limit number of returned articles. */
+  limit?: number;
+  /** Offset/skip number of articles. */
+  offset?: number;
 };
 export type ReadArticleApiResponse = /** status 200 Article successfully retrieved */ ArticlePayloadArticle;
 export type ReadArticleApiArg = {

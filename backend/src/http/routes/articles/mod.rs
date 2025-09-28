@@ -107,8 +107,9 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
             crud::delete_article,
         ))
         .routes(routes!(crud::favorite_article, crud::unfavorite_article,))
-        .routes(routes!(crud::read_article))
-        .routes(routes!(list::list_articles));
+        .routes(routes!(crud::read_article,))
+        .routes(routes!(list::list_articles,))
+        .routes(routes!(list::personal_feed,));
 
     OpenApiRouter::new()
         .nest("/articles", articles_router)

@@ -1,6 +1,6 @@
 use super::Article;
 use crate::http::errors::Error;
-use crate::http::extractors::MaybeUserID;
+use crate::http::extractors::{MaybeUserID, UserID};
 use crate::http::routes::articles::Author;
 use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
@@ -164,10 +164,16 @@ pub async fn list_articles(
                 articles JOIN users USING (user_id)
             WHERE
                 ($1::text IS NULL OR username = $1::text) AND
-                ($2::text IS NULL OR tags @> ARRAY[$2::text])
+                ($2::text IS NULL OR tags @> ARRAY[$2::text]) AND
+                ($3::text IS NULL OR EXISTS(
+                    SELECT 1 FROM favorites fav JOIN users USING (user_id)
+                    WHERE fav.article_id = article_id AND username = $3
+                )
+            )
             "#,
             q.author,
-            q.tag
+            q.tag,
+            q.favorited,
         )
         .fetch_one(&ctx.db)
         .await?;
@@ -211,4 +217,40 @@ pub async fn list_articles(
         ArticlesList { articles, count }
     };
     Ok(Json(payload))
+}
+
+/// Personal feed.
+///
+/// Similar to the `list_articles` operation, but will return only articles
+/// authored by users the current (calling) user is following. Hence, authentication
+/// is required.
+#[utoipa::path(
+    get,
+    path = "/feed",
+    tags = ["Articles"],
+    params(ListQuery),
+    responses(
+        (status = 200, description = "Articles list successfully retrieved", body = ArticlesList),
+        (status = 401, description = "Token missing or invalid"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        (),
+        ("HttpAuthBearerJWT" = []),
+    ),
+)]
+#[instrument(name = "PERSONAL FEED", skip_all)]
+pub async fn personal_feed(
+    _ctx: State<Arc<AppContext>>,
+    q: Result<Query<ListQuery>, QueryRejection>,
+    _uid: UserID,
+) -> Result<Json<ArticlesList>, Error> {
+    let Query(q) = q?;
+    q.validate()?;
+    // TODO: actually fetch articles when following/unfollowing
+    // functionality is there
+    Ok(Json(ArticlesList {
+        articles: vec![],
+        count: 0,
+    }))
 }

@@ -2,7 +2,7 @@ import { FC, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
-import { useListArticlesQuery } from "@/shared/api";
+import { useListArticlesQuery, usePersonalFeedQuery } from "@/shared/api";
 import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
@@ -22,11 +22,12 @@ export const HomePage: FC = () => {
   const { isAuthenticated } = useAuth();
 
   const [searchParams, setSearchParams] = useSearchParams({ feed: "global", page: "1" });
-  const isPersonalFeed = searchParams.get("feed") === "personal";
   const parsedPage = parseInt(searchParams.get("page")!);
   const page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
   const offset = (page - 1) * ARTICLES_PER_PAGE;
-  const { data, isLoading } = useListArticlesQuery({ limit: ARTICLES_PER_PAGE, offset });
+  const isPersonalFeed = searchParams.get("feed") === "personal";
+  const useArticlesList = isPersonalFeed ? usePersonalFeedQuery : useListArticlesQuery;
+  const { data, isLoading, isError } = useArticlesList({ limit: ARTICLES_PER_PAGE, offset });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   // it's possible that url contains page that is past the aricles: e.g. they might
   // have manullay inserted the parameter (which is less likely) or the number of
@@ -76,10 +77,10 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                    null
+                  null
                   : data!.articles.map((article) => (
-                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                    ))}
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
