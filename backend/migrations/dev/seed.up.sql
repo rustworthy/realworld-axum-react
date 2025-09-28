@@ -13,9 +13,9 @@ INSERT INTO users
 VALUES
   (
     '00000000-0000-0000-0000-000000000000',
-    'rob.pike',
+    'rob.spike',
     'rob@golang.org',
-    'Robert Pike (born 1956) is a Canadian programmer and author. He is best known for his work on
+    'Robert Spike (born 1956) is a Canadian programmer and author. He is best known for his work on
     the Go programming language while working at Google and the Plan 9 operating system while working at Bell Labs, 
     where he was a member of the Unix team.
 
@@ -24,14 +24,14 @@ VALUES
 
     With Brian Kernighan, he is the co-author of The Practice of Programming and The Unix Programming Environment.
     With Ken Thompson, he is the co-creator of UTF-8 character encoding',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Rob-pike-oscon.jpg/500px-Rob-pike-oscon.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Sam_Worthington_2013.jpg/330px-Sam_Worthington_2013.jpg',
     'ACTIVE',
     -- 123123123123
     '$argon2id$v=19$m=19456,t=2,p=1$k23oMd6rxUjGld9wrvr09Q$8qy9ovO+4bTKvgkCreyPiUniOFDIufP4QwUg3euMSSE'
   ),
   (
     '00000000-0000-0000-0000-000000000001',
-    'steve.klabnik' ,
+    'awesome.steve' ,
     'steve@rust.org',
     'You may know me from my work on Rust, or maybe even the stuff I did with Ruby on Rails back in the day.
     You might have read a post I wrote, or maybe even a chapter or two of The Rust Programming Language.
@@ -39,7 +39,17 @@ VALUES
     It’s also possible that you’ve used some code I’ve developed on GitHub.
     Anyway, hi, 👋. I’m Steve.
     If you want to email me, feel free. Please excuse some latency, but I will get back to you eventually.',
-    'https://avatars.githubusercontent.com/u/27786?v=4',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Charles_Babbage_-_1860.jpg/500px-Charles_Babbage_-_1860.jpg',
+    'ACTIVE',
+    -- 123123123123
+    '$argon2id$v=19$m=19456,t=2,p=1$k23oMd6rxUjGld9wrvr09Q$8qy9ovO+4bTKvgkCreyPiUniOFDIufP4QwUg3euMSSE'
+  ),
+ (
+    '00000000-0000-0000-0000-000000000002',
+    'Kate1337' ,
+    'kate@tokio.org',
+    'Hi I am Kate, I a technical writer.',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Ada_Lovelace_daguerreotype_by_Antoine_Claudet_1843_-_cropped.png/500px-Ada_Lovelace_daguerreotype_by_Antoine_Claudet_1843_-_cropped.png',
     'ACTIVE',
     -- 123123123123
     '$argon2id$v=19$m=19456,t=2,p=1$k23oMd6rxUjGld9wrvr09Q$8qy9ovO+4bTKvgkCreyPiUniOFDIufP4QwUg3euMSSE'
@@ -61,25 +71,33 @@ VALUES
     '00000000-0000-0000-0000-000000000000',
     'the-evolution-of-programming-languages',
     'The Evolution of Programming Languages',
-    'A deep dive into how programming languages have evolved from assembly to modern high-level languages, exploring the design decisions that shaped Go and other influential languages.',
+    'A deep dive into how programming languages have evolved from assembly to modern high-level languages,
+    exploring the design decisions that shaped Go and other influential languages.',
     '# The Evolution of Programming Languages
 
-Programming languages have transformed from primitive assembly to sophisticated high-level languages, each generation building on lessons from predecessors.
+Programming languages have transformed from primitive assembly to sophisticated high-level languages,
+each generation building on lessons from predecessors.
 
-![Computer History](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Computer_history_exhibit_CHM.jpg/640px-Computer_history_exhibit_CHM.jpg)
+![Computer History](https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/ENIAC-changing_a_tube_%28cropped%29.jpg/330px-ENIAC-changing_a_tube_%28cropped%29.jpg)
 
 ## Key Milestones
 
-[FORTRAN](https://en.wikipedia.org/wiki/Fortran) (1950s) revolutionized scientific computing, while [COBOL](https://en.wikipedia.org/wiki/COBOL) served business applications. The [C programming language](https://en.wikipedia.org/wiki/C_(programming_language)) at Bell Labs established the "simple tools" philosophy that became foundational to software engineering.
+[FORTRAN](https://en.wikipedia.org/wiki/Fortran) (1950s) revolutionized scientific computing,
+while [COBOL](https://en.wikipedia.org/wiki/COBOL) served business applications.
+The [C programming language](https://en.wikipedia.org/wiki/C_(programming_language)) at Bell Labs
+established the "simple tools" philosophy that became foundational to software engineering.
 
 ![Bell Labs](https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Bell_telephone_laboratories_logo.svg/320px-Bell_telephone_laboratories_logo.svg.png)
 
 ## Modern Design
 
-Today''s languages like [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) prioritize readability, maintainability, and efficient concurrency. The future will focus on making concurrent programming more accessible while maintaining simplicity.',
+Today''s languages like [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) prioritize readability,
+maintainability, and efficient concurrency. The future will focus on making concurrent programming more accessible
+while maintaining simplicity.',
     ARRAY['programming', 'history', 'go', 'design']
+
   ),
-  -- ############################## ARTICLE 1 #################################
+  -- ############################## ARTICLE 2 #################################
   (
     '00000000-0000-0000-0000-000000000001',
     'building-distributed-systems-at-scale',
@@ -87,9 +105,11 @@ Today''s languages like [Go](https://en.wikipedia.org/wiki/Go_(programming_langu
     'Lessons learned from building large-scale distributed systems at Google, including design patterns, trade-offs, and common pitfalls to avoid.',
     '# Building Distributed Systems at Scale
 
-Scaling systems to millions of users requires fundamental architectural shifts. At [Google](https://en.wikipedia.org/wiki/Google), we''ve learned key lessons from building global infrastructure.
+Scaling systems to millions of users requires fundamental architectural shifts.
+At [Google](https://en.wikipedia.org/wiki/Google), they have learned key lessons
+from building global infrastructure.
 
-![Google Data Center](https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Google_data_center.jpg/640px-Google_data_center.jpg)
+![Google Data Center](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Google_datacenter_%282007%29_-_panoramio_-_erwinboogert_%282%29.jpg/500px-Google_datacenter_%282007%29_-_panoramio_-_erwinboogert_%282%29.jpg)
 
 ## Core Principles
 
@@ -102,8 +122,10 @@ The [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem) forces trade-offs b
 The [MapReduce](https://en.wikipedia.org/wiki/MapReduce) model demonstrates these principles by providing simple abstractions for distributed processing while handling failures transparently.',
     ARRAY['distributed-systems', 'google', 'scalability', 'architecture']
   ),
+
+  -- ############################## ARTICLE 3 #################################
   (
-    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000002', -- user_id
     'the-philosophy-of-unix-design',
     'The Philosophy of Unix Design',
     'Exploring the timeless design principles that made Unix successful and how they continue to influence modern software development.',
@@ -123,21 +145,21 @@ The [MapReduce](https://en.wikipedia.org/wiki/MapReduce) model demonstrates thes
 
 These principles directly influenced [Go](https://en.wikipedia.org/wiki/Go_(programming_language)): simplicity over cleverness, composition through interfaces, and clear conventions.
 
-![Ken Thompson and Dennis Ritchie](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Ken_Thompson_and_Dennis_Ritchie.jpg/480px-Ken_Thompson_and_Dennis_Ritchie.jpg)
+![Ken Thompson](https://upload.wikimedia.org/wikipedia/commons/d/dd/Ken_Thompson%2C_2019.jpg)
 
 Good software design is timeless—tools built on Unix principles remain useful decades later.',
-    ARRAY['unix', 'philosophy', 'design', 'go']
+    ARRAY['unix', 'philosophy', 'design', 'go', 'programming']
   ),
+
+  -- ############################## ARTICLE 4 #################################
   (
-    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000002', -- user_id
     'lessons-from-plan9-operating-system',
     'Lessons from Plan 9 Operating System',
     'How the experimental Plan 9 operating system pushed the boundaries of distributed computing and influenced modern cloud architectures.',
     '# Lessons from Plan 9 Operating System
 
 [Plan 9](https://en.wikipedia.org/wiki/Plan_9_from_Bell_Labs) was Bell Labs'' experimental Unix successor. Though never mainstream, its distributed computing ideas were decades ahead of their time.
-
-![Plan 9 Bunny](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Plan9bunnysmall.jpg/240px-Plan9bunnysmall.jpg)
 
 ## Key Innovations
 
@@ -153,8 +175,11 @@ Plan 9 extended "everything is a file" to network resources, enabling true netwo
 Plan 9 concepts appear in contemporary systems like [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes), microservices, and service meshes. [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding was also developed for Plan 9.
 
 Plan 9 proved operating systems could be fundamentally different, paving the way for today''s [cloud computing](https://en.wikipedia.org/wiki/Cloud_computing) architectures.',
-    ARRAY['plan9', 'distributed-computing', 'bell-labs', 'innovation']
+    ARRAY['plan9', 'distributed-computing', 'bell-labs', 'innovation', 'os']
   ),
+
+
+  -- ############################## ARTICLE 5 #################################
   (
     '00000000-0000-0000-0000-000000000000',
     'concurrency-patterns-in-go',
@@ -183,18 +208,19 @@ go func() {
 - **Worker Pool**: Fixed goroutines processing tasks
 
 These patterns excel in [web servers](https://en.wikipedia.org/wiki/Web_server), data pipelines, and distributed systems. Go''s design is inspired by Tony Hoare''s 1978 [CSP model](https://en.wikipedia.org/wiki/Communicating_sequential_processes)—proving good ideas are timeless.',
-    ARRAY['go', 'concurrency', 'goroutines', 'channels']
+    ARRAY['go', 'concurrency', 'goroutines', 'channels', 'programming']
   ),
+
+
+  -- ############################## ARTICLE 6 #################################
   (
-    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000000', -- user_id
     'the-art-of-readable-code',
     'The Art of Readable Code',
     'Why code readability matters more than clever optimizations, and practical techniques for writing code that your future self will thank you for.',
     '# The Art of Readable Code
 
 Code is read far more than it''s written—a program may be written once but read hundreds of times. This truth should guide every programming decision.
-
-![Library](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Bookshelf.jpg/640px-Bookshelf.jpg)
 
 ## Why It Matters
 
@@ -213,16 +239,18 @@ Readable code is easier to debug, faster to modify, and less error-prone. Clear 
 Remember: You''re writing for the next programmer who maintains your code—and that might be you.',
     ARRAY['readability', 'clean-code', 'best-practices', 'programming']
   ),
+
+  -- ############################## ARTICLE 7 #################################
   (
-    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000001', -- user_id
     'debugging-complex-systems',
     'Debugging Complex Systems',
     'Effective strategies for finding and fixing bugs in large, distributed systems where traditional debugging approaches fall short.',
     '# Debugging Complex Systems
 
-Debugging distributed systems requires different approaches than single-threaded programs. When systems span multiple services and networks, traditional debugging becomes impractical.
+Debugging distributed systems requires different approaches than single-threaded programs.
 
-![Debugging](https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/ADAM_2M_50_Bug.JPG/480px-ADAM_2M_50_Bug.JPG)
+When systems span multiple services and networks, traditional debugging becomes impractical.
 
 ## Scientific Debugging Method
 
@@ -242,35 +270,7 @@ Debugging distributed systems requires different approaches than single-threaded
 [Production outages](https://en.wikipedia.org/wiki/Outage) teach the importance of monitoring, graceful degradation, rollback procedures, and blameless post-mortems.
 
 Key insight: Build observable systems by design. You can''t debug what you can''t see.',
-    ARRAY['debugging', 'distributed-systems', 'observability', 'sre']
-  ),
-  (
-    '00000000-0000-0000-0000-000000000000',
-    'software-engineering-at-google-scale',
-    'Software Engineering at Google Scale',
-    'How Google approaches software development, testing, and deployment when dealing with billions of users and petabytes of data.',
-    '# Software Engineering at Google Scale
-
-Building software for billions of users presents unique challenges. At [Google](https://en.wikipedia.org/wiki/Google), we''ve developed practices enabling thousands of engineers to collaborate on massive codebases.
-
-![Google Campus](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Googleplex-Palo_Alto.jpg/640px-Googleplex-Palo_Alto.jpg)
-
-## Key Practices
-
-**Monorepo**: Single repository with 2+ billion lines enables atomic changes, easy code sharing, and consistent standards.
-
-**Code Review**: Every change requires review for knowledge sharing, quality, and architectural consistency.
-
-**Testing Pyramid**: Unit tests (fast, numerous), integration tests (component interactions), end-to-end tests (user scenarios).
-
-![Testing Pyramid](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Software_testing_pyramid.svg/320px-Software_testing_pyramid.svg.png)
-
-**Continuous Deployment**: Automated testing, feature flags, and rollback procedures enable multiple daily deployments.
-
-**Infrastructure as Code**: Version-controlled infrastructure provides reproducible environments and disaster recovery.
-
-Google''s practices influenced the industry, from [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes) to [site reliability engineering](https://en.wikipedia.org/wiki/Site_reliability_engineering).',
-    ARRAY['google', 'software-engineering', 'scale', 'practices']
+    ARRAY['debugging', 'programming', 'distributed-systems', 'observability', 'sre']
   )
 ;
 
