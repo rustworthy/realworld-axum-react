@@ -132,7 +132,7 @@ dotenv:
 	@cat .env.example | tee -a .env
 
 .PHONY: setup
-setup: dotenv tools/install jaeger/start db/start db/setup prepare
+setup: dotenv tools/install jaeger/start db/start db/setup db/seed prepare
 
 # ------------------------- DEVELOPMENT COMMANDS -------------------------------
 .PHONY: prepare
