@@ -58,6 +58,18 @@ db/migrate/revert:
 db/reset:
 	sqlx db reset --database-url=${POSTGRES_URL}
 
+.PHONY: db/seed
+db/seed:
+	docker cp ./migrations/dev/seed.up.sql ${POSTGRES_CONTAINER_NAME}:docker-entrypoint-initdb.d/seed.up.sql
+	docker exec ${POSTGRES_CONTAINER_NAME} \
+		psql -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE} -f docker-entrypoint-initdb.d/seed.up.sql
+
+.PHONY: db/seed/revert
+db/seed/revert:
+	docker cp ./migrations/dev/seed.down.sql ${POSTGRES_CONTAINER_NAME}:docker-entrypoint-initdb.d/seed.down.sql
+	docker exec ${POSTGRES_CONTAINER_NAME} \
+		psql -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE} -f docker-entrypoint-initdb.d/seed.down.sql
+
 .PHONY: db/setup
 db/setup:
 	while ! (docker exec ${POSTGRES_CONTAINER_NAME} pg_isready); do \
