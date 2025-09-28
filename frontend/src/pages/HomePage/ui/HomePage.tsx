@@ -1,5 +1,4 @@
 import { FC, useMemo } from "react";
-import ReactPaginate, { ReactPaginateProps } from "react-paginate";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
@@ -7,6 +6,7 @@ import { useListArticlesQuery } from "@/shared/api";
 import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
+import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 
 import * as S from "./HomePage.styles";
 
@@ -36,7 +36,7 @@ export const HomePage: FC = () => {
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
   const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
 
-  const handlePageClick: ReactPaginateProps["onPageChange"] = ({ selected }) => {
+  const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
     setSearchParams((params) => {
       params.set("page", (selected + 1).toString());
       return params;
@@ -74,31 +74,11 @@ export const HomePage: FC = () => {
               ? null
               : isLoading
                 ? // TODO: add skeleton while loading
-                null
+                  null
                 : data!.articles.map((article) => (
-                  <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                ))}
-            {shouldPaginate ? (
-              <S.Pagination>
-                <ReactPaginate
-                  className="SimplePagination"
-                  pageLinkClassName="Page"
-                  activeLinkClassName="ActivePage"
-                  previousLinkClassName="PreviousPage"
-                  previousClassName="PreviousPageListItem"
-                  nextLinkClassName="NextPage"
-                  nextClassName="NextPageListItem"
-                  breakLabel="..."
-                  nextLabel=">"
-                  pageRangeDisplayed={2}
-                  marginPagesDisplayed={2}
-                  onPageChange={handlePageClick}
-                  pageCount={pagesCount}
-                  previousLabel="<"
-                  renderOnZeroPageCount={null}
-                />
-              </S.Pagination>
-            ) : null}
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
+            {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
           <S.TagsContainer>
             <p>Popular tags</p>

@@ -142,7 +142,7 @@ const api = generatedApi.enhanceEndpoints({
       // then, if we decide that there should be other roles capable of deleting
       // articles this can get messy;
       invalidatesTags: ["Article"],
-    }
+    },
   },
 });
 
