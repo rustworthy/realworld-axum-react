@@ -49,7 +49,9 @@ export const ArticleActions = styled.div`
 `;
 
 export const ArticleContent = styled.div`
-  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   color: ${({ theme }) => theme.page.article.content.textColor};
 
   p {

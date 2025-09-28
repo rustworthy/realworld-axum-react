@@ -5,10 +5,16 @@ export const PreviewContainer = styled.div`
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 export const PreviewMeta = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+export const PreviewBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;

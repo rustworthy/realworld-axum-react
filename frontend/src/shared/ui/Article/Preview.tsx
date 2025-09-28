@@ -65,9 +65,11 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled }) => {
         )}
       </S.PreviewMeta>
       <Link title="Read full article" to={`${ROUTES.ARTICLE}/${article.slug}`}>
-        <h2>{truncateText(article.title, 30)}</h2>
-        <p>{truncateText(article.description, 100)}</p>
-        <span>Read more...</span>
+        <S.PreviewBody>
+          <h2>{truncateText(article.title, 50)}</h2>
+          <p>{truncateText(article.description, 150)}</p>
+          <p>Read more...</p>
+        </S.PreviewBody>
       </Link>
       <TagList tagClassName="outline" tags={article.tagList} />
     </S.PreviewContainer>
