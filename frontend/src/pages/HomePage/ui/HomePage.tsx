@@ -76,10 +76,10 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                  null
+                    null
                   : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
+                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
