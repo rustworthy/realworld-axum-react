@@ -10,7 +10,7 @@ import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 
 import * as S from "./HomePage.styles";
 
-const ARTICLES_PER_PAGE = 8;
+const ARTICLES_PER_PAGE = 5;
 
 export type FeedType = "personal" | "global";
 

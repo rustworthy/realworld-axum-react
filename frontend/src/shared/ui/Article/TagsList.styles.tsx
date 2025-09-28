@@ -8,11 +8,12 @@ export const TagList = styled.ul`
 export const Tag = styled.li<{ $interactive?: boolean }>`
   background: ${({ theme }) => theme.shared.tag.backgroundColor};
   color: ${({ theme }) => theme.shared.tag.textColor};
-  padding: 0.125rem 0.5rem;
+  padding: 0.125rem 0.75rem;
   border-radius: 10rem;
   white-space: nowrap;
-  min-width: 1.75rem;
-  font-size: 0.75rem;
+  min-width: 2rem;
+  line-height: 1.4rem;
+  font-size: 0.9rem;
 
   &:hover {
     cursor: ${({ $interactive }) => ($interactive ? "pointer" : "default")};
