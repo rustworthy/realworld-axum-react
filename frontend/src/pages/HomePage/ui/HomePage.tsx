@@ -31,9 +31,10 @@ export const HomePage: FC = () => {
   // it's possible that url contains page that is past the aricles: e.g. they might
   // have manullay inserted the parameter (which is less likely) or the number of
   // articles decreased prior to them refreshing the page, and so there _are_ articles,
-  // but not at this offset; so we need to check both `artcilesCount` and `articles.length`
+  // but not at this offset; so we need to check both `artcilesCount` and `articles.length`;
+  // note that we prefer not to render pagination controls, if there is only one page
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
-  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 0 && !empty;
+  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
 
   const handlePageClick: ReactPaginateProps["onPageChange"] = ({ selected }) => {
     setSearchParams((params) => {
@@ -73,10 +74,10 @@ export const HomePage: FC = () => {
               ? null
               : isLoading
                 ? // TODO: add skeleton while loading
-                  null
+                null
                 : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
+                  <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                ))}
             {shouldPaginate ? (
               <S.Pagination>
                 <ReactPaginate
@@ -84,7 +85,9 @@ export const HomePage: FC = () => {
                   pageLinkClassName="Page"
                   activeLinkClassName="ActivePage"
                   previousLinkClassName="PreviousPage"
+                  previousClassName="PreviousPageListItem"
                   nextLinkClassName="NextPage"
+                  nextClassName="NextPageListItem"
                   breakLabel="..."
                   nextLabel=">"
                   pageRangeDisplayed={2}

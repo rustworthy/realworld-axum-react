@@ -63,7 +63,7 @@ export const TabList = styled.ul``;
 export const TabItem = styled.li`
   float: left;
 `;
-export const TabLink = styled(Link)<{ $isActive?: boolean }>`
+export const TabLink = styled(Link) <{ $isActive?: boolean }>`
   text-decoration: none;
   display: block;
   padding: 0.5em 1em;
@@ -116,6 +116,12 @@ export const Pagination = styled.div`
     .PreviousPage {
       border-bottom-left-radius: 0.25rem;
       border-top-left-radius: 0.25rem;
+    }
+
+    .PreviousPageListItem, .NextPageListItem {
+      &.disabled {
+        display: none;
+      }
     }
   }
 `;
