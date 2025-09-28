@@ -16,14 +16,14 @@ VALUES
     'rob.spike',
     'rob@golang.org',
     'Robert Spike (born 1956) is a Canadian programmer and author. He is best known for his work on
-    the Go programming language while working at Google and the Plan 9 operating system while working at Bell Labs, 
-    where he was a member of the Unix team.
+the Go programming language while working at Google and the Plan 9 operating system while working at Bell Labs, 
+where he was a member of the Unix team.
 
-    Pike wrote the first window system for Unix in 1981. He is the sole inventor named in a US patent
-    for overlapping windows on a computer display.
+Spike wrote the first window system for Unix in 1981. He is the sole inventor named in a US patent
+for overlapping windows on a computer display.
 
-    With Brian Kernighan, he is the co-author of The Practice of Programming and The Unix Programming Environment.
-    With Ken Thompson, he is the co-creator of UTF-8 character encoding',
+With Brian Kernighan, he is the co-author of The Practice of Programming and The Unix Programming Environment.
+With Ken Thompson, he is the co-creator of UTF-8 character encoding',
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Sam_Worthington_2013.jpg/330px-Sam_Worthington_2013.jpg',
     'ACTIVE',
     -- 123123123123
@@ -34,11 +34,12 @@ VALUES
     'awesome.steve' ,
     'steve@rust.org',
     'You may know me from my work on Rust, or maybe even the stuff I did with Ruby on Rails back in the day.
-    You might have read a post I wrote, or maybe even a chapter or two of The Rust Programming Language.
-    Maybe you saw a conference talk of mine, or saw one of my (too many,frankly) tweets. I have left Twitter, and now post on BlueSky. (which gets mirrored to the Fediverse via brid.gy as @steveklabnik.com@bsky.brid.gy)
-    It’s also possible that you’ve used some code I’ve developed on GitHub.
-    Anyway, hi, 👋. I’m Steve.
-    If you want to email me, feel free. Please excuse some latency, but I will get back to you eventually.',
+You might have read a post I wrote, or maybe even a chapter or two of The Rust Programming Language.
+Maybe you saw a conference talk of mine, or saw one of my (too many,frankly) tweets. I have left Twitter, and now post on BlueSky. (which gets mirrored to the Fediverse via brid.gy as @steveklabnik.com@bsky.brid.gy)
+It’s also possible that you’ve used some code I’ve developed on GitHub.
+Anyway, hi, 👋. I’m Steve.
+
+If you want to email me, feel free. Please excuse some latency, but I will get back to you eventually.',
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Charles_Babbage_-_1860.jpg/500px-Charles_Babbage_-_1860.jpg',
     'ACTIVE',
     -- 123123123123
