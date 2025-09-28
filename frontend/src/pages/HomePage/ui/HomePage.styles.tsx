@@ -51,6 +51,8 @@ export const MainContent = styled.div`
 export const FeedContainer = styled.div`
   width: 100%;
   flex: 3;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const TabContainer = styled.div`
@@ -63,7 +65,8 @@ export const TabList = styled.ul``;
 export const TabItem = styled.li`
   float: left;
 `;
-export const TabLink = styled(Link)<{ $isActive?: boolean }>`
+
+export const TabLink = styled(Link) <{ $isActive?: boolean }>`
   text-decoration: none;
   display: block;
   padding: 0.5em 1em;
@@ -78,10 +81,13 @@ export const TabLink = styled(Link)<{ $isActive?: boolean }>`
   }
 `;
 
+export const PreviewList = styled.div`
+  padding-bottom: 1rem;
+`;
+
 export const TagsContainer = styled.div`
   width: 100%;
-  flex: 1;
-  padding: 0.5rem 1rem;
+  flex: 1; padding: 0.5rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;

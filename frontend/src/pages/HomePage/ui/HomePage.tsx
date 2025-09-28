@@ -10,7 +10,7 @@ import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 
 import * as S from "./HomePage.styles";
 
-const ARTICLES_PER_PAGE = 2;
+const ARTICLES_PER_PAGE = 8;
 
 export type FeedType = "personal" | "global";
 
@@ -70,14 +70,16 @@ export const HomePage: FC = () => {
                 </S.TabItem>
               </S.TabList>
             </S.TabContainer>
-            {empty
-              ? null
-              : isLoading
-                ? // TODO: add skeleton while loading
+            <S.PreviewList>
+              {empty
+                ? null
+                : isLoading
+                  ? // TODO: add skeleton while loading
                   null
-                : data!.articles.map((article) => (
+                  : data!.articles.map((article) => (
                     <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
                   ))}
+            </S.PreviewList>
             {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
           <S.TagsContainer>

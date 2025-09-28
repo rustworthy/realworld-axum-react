@@ -73,3 +73,4 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled }) => {
     </S.PreviewContainer>
   );
 };
+
