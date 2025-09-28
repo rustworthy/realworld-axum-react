@@ -66,7 +66,7 @@ export const TabItem = styled.li`
   float: left;
 `;
 
-export const TabLink = styled(Link) <{ $isActive?: boolean }>`
+export const TabLink = styled(Link)<{ $isActive?: boolean }>`
   text-decoration: none;
   display: block;
   padding: 0.5em 1em;
@@ -87,7 +87,8 @@ export const PreviewList = styled.div`
 
 export const TagsContainer = styled.div`
   width: 100%;
-  flex: 1; padding: 0.5rem 1rem;
+  flex: 1;
+  padding: 0.5rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
