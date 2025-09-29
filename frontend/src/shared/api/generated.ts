@@ -61,6 +61,9 @@ const injectedRtkApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    listTags: build.query<ListTagsApiResponse, ListTagsApiArg>({
+      query: () => ({ url: `/api/tags` }),
+    }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
     }),
@@ -152,6 +155,8 @@ export type UnfavoriteArticleApiArg = {
   /** Article's slug identifier. */
   slug: string;
 };
+export type ListTagsApiResponse = /** status 200 Tags list successfully retrieved */ TagsList;
+export type ListTagsApiArg = void;
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -272,6 +277,10 @@ export type ArticlePayloadArticleUpdate = {
         This is will be used to generate a slug for this article. */
     title?: string;
   };
+};
+export type TagsList = {
+  /** List of tags. */
+  tags: string[];
 };
 export type UserPayloadUser = {
   user: {

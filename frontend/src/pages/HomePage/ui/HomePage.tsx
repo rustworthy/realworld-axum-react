@@ -55,15 +55,15 @@ export const HomePage: FC = () => {
       params.set("tag", tag);
       params.set("page", "1");
       return params;
-    })
-  }
+    });
+  };
 
   // say they fefresh the page or open a link someone shared with them:
   // if the tag is in the serach params we are treating it as selected
   // and activated
   useEffect(() => {
     if (tag !== null) {
-      setSelectedTag(tag)
+      setSelectedTag(tag);
     }
   }, []);
 
@@ -92,12 +92,13 @@ export const HomePage: FC = () => {
                     Global Feed
                   </S.TabLink>
                 </S.TabItem>
-                {!!selectedTag ?
+                {selectedTag ? (
                   <S.TabItem>
                     <S.TabLink $isActive={isTagView} to={`/?tag=${selectedTag}`}>
                       {selectedTag}
                     </S.TabLink>
-                  </S.TabItem> : null}
+                  </S.TabItem>
+                ) : null}
               </S.TabList>
             </S.TabContainer>
             <S.PreviewList>
@@ -105,10 +106,10 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                  null
+                    null
                   : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
+                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
