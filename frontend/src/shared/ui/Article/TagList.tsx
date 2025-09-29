@@ -12,7 +12,7 @@ export const TagList: FC<TagsListProps> = ({ tagClassName, tags, onClick }) => {
   return (
     <S.TagList>
       {tags.map((tag) => (
-        <S.Tag $interactive={!!onClick} key={tag} className={tagClassName}>
+        <S.Tag $interactive={!!onClick} onClick={() => onClick?.(tag)} key={tag} className={tagClassName}>
           {tag}
         </S.Tag>
       ))}

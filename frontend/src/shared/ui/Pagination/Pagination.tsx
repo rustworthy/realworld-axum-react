@@ -6,12 +6,14 @@ import * as S from "./Pagination.styles";
 export type PaginationProps = {
   onPageChange: ReactPaginateProps["onPageChange"];
   pageCount: ReactPaginateProps["pageCount"];
+  forcePage: ReactPaginateProps["forcePage"];
 };
 
-export const Pagination: FC<PaginationProps> = ({ onPageChange, pageCount }) => {
+export const Pagination: FC<PaginationProps> = ({ forcePage, onPageChange, pageCount }) => {
   return (
     <S.Pagination>
       <ReactPaginate
+        forcePage={forcePage}
         className="SimplePagination"
         pageLinkClassName="Page"
         activeLinkClassName="ActivePage"

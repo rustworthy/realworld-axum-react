@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
@@ -25,9 +25,11 @@ export const HomePage: FC = () => {
   const parsedPage = parseInt(searchParams.get("page")!);
   const page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
   const offset = (page - 1) * ARTICLES_PER_PAGE;
-  const isPersonalFeed = searchParams.get("feed") === "personal";
+  const tag = searchParams.get("tag");
+  const isTagView = tag !== null;
+  const isPersonalFeed = searchParams.get("feed") === "personal" && !isTagView;
   const useArticlesList = isPersonalFeed ? usePersonalFeedQuery : useListArticlesQuery;
-  const { data, isLoading, isError } = useArticlesList({ limit: ARTICLES_PER_PAGE, offset });
+  const { data, isLoading } = useArticlesList({ limit: ARTICLES_PER_PAGE, offset, tag: tag ?? undefined });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   // it's possible that url contains page that is past the aricles: e.g. they might
   // have manullay inserted the parameter (which is less likely) or the number of
@@ -37,6 +39,8 @@ export const HomePage: FC = () => {
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
   const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
 
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
   const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
     setSearchParams((params) => {
       params.set("page", (selected + 1).toString());
@@ -44,6 +48,24 @@ export const HomePage: FC = () => {
     });
     return selected;
   };
+
+  const handleTagClick = (tag: string) => {
+    setSelectedTag(tag);
+    setSearchParams((params) => {
+      params.set("tag", tag);
+      params.set("page", "1");
+      return params;
+    })
+  }
+
+  // say they fefresh the page or open a link someone shared with them:
+  // if the tag is in the serach params we are treating it as selected
+  // and activated
+  useEffect(() => {
+    if (tag !== null) {
+      setSelectedTag(tag)
+    }
+  }, []);
 
   return (
     <S.PageWrapper>
@@ -60,16 +82,22 @@ export const HomePage: FC = () => {
             <S.TabContainer>
               <S.TabList>
                 <S.TabItem>
-                  <S.TabLink $isActive={isPersonalFeed} to="/?feed=personal">
+                  <S.TabLink $isActive={isPersonalFeed} to="/?feed=personal&page=1">
                     Your Feed
                   </S.TabLink>
                 </S.TabItem>
                 <S.TabItem>
                   {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                  <S.TabLink $isActive={!isPersonalFeed} to="/?feed=global">
+                  <S.TabLink $isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1">
                     Global Feed
                   </S.TabLink>
                 </S.TabItem>
+                {!!selectedTag ?
+                  <S.TabItem>
+                    <S.TabLink $isActive={isTagView} to={`/?tag=${selectedTag}`}>
+                      {selectedTag}
+                    </S.TabLink>
+                  </S.TabItem> : null}
               </S.TabList>
             </S.TabContainer>
             <S.PreviewList>
@@ -82,11 +110,11 @@ export const HomePage: FC = () => {
                     <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
                   ))}
             </S.PreviewList>
-            {shouldPaginate ? <Pagination onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
+            {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
           <S.TagsContainer>
             <p>Popular tags</p>
-            <TagList tags={["art", "programming", "react", "rust"]} />
+            <TagList onClick={handleTagClick} tags={["art", "programming", "react", "rust"]} />
           </S.TagsContainer>
         </S.MainContent>
       </LayoutContainer>
