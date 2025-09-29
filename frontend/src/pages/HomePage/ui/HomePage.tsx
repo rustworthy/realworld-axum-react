@@ -107,21 +107,19 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                  null
+                    null
                   : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
+                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
-          {
-            isTagsRequestLoading ? null : (
-              <S.TagsContainer>
-                <p>Popular tags</p>
-                <TagList onClick={handleTagClick} tags={tagsData?.tags ?? []} />
-              </S.TagsContainer>
-            )
-          }
+          {isTagsRequestLoading ? null : (
+            <S.TagsContainer>
+              <p>Popular tags</p>
+              <TagList onClick={handleTagClick} tags={tagsData?.tags ?? []} />
+            </S.TagsContainer>
+          )}
         </S.MainContent>
       </LayoutContainer>
     </S.PageWrapper>
