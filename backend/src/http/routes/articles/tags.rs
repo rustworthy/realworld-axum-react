@@ -37,6 +37,16 @@ pub(crate) struct TagsList {
     ),
 )]
 #[instrument(name = "TAGS LIST", skip_all)]
-pub async fn list_tags(_ctx: State<Arc<AppContext>>) -> Result<Json<TagsList>, Error> {
-    Ok(Json(TagsList { tags: vec![] }))
+pub async fn list_tags(ctx: State<Arc<AppContext>>) -> Result<Json<TagsList>, Error> {
+    let tags = sqlx::query!(
+        r#"
+        SELECT COUNT(*) as "count", UNNEST(tags) AS "tag!"
+        FROM articles GROUP BY "tag!" ORDER BY "count" DESC;
+    "#
+    )
+    .fetch_all(&ctx.db)
+    .await?;
+    Ok(Json(TagsList {
+        tags: tags.into_iter().map(|row| row.tag).collect(),
+    }))
 }
