@@ -160,6 +160,7 @@ export const {
   useFavoriteArticleMutation,
   useUnfavoriteArticleMutation,
   usePersonalFeedQuery,
+  useListTagsQuery,
 } = api;
 
 export type {

@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
-import { useListArticlesQuery, usePersonalFeedQuery } from "@/shared/api";
+import { useListArticlesQuery, useListTagsQuery, usePersonalFeedQuery } from "@/shared/api";
 import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
@@ -39,6 +39,7 @@ export const HomePage: FC = () => {
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
   const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
 
+  const { data: tagsData, isLoading: isTagsRequestLoading } = useListTagsQuery();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
@@ -106,17 +107,21 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                    null
+                  null
                   : data!.articles.map((article) => (
-                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                    ))}
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
-          <S.TagsContainer>
-            <p>Popular tags</p>
-            <TagList onClick={handleTagClick} tags={["art", "programming", "react", "rust"]} />
-          </S.TagsContainer>
+          {
+            isTagsRequestLoading ? null : (
+              <S.TagsContainer>
+                <p>Popular tags</p>
+                <TagList onClick={handleTagClick} tags={tagsData?.tags ?? []} />
+              </S.TagsContainer>
+            )
+          }
         </S.MainContent>
       </LayoutContainer>
     </S.PageWrapper>
