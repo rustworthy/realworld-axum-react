@@ -10,6 +10,7 @@ mod comments;
 mod crud;
 mod favorite;
 mod list;
+mod tags;
 
 // ---------------------------- SHARED TYPES -----------------------------------
 
@@ -111,7 +112,10 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
         .routes(routes!(list::list_articles,))
         .routes(routes!(list::personal_feed,));
 
+    let tags_router = OpenApiRouter::new().routes(routes!(tags::list_tags,));
+
     OpenApiRouter::new()
         .nest("/articles", articles_router)
+        .nest("/tags", tags_router)
         .with_state(ctx)
 }

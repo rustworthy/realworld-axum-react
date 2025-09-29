@@ -1,8 +1,6 @@
 use super::Article;
 use crate::http::errors::Error;
 use crate::http::extractors::{MaybeUserID, UserID};
-use crate::http::routes::articles::Author;
-use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
 use axum::Json;
 use axum::extract::rejection::QueryRejection;
@@ -87,8 +85,57 @@ pub async fn list_articles(
 ) -> Result<Json<ArticlesList>, Error> {
     let Query(q) = q?;
     q.validate()?;
+    let payload = db::fetch_general_feed(&ctx.db, &q, uid.0.as_deref()).await?;
+    Ok(Json(payload))
+}
 
-    let resp = sqlx::query!(
+/// Personal feed.
+///
+/// Similar to the `list_articles` operation, but will return only articles
+/// authored by users the current (calling) user is following. Hence, authentication
+/// is required.
+#[utoipa::path(
+    get,
+    path = "/feed",
+    tags = ["Articles"],
+    params(ListQuery),
+    responses(
+        (status = 200, description = "Articles list successfully retrieved", body = ArticlesList),
+        (status = 401, description = "Token missing or invalid"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        (),
+        ("HttpAuthBearerJWT" = []),
+    ),
+)]
+#[instrument(name = "PERSONAL FEED", skip_all)]
+pub async fn personal_feed(
+    ctx: State<Arc<AppContext>>,
+    q: Result<Query<ListQuery>, QueryRejection>,
+    uid: UserID,
+) -> Result<Json<ArticlesList>, Error> {
+    let Query(q) = q?;
+    q.validate()?;
+    let payload = db::fetch_personal_feed(&ctx.db, &q, &uid).await?;
+    Ok(Json(payload))
+}
+
+mod db {
+    use super::{ArticlesList, ListQuery};
+    use super::{DEFAULT_LIMIT, DEFAULT_OFFSET};
+    use crate::http::errors::Error;
+    use crate::http::routes::articles::{Article, Author};
+    use crate::http::routes::users::utils::parse_image_url;
+    use sqlx::PgPool;
+    use uuid::Uuid;
+
+    pub async fn fetch_general_feed(
+        pg_pool: &PgPool,
+        q: &ListQuery,
+        uid: Option<&Uuid>,
+    ) -> Result<ArticlesList, Error> {
+        let resp = sqlx::query!(
         r#"
         SELECT
             coalesce(count(*) OVER(), 0) "count!",
@@ -130,34 +177,34 @@ pub async fn list_articles(
         q.favorited,
         q.offset.unwrap_or(DEFAULT_OFFSET) as i64,
         q.limit.unwrap_or(DEFAULT_LIMIT) as i64,
-        uid.0.as_deref(),
+        uid,
     )
-    .fetch_all(&ctx.db)
+    .fetch_all(pg_pool)
     .await?;
 
-    let payload = if resp.is_empty() {
-        // no rows can mean that:
-        //  - no rows satisfying the filter (which is fine and we could simply
-        //  return ArtcilesList{ articles: vec![], acount 0}), but there also
-        //  at least two other reasons for zero rows returned:
-        //  - `offset` greater than or equal to articles count or ...
-        //  - `limit` is set to 0
-        //  we are doing an extra db call without limit and offset
-        //  to get the count of articles matching the filter;
-        //
-        //  there is a chance that an article matching query gets inserted
-        //  and committed into the table after the initial query and prior to
-        //  the following one, but with the default isolation level `READ COMMITTED`,
-        //  even if we create a transaction ...
-        //  ```
-        //  let tx = ctx.db.begin().await?;
-        //  ```
-        //  ... and use the transaction as query executor we still can hit
-        //  this corner case where we are returning 0 articles but also saying
-        //  that there is, say, 1 article matching the query; we are allowing
-        //  this case as not that likely to actually happen, but should keep it mind
-        let count = sqlx::query_scalar!(
-            r#"
+        let payload = if resp.is_empty() {
+            // no rows can mean that:
+            //  - no rows satisfying the filter (which is fine and we could simply
+            //  return ArtcilesList{ articles: vec![], acount 0}), but there also
+            //  at least two other reasons for zero rows returned:
+            //  - `offset` greater than or equal to articles count or ...
+            //  - `limit` is set to 0
+            //  we are doing an extra db call without limit and offset
+            //  to get the count of articles matching the filter;
+            //
+            //  there is a chance that an article matching query gets inserted
+            //  and committed into the table after the initial query and prior to
+            //  the following one, but with the default isolation level `READ COMMITTED`,
+            //  even if we create a transaction ...
+            //  ```
+            //  let tx = ctx.db.begin().await?;
+            //  ```
+            //  ... and use the transaction as query executor we still can hit
+            //  this corner case where we are returning 0 articles but also saying
+            //  that there is, say, 1 article matching the query; we are allowing
+            //  this case as not that likely to actually happen, but should keep it mind
+            let count = sqlx::query_scalar!(
+                r#"
             SELECT
                 coalesce(count(*), 0) "count!"
             FROM
@@ -171,86 +218,164 @@ pub async fn list_articles(
                 )
             )
             "#,
-            q.author,
-            q.tag,
-            q.favorited,
-        )
-        .fetch_one(&ctx.db)
-        .await?;
-        ArticlesList {
-            articles: vec![],
-            count: count as usize,
-        }
-    } else {
-        let count = resp[0].count as usize;
-        let mut articles = Vec::with_capacity(resp.len());
-        for item in resp {
-            let article = Article {
-                slug: item.slug,
-                title: item.title,
-                // as per the spec, to get the article's body, they need to query
-                // a dedicated endpoint (`/api/articles/{slug}`); we could also
-                // create a dedicated struct (say, ArticleListItem) omiting
-                // the `body` field to not confuse out API user, but since
-                // we are currently the only consumer of this API and provided
-                // we have this documented via Open API UI (Scalar), it's fine
-                // to re-use the "core" articles endpoints struct
-                body: String::default(),
-                description: item.description,
-                tags: item.tags,
-                created_at: item.created_at,
-                updated_at: item.updated_at.unwrap_or(item.created_at),
-                favorited: item.favorited,
-                favorited_count: item.favorited_count.unwrap_or_default() as usize,
-                author: {
-                    Author {
-                        username: item.author_username,
-                        bio: item.author_bio,
-                        image: parse_image_url(item.author_image.as_deref())?,
-                        // TODO: update once the follow/unfollow logic is there
-                        following: false,
-                    }
-                },
-            };
-            articles.push(article);
-        }
-        ArticlesList { articles, count }
-    };
-    Ok(Json(payload))
-}
+                q.author,
+                q.tag,
+                q.favorited,
+            )
+            .fetch_one(pg_pool)
+            .await?;
+            ArticlesList {
+                articles: vec![],
+                count: count as usize,
+            }
+        } else {
+            let count = resp[0].count as usize;
+            let mut articles = Vec::with_capacity(resp.len());
+            for item in resp {
+                let article = Article {
+                    slug: item.slug,
+                    title: item.title,
+                    // as per the spec, to get the article's body, they need to query
+                    // a dedicated endpoint (`/api/articles/{slug}`); we could also
+                    // create a dedicated struct (say, ArticleListItem) omiting
+                    // the `body` field to not confuse out API user, but since
+                    // we are currently the only consumer of this API and provided
+                    // we have this documented via Open API UI (Scalar), it's fine
+                    // to re-use the "core" articles endpoints struct
+                    body: String::default(),
+                    description: item.description,
+                    tags: item.tags,
+                    created_at: item.created_at,
+                    updated_at: item.updated_at.unwrap_or(item.created_at),
+                    favorited: item.favorited,
+                    favorited_count: item.favorited_count.unwrap_or_default() as usize,
+                    author: {
+                        Author {
+                            username: item.author_username,
+                            bio: item.author_bio,
+                            image: parse_image_url(item.author_image.as_deref())?,
+                            // TODO: update once the follow/unfollow logic is there
+                            following: false,
+                        }
+                    },
+                };
+                articles.push(article);
+            }
+            ArticlesList { articles, count }
+        };
+        Ok(payload)
+    }
 
-/// Personal feed.
-///
-/// Similar to the `list_articles` operation, but will return only articles
-/// authored by users the current (calling) user is following. Hence, authentication
-/// is required.
-#[utoipa::path(
-    get,
-    path = "/feed",
-    tags = ["Articles"],
-    params(ListQuery),
-    responses(
-        (status = 200, description = "Articles list successfully retrieved", body = ArticlesList),
-        (status = 401, description = "Token missing or invalid"),
-        (status = 500, description = "Internal server error."),
-    ),
-    security(
-        (),
-        ("HttpAuthBearerJWT" = []),
-    ),
-)]
-#[instrument(name = "PERSONAL FEED", skip_all)]
-pub async fn personal_feed(
-    _ctx: State<Arc<AppContext>>,
-    q: Result<Query<ListQuery>, QueryRejection>,
-    _uid: UserID,
-) -> Result<Json<ArticlesList>, Error> {
-    let Query(q) = q?;
-    q.validate()?;
-    // TODO: actually fetch articles when following/unfollowing
-    // functionality is there
-    Ok(Json(ArticlesList {
-        articles: vec![],
-        count: 0,
-    }))
+    pub async fn fetch_personal_feed(
+        pg_pool: &PgPool,
+        q: &ListQuery,
+        uid: &Uuid,
+    ) -> Result<ArticlesList, Error> {
+        let resp = sqlx::query!(
+        r#"
+        SELECT
+            coalesce(count(*) OVER(), 0) "count!",
+            article.slug,
+            article.title,
+            article.description,
+            article.tags,
+            article.created_at,
+            article.updated_at,
+            EXISTS(
+                SELECT 1 FROM favorites
+                WHERE article_id = article.article_id AND user_id = $6::UUID
+            ) AS "favorited!",
+            (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,
+            author.username AS author_username,
+            author.bio AS author_bio,
+            author.image AS author_image
+        FROM
+            "articles" article
+                JOIN "follows" ON user_id = followed_user_id
+                JOIN "users" author USING (user_id)
+        WHERE
+            following_user_id = $6::UUID AND
+            ($1::text IS NULL OR author.username = $1::text) AND
+            ($2::text IS NULL OR article.tags @> ARRAY[$2::text]) AND
+            (
+                $3::text IS NULL OR
+                EXISTS(
+                    SELECT 1 FROM favorites fav JOIN users USING (user_id)
+                    WHERE fav.article_id = article.article_id AND username = $3
+                )
+            )
+        ORDER BY article.created_at DESC
+        OFFSET $4
+        LIMIT $5
+    "#,
+        q.author,
+        q.tag,
+        q.favorited,
+        q.offset.unwrap_or(DEFAULT_OFFSET) as i64,
+        q.limit.unwrap_or(DEFAULT_LIMIT) as i64,
+        uid,
+    )
+    .fetch_all(pg_pool)
+    .await?;
+
+        let payload = if resp.is_empty() {
+            let count = sqlx::query_scalar!(
+                r#"
+                SELECT
+                    coalesce(count(*), 0) "count!"
+                FROM
+                    articles
+                        JOIN follows ON user_id = followed_user_id
+                        JOIN users USING (user_id)
+                WHERE
+                    following_user_id = $4::UUID AND
+                    ($1::text IS NULL OR username = $1::text) AND
+                    ($2::text IS NULL OR tags @> ARRAY[$2::text]) AND
+                    (
+                        $3::text IS NULL OR EXISTS(
+                        SELECT 1 FROM favorites fav JOIN users USING (user_id)
+                        WHERE fav.article_id = article_id AND username = $3
+                    )
+                )
+            "#,
+                q.author,
+                q.tag,
+                q.favorited,
+                uid,
+            )
+            .fetch_one(pg_pool)
+            .await?;
+            ArticlesList {
+                articles: vec![],
+                count: count as usize,
+            }
+        } else {
+            let count = resp[0].count as usize;
+            let mut articles = Vec::with_capacity(resp.len());
+            for item in resp {
+                let article = Article {
+                    slug: item.slug,
+                    title: item.title,
+                    body: String::default(),
+                    description: item.description,
+                    tags: item.tags,
+                    created_at: item.created_at,
+                    updated_at: item.updated_at.unwrap_or(item.created_at),
+                    favorited: item.favorited,
+                    favorited_count: item.favorited_count.unwrap_or_default() as usize,
+                    author: {
+                        Author {
+                            username: item.author_username,
+                            bio: item.author_bio,
+                            image: parse_image_url(item.author_image.as_deref())?,
+                            following: true,
+                        }
+                    },
+                };
+                articles.push(article);
+            }
+            ArticlesList { articles, count }
+        };
+        Ok(payload)
+    }
 }
