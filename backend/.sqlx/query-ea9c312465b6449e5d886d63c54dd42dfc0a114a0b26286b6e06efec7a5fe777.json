@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT COUNT(*) as \"count\", UNNEST(tags) AS \"tag!\"\n        FROM articles GROUP BY \"tag!\" ORDER BY \"count\" DESC;\n    ",
+  "query": "\n        SELECT COUNT(*) as \"count\", UNNEST(tags) AS \"tag!\"\n        FROM articles GROUP BY \"tag!\" ORDER BY \"count\" DESC;\n        ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       null
     ]
   },
-  "hash": "bfeedec68fea58d3764c33630ee2788fecf92f71a503868c70e5ca3fc6a19c1c"
+  "hash": "ea9c312465b6449e5d886d63c54dd42dfc0a114a0b26286b6e06efec7a5fe777"
 }
