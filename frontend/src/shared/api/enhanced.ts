@@ -49,15 +49,15 @@ const api = generatedApi.enhanceEndpoints({
           // utilize an rtk's `selectInvalidatedBy` helper that returns all
           // the chache registries this item is found in:
           // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#selectinvalidatedby
-          api.util.selectInvalidatedBy(getState(), ["Article"]).forEach(({ endpointName, originalArgs }) => {
-            if (endpointName !== "listArticles") return;
+          for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+            if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
             dispatch(
               api.util.updateQueryData(endpointName, originalArgs, (draft) => {
                 const article = draft.articles.find((article) => article.slug === slug);
                 if (article) Object.assign(article, data.article);
               }),
             );
-          });
+          }
         } catch {
           // no-op
         }
@@ -80,7 +80,7 @@ const api = generatedApi.enhanceEndpoints({
         // just like in `updateArticle` operation, search for this article in
         // cache registries and only surgically update it in each registry
         for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
-          if (endpointName !== "listArticles") continue;
+          if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
               api.util.updateQueryData(endpointName, originalArgs, (draft) => {
@@ -111,7 +111,7 @@ const api = generatedApi.enhanceEndpoints({
         );
         // similar to `favoriteArticle` operation
         for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
-          if (endpointName !== "listArticles") continue;
+          if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
               api.util.updateQueryData(endpointName, originalArgs, (draft) => {
@@ -159,6 +159,8 @@ export const {
   useLoginMutation,
   useFavoriteArticleMutation,
   useUnfavoriteArticleMutation,
+  usePersonalFeedQuery,
+  useListTagsQuery,
 } = api;
 
 export type {

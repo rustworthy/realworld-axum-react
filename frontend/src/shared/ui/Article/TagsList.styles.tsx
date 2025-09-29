@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 export const TagList = styled.ul`
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 `;
 
 export const Tag = styled.li<{ $interactive?: boolean }>`
