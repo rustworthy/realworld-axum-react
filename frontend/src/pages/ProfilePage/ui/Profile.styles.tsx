@@ -31,6 +31,12 @@ export const MainContent = styled(LayoutContainer)`
   align-items: center;
 `;
 
+export const FeedContainer = styled.div`
+  max-width: 50rem;
+  display: flex;
+  flex-direction: column;
+`;
+
 export const ProfileMeta = styled.div`
   display: flex;
   align-items: center;
@@ -59,7 +65,6 @@ export const ProfileActions = styled.div`
 `;
 
 export const PreviewList = styled.div`
-  max-width: 50rem;
   display: flex;
   flex-direction: column;
 `;

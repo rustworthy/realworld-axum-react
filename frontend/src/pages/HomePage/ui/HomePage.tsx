@@ -9,6 +9,7 @@ import { LayoutContainer } from "@/shared/ui/Container";
 import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 
 import * as S from "./HomePage.styles";
+import { Tabs } from "@/shared/ui/Tabs";
 
 const ARTICLES_PER_PAGE = 5;
 
@@ -80,37 +81,37 @@ export const HomePage: FC = () => {
       <LayoutContainer>
         <S.MainContent>
           <S.FeedContainer>
-            <S.TabContainer>
-              <S.TabList>
-                <S.TabItem>
-                  <S.TabLink $isActive={isPersonalFeed} to="/?feed=personal&page=1">
+            <Tabs.Root>
+              <Tabs.List>
+                <Tabs.Item>
+                  <Tabs.Link $isActive={isPersonalFeed} to="/?feed=personal&page=1">
                     Your Feed
-                  </S.TabLink>
-                </S.TabItem>
-                <S.TabItem>
+                  </Tabs.Link>
+                </Tabs.Item>
+                <Tabs.Item>
                   {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                  <S.TabLink $isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1">
+                  <Tabs.Link $isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1">
                     Global Feed
-                  </S.TabLink>
-                </S.TabItem>
+                  </Tabs.Link>
+                </Tabs.Item>
                 {selectedTag ? (
-                  <S.TabItem>
-                    <S.TabLink $isActive={isTagView} to={`/?tag=${selectedTag}`}>
+                  <Tabs.Item>
+                    <Tabs.Link $isActive={isTagView} to={`/?tag=${selectedTag}`}>
                       {selectedTag}
-                    </S.TabLink>
-                  </S.TabItem>
+                    </Tabs.Link>
+                  </Tabs.Item>
                 ) : null}
-              </S.TabList>
-            </S.TabContainer>
+              </Tabs.List>
+            </Tabs.Root>
             <S.PreviewList>
               {empty
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                    null
+                  null
                   : data!.articles.map((article) => (
-                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                    ))}
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
