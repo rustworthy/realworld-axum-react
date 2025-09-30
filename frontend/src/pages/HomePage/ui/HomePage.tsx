@@ -82,9 +82,9 @@ export const HomePage: FC = () => {
         <S.MainContent>
           <S.FeedContainer>
             <Tabs.List>
-              <Tabs.Item isActive={isPersonalFeed} to="/?feed=personal&page=1" label="Your Feed" />
-              <Tabs.Item isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1" label="Global Feed" />
-              {selectedTag ? <Tabs.Item isActive={isTagView} to={`/?tag=${selectedTag}`} label={selectedTag} /> : null}
+              <Tabs.Item isActive={isPersonalFeed} to="?feed=personal&page=1" label="Your Feed" />
+              <Tabs.Item isActive={!isPersonalFeed && !isTagView} to="?feed=global&page=1" label="Global Feed" />
+              {selectedTag ? <Tabs.Item isActive={isTagView} to={`?tag=${selectedTag}&page=1`} label={selectedTag} /> : null}
             </Tabs.List>
             <S.PreviewList>
               {empty

@@ -24,12 +24,19 @@ export const ProfilePage = () => {
   const { user: loggedInUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useSearchParams({ feed: "global", page: "1" });
+  const [searchParams, setSearchParams] = useSearchParams({ feed: "authored", page: "1" });
   const parsedPage = parseInt(searchParams.get("page")!);
   const page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
   const offset = (page - 1) * ARTICLES_PER_PAGE;
+  const feed = searchParams.get("feed");
+  const isFavoritedView = feed === "favorited";
 
-  const { data, isLoading } = useListArticlesQuery({ author: username, limit: ARTICLES_PER_PAGE, offset });
+  const { data, isLoading } = useListArticlesQuery({
+    limit: ARTICLES_PER_PAGE,
+    offset,
+    author: isFavoritedView ? undefined : username,
+    favorited: isFavoritedView ? username : undefined,
+  });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
   const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
@@ -77,8 +84,8 @@ export const ProfilePage = () => {
         <S.FeedContainer>
           <Tabs.List>
             {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-            <Tabs.Item to="" label="My Articles" />
-            <Tabs.Item to="" label="Favorited Articles" />
+            <Tabs.Item isActive={!isFavoritedView} to="?feed=authored&page=1" label="My Articles" />
+            <Tabs.Item isActive={isFavoritedView} to="?feed=favorited&page=1" label="Favorited Articles" />
           </Tabs.List>
           <S.PreviewList>
             {empty
