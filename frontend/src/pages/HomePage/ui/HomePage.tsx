@@ -81,28 +81,11 @@ export const HomePage: FC = () => {
       <LayoutContainer>
         <S.MainContent>
           <S.FeedContainer>
-            <Tabs.Root>
-              <Tabs.List>
-                <Tabs.Item>
-                  <Tabs.Link $isActive={isPersonalFeed} to="/?feed=personal&page=1">
-                    Your Feed
-                  </Tabs.Link>
-                </Tabs.Item>
-                <Tabs.Item>
-                  {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                  <Tabs.Link $isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1">
-                    Global Feed
-                  </Tabs.Link>
-                </Tabs.Item>
-                {selectedTag ? (
-                  <Tabs.Item>
-                    <Tabs.Link $isActive={isTagView} to={`/?tag=${selectedTag}`}>
-                      {selectedTag}
-                    </Tabs.Link>
-                  </Tabs.Item>
-                ) : null}
-              </Tabs.List>
-            </Tabs.Root>
+            <Tabs.List>
+              <Tabs.Item isActive={isPersonalFeed} to="/?feed=personal&page=1" label="Your Feed" />
+              <Tabs.Item isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1" label="Global Feed" />
+              {selectedTag ? <Tabs.Item isActive={isTagView} to={`/?tag=${selectedTag}`} label={selectedTag} /> : null}
+            </Tabs.List>
             <S.PreviewList>
               {empty
                 ? null

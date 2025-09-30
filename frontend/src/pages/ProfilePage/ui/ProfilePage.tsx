@@ -75,17 +75,11 @@ export const ProfilePage = () => {
       </S.Banner>
       <S.MainContent>
         <S.FeedContainer>
-          <Tabs.Root>
-            <Tabs.List>
-              <Tabs.Item>
-                <Tabs.Link to="">My Articles</Tabs.Link>
-              </Tabs.Item>
-              <Tabs.Item>
-                {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                <Tabs.Link to="">Favorited Articles</Tabs.Link>
-              </Tabs.Item>
-            </Tabs.List>
-          </Tabs.Root>
+          <Tabs.List>
+            {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
+            <Tabs.Item to="" label="My Articles" />
+            <Tabs.Item to="" label="Favorited Articles" />
+          </Tabs.List>
           <S.PreviewList>
             {empty
               ? null
