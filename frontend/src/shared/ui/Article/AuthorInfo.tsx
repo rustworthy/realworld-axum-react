@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { ArticlePayloadArticle } from "@/shared/api";
 import { formatDate, truncateText } from "@/shared/lib/utils";
 
+import { Avatar } from "../Avatar";
 import * as S from "./AuthorInfo.styles";
 
 export type AuthorInfoProps = {
@@ -17,10 +18,7 @@ export const AuthorInfo: FC<AuthorInfoProps> = ({ article }) => {
   return (
     <S.AuthorInfo>
       <Link to={profilePath}>
-        <S.AuthorImage
-          src={article.author.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
-          alt={`${username}'s profile picture`}
-        />
+        <Avatar imageUrl={article.author.image} username={username} />
       </Link>
       <S.AuthorInfoNameBlock>
         <S.AuthorName to={profilePath}>{truncateText(username, 20)}</S.AuthorName>

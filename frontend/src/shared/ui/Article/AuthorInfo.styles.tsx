@@ -15,14 +15,6 @@ export const AuthorInfoNameBlock = styled.div`
   line-height: 1.2;
 `;
 
-export const AuthorImage = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-  object-position: top center;
-  border-radius: 50%;
-`;
-
 export const AuthorName = styled(Link)`
   color: inherit;
   text-decoration: none;

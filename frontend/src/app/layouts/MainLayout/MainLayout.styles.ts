@@ -52,14 +52,6 @@ export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`
   }
 `;
 
-export const HeaderAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-  object-position: top center;
-  border-radius: 50%;
-`;
-
 export const ChildrenContainer = styled.main`
   flex-grow: 1;
 `;
