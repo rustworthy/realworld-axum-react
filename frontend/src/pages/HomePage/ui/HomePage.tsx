@@ -7,6 +7,7 @@ import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
 import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
+import { Tabs } from "@/shared/ui/Tabs";
 
 import * as S from "./HomePage.styles";
 
@@ -80,28 +81,11 @@ export const HomePage: FC = () => {
       <LayoutContainer>
         <S.MainContent>
           <S.FeedContainer>
-            <S.TabContainer>
-              <S.TabList>
-                <S.TabItem>
-                  <S.TabLink $isActive={isPersonalFeed} to="/?feed=personal&page=1">
-                    Your Feed
-                  </S.TabLink>
-                </S.TabItem>
-                <S.TabItem>
-                  {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                  <S.TabLink $isActive={!isPersonalFeed && !isTagView} to="/?feed=global&page=1">
-                    Global Feed
-                  </S.TabLink>
-                </S.TabItem>
-                {selectedTag ? (
-                  <S.TabItem>
-                    <S.TabLink $isActive={isTagView} to={`/?tag=${selectedTag}`}>
-                      {selectedTag}
-                    </S.TabLink>
-                  </S.TabItem>
-                ) : null}
-              </S.TabList>
-            </S.TabContainer>
+            <Tabs.List>
+              <Tabs.Item isActive={isPersonalFeed} to="?feed=personal&page=1" label="Your Feed" />
+              <Tabs.Item isActive={!isPersonalFeed && !isTagView} to="?feed=global&page=1" label="Global Feed" />
+              {selectedTag ? <Tabs.Item isActive={isTagView} to={`?tag=${selectedTag}&page=1`} label={selectedTag} /> : null}
+            </Tabs.List>
             <S.PreviewList>
               {empty
                 ? null
