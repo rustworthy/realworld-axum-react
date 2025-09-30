@@ -15,15 +15,9 @@ export const PreviewMeta = styled.div`
   justify-content: space-between;
 `;
 
-export const PreviewBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  line-height: 1.25rem;
-  padding-bottom: 0.5rem;
+export const PreviewTitle = styled.h2`
+  padding: 0.25rem 0 0.75rem;
 `;
-
-export const PreviewTitle = styled.h2``;
 
 export const PreviewDescription = styled.div`
   opacity: 0.5;
