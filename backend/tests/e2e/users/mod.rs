@@ -1,3 +1,3 @@
+mod current;
 mod login;
 mod register;
-mod current;
