@@ -9,11 +9,11 @@ import { truncateText } from "@/shared/lib/utils";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Pagination, PaginationProps } from "@/shared/ui/Pagination";
+import { Tabs } from "@/shared/ui/Tabs";
 import { ActionButton } from "@/shared/ui/controls/Button";
 import { GearIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 
 import * as S from "./Profile.styles";
-import { Tabs } from "@/shared/ui/Tabs";
 
 const ARTICLES_PER_PAGE = 3;
 
@@ -78,15 +78,11 @@ export const ProfilePage = () => {
           <Tabs.Root>
             <Tabs.List>
               <Tabs.Item>
-                <Tabs.Link to="">
-                  My Articles
-                </Tabs.Link>
+                <Tabs.Link to="">My Articles</Tabs.Link>
               </Tabs.Item>
               <Tabs.Item>
                 {/* TODO: figure out why react is unhappy witha the `$isActive` transient prop */}
-                <Tabs.Link to="">
-                  Favorited Articles
-                </Tabs.Link>
+                <Tabs.Link to="">Favorited Articles</Tabs.Link>
               </Tabs.Item>
             </Tabs.List>
           </Tabs.Root>
@@ -95,10 +91,10 @@ export const ProfilePage = () => {
               ? null
               : isLoading
                 ? // TODO: add skeleton while loading
-                null
+                  null
                 : data!.articles.map((article) => (
-                  <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                ))}
+                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                  ))}
           </S.PreviewList>
           {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
         </S.FeedContainer>

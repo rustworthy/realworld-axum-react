@@ -1,5 +1,3 @@
-import { Link } from "react-router";
-
 import styled from "@emotion/styled";
 
 import { TABLET_WIDTH } from "@/shared/constants/styles.constants";

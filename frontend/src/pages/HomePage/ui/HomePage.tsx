@@ -7,9 +7,9 @@ import { TagList } from "@/shared/ui/Article";
 import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
 import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
+import { Tabs } from "@/shared/ui/Tabs";
 
 import * as S from "./HomePage.styles";
-import { Tabs } from "@/shared/ui/Tabs";
 
 const ARTICLES_PER_PAGE = 5;
 
@@ -108,10 +108,10 @@ export const HomePage: FC = () => {
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
-                  null
+                    null
                   : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
-                  ))}
+                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>

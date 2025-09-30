@@ -1,5 +1,6 @@
-import styled from "@emotion/styled";
 import { Link } from "react-router";
+
+import styled from "@emotion/styled";
 
 export const TabContainer = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ export const TabItem = styled.li`
   float: left;
 `;
 
-export const TabLink = styled(Link) <{ $isActive?: boolean }>`
+export const TabLink = styled(Link)<{ $isActive?: boolean }>`
   text-decoration: none;
   display: block;
   padding: 0.5em 1em;

@@ -5,5 +5,4 @@ export const Tabs = {
   List: S.TabList,
   Item: S.TabItem,
   Link: S.TabLink,
-}
-
+};
