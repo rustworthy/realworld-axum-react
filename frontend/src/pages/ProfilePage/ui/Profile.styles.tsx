@@ -32,6 +32,7 @@ export const MainContent = styled(LayoutContainer)`
 `;
 
 export const FeedContainer = styled.div`
+  width: 100%;
   max-width: 50rem;
   display: flex;
   flex-direction: column;

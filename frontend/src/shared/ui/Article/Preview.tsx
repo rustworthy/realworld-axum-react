@@ -15,9 +15,10 @@ import { TagList } from "./TagList";
 export type PreviewProps = {
   article: ArticlePayloadArticle["article"];
   actionsEnabled?: boolean;
+  afterActionCallback?: (action: string) => void;
 };
 
-export const Preview: FC<PreviewProps> = ({ article, actionsEnabled }) => {
+export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterActionCallback }) => {
   const [favArticle, { isLoading: isFavLoading }] = useFavoriteArticleMutation();
   const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();
   const isLoading = isFavLoading || isUnfavLoading;
@@ -31,6 +32,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled }) => {
             const msg = parseOutErrorMessage(result.error);
             toast.error(msg);
           }
+          afterActionCallback?.(action);
           return;
         }
         case "unfavorite": {
@@ -39,6 +41,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled }) => {
             const msg = parseOutErrorMessage(result.error);
             toast.error(msg);
           }
+          afterActionCallback?.(action);
           return;
         }
         default:

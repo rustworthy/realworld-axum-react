@@ -2,6 +2,8 @@ import { Link } from "react-router";
 
 import styled from "@emotion/styled";
 
+import { TABLET_WIDTH } from "@/shared/constants/styles.constants";
+
 export const PreviewContainer = styled.div`
   width: 100%;
   padding: 1.5rem 1rem;
@@ -27,7 +29,12 @@ export const ReadMoreLink = styled(Link)`
   opacity: 0.5;
 `;
 
-export const PreviewFooter = styled.p`
+export const PreviewFooter = styled.div`
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
+
+  @media (max-width: ${TABLET_WIDTH}px) {
+    flex-direction: column;
+  }
 `;

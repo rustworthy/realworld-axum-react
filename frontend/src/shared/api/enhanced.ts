@@ -1,4 +1,5 @@
-import { api as generatedApi } from "./generated";
+import { AppState } from "../types/store.types";
+import { ListArticlesApiArg, api as generatedApi } from "./generated";
 
 /**
  * Optionally enhance endpoints.
@@ -12,7 +13,14 @@ import { api as generatedApi } from "./generated";
 const api = generatedApi.enhanceEndpoints({
   endpoints: {
     listArticles: {
-      providesTags: ["Article"],
+      providesTags: (result, _error, arg) =>
+        result ? [{ type: "Article" as const, id: JSON.stringify(arg) }, "Article"] : ["Article"],
+    },
+    personalFeed: {
+      providesTags: (result, _error, arg) =>
+        result
+          ? [{ type: "ArticlePersonalFeed" as const, id: JSON.stringify(arg) }, "ArticlePersonalFeed"]
+          : ["ArticlePersonalFeed"],
     },
     createArticle: {
       // TODO: we can be smarter here and prepend this article to
@@ -66,6 +74,13 @@ const api = generatedApi.enhanceEndpoints({
 
     // favoriting/unfavorting are less critical operations and so we can actually
     // use optimistic update for both of them;
+    //
+    // one caveat with favoriting has to do with the fact that there is a view
+    // with the list of favorited articles on the profile page (query includes
+    // `favorited=username`), and so we need to either add an article to that cached
+    // list if the list exists (which is tricky because of pagination dimension),
+    // or refetch the favorited list;
+    //
     // https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
     favoriteArticle: {
       async onQueryStarted({ slug }, { dispatch, queryFulfilled, getState }) {
@@ -78,19 +93,25 @@ const api = generatedApi.enhanceEndpoints({
           ),
         );
         // just like in `updateArticle` operation, search for this article in
-        // cache registries and only surgically update it in each registry
-        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+        // cache registries and only surgically update it in each registry ...
+        const state = getState() as AppState;
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article", "ArticlePersonalFeed"])) {
           if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
               api.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                const article = draft.articles.find((article) => article.slug === slug);
-                if (article) {
-                  Object.assign(article, { favorited: true, favoritesCount: article.favoritesCount + 1 });
+                const cachedArticle = draft.articles.find((article) => article.slug === slug);
+                if (cachedArticle) {
+                  cachedArticle.favorited = true;
+                  cachedArticle.favoritesCount += 1;
                 }
               }),
             ),
           );
+          // ... and invalidate the favorited list
+          if ((originalArgs as ListArticlesApiArg).favorited === state.auth.user?.username) {
+            dispatch(api.util.invalidateTags([{ type: "Article", id: JSON.stringify(originalArgs) }]));
+          }
         }
         try {
           await queryFulfilled;
@@ -109,8 +130,10 @@ const api = generatedApi.enhanceEndpoints({
             }),
           ),
         );
-        // similar to `favoriteArticle` operation
-        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+        // similar to `favoriteArticle` operation, update the article if it's
+        // found in cached lists ...
+        const state = getState() as AppState;
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article", "ArticlePersonalFeed"])) {
           if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
@@ -122,6 +145,10 @@ const api = generatedApi.enhanceEndpoints({
               }),
             ),
           );
+          // ... and invalidate the favorited list
+          if ((originalArgs as ListArticlesApiArg).favorited === state.auth.user?.username) {
+            dispatch(api.util.invalidateTags([{ type: "Article", id: JSON.stringify(originalArgs) }]));
+          }
         }
         try {
           await queryFulfilled;

@@ -212,8 +212,8 @@ mod db {
             WHERE
                 ($1::text IS NULL OR username = $1::text) AND
                 ($2::text IS NULL OR tags @> ARRAY[$2::text]) AND
-                ($3::text IS NULL OR EXISTS(
-                    SELECT 1 FROM favorites fav JOIN users USING (user_id)
+                ($3::text IS NULL OR article_id IN (
+                    SELECT article_id FROM favorites fav JOIN users USING (user_id)
                     WHERE fav.article_id = article_id AND username = $3
                 )
             )
@@ -331,12 +331,10 @@ mod db {
                     following_user_id = $4::UUID AND
                     ($1::text IS NULL OR username = $1::text) AND
                     ($2::text IS NULL OR tags @> ARRAY[$2::text]) AND
-                    (
-                        $3::text IS NULL OR EXISTS(
-                        SELECT 1 FROM favorites fav JOIN users USING (user_id)
-                        WHERE fav.article_id = article_id AND username = $3
+                    ($3::text IS NULL OR article_id IN (
+                        SELECT article_id FROM favorites fav JOIN users USING (user_id)
+                        WHERE fav.article_id = article_id AND username = $3)
                     )
-                )
             "#,
                 q.author,
                 q.tag,
