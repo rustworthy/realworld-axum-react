@@ -62,7 +62,7 @@ figment = { version = "0.10.19", features = ["env"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.17", features = ["serde"] }
 argon2 = "0.5.3"
-jsonwebtoken = { version = "9.3.1", default-features = false }
+jsonwebtoken = { version = "10.0.0", default-features = false }
 anyhow = "1.0.100"
 dotenvy = "0.15.7" # only used in debug mode
 regex = "1.11.3"
