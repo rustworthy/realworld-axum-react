@@ -9,7 +9,7 @@ use uuid::Uuid;
 const TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
 #[serde_with::serde_as]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct Claims {
     /// Whom token refers to (opaque string).
     sub: Uuid,
