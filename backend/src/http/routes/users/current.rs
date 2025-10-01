@@ -150,10 +150,10 @@ pub(crate) async fn update_current_user(
     )
     .fetch_one(&ctx.db)
     .await
-    .on_constraint("user_username_key", |_| {
+    .on_constraint("users_username_key", |_| {
         Error::unprocessable_entity([("username", "username taken")])
     })
-    .on_constraint("user_email_key", |_| {
+    .on_constraint("users_email_key", |_| {
         Error::unprocessable_entity([("email", "email taken")])
     })?;
 
