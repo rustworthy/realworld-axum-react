@@ -169,8 +169,9 @@ async fn list_articles_with_limit_and_offset(ctx: TestContext) {
         .unwrap()
         .parse()
         .unwrap();
-    // i.e. the first articles is a more recent one
-    assert!(first_article_created_at > second_article_created_at);
+    // i.e. the first articles is a more recent one (unless they were
+    // pulished at the same time which is less likely but _is_ possible)
+    assert!(first_article_created_at >= second_article_created_at);
 }
 
 /// List articles given the query.

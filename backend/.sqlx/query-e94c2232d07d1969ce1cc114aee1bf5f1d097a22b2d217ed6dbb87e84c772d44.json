@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    coalesce(count(*), 0) \"count!\"\n                FROM\n                    articles\n                        JOIN follows ON user_id = followed_user_id\n                        JOIN users USING (user_id)\n                WHERE\n                    following_user_id = $4::UUID AND\n                    ($1::text IS NULL OR username = $1::text) AND\n                    ($2::text IS NULL OR tags @> ARRAY[$2::text]) AND\n                    (\n                        $3::text IS NULL OR EXISTS(\n                        SELECT 1 FROM favorites fav JOIN users USING (user_id)\n                        WHERE fav.article_id = article_id AND username = $3\n                    )\n                )\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e94c2232d07d1969ce1cc114aee1bf5f1d097a22b2d217ed6dbb87e84c772d44"
+}

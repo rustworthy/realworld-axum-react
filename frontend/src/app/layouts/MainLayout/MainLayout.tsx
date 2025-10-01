@@ -3,7 +3,9 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { useAuth, useAuthSnapshotRestoration } from "@/features/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
+import { truncateText } from "@/shared/lib/utils";
 import { useIsGlobalLoading } from "@/shared/store/loading";
+import { Avatar } from "@/shared/ui/Avatar";
 import { Loader } from "@/shared/ui/Loader";
 import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
@@ -50,11 +52,8 @@ export const MainLayout = () => {
                     $isActive={pathname === `${ROUTES.PROFILE}/${user!.username}`}
                     onClick={() => navigate(`${ROUTES.PROFILE}/${user!.username}`)}
                   >
-                    <S.HeaderAvatar
-                      src={user!.image ?? "https://avatars.githubusercontent.com/u/4324516?v=4"}
-                      alt="User's avatar"
-                    />
-                    {user!.username}
+                    <Avatar imageUrl={user!.image} username={user!.username} />
+                    {truncateText(user!.username, 20)}
                   </S.HeaderNavItem>
                 </S.HeaderNavList>
               </nav>

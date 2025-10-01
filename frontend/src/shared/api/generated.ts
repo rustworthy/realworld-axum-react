@@ -21,6 +21,18 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.articlePayloadArticleCreate,
       }),
     }),
+    personalFeed: build.query<PersonalFeedApiResponse, PersonalFeedApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/feed`,
+        params: {
+          tag: queryArg.tag,
+          author: queryArg.author,
+          favorited: queryArg.favorited,
+          limit: queryArg.limit,
+          offset: queryArg.offset,
+        },
+      }),
+    }),
     readArticle: build.query<ReadArticleApiResponse, ReadArticleApiArg>({
       query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}` }),
     }),
@@ -36,6 +48,21 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/articles/${queryArg.slug}`,
         method: "DELETE",
       }),
+    }),
+    favoriteArticle: build.mutation<FavoriteArticleApiResponse, FavoriteArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/favorite`,
+        method: "POST",
+      }),
+    }),
+    unfavoriteArticle: build.mutation<UnfavoriteArticleApiResponse, UnfavoriteArticleApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/favorite`,
+        method: "DELETE",
+      }),
+    }),
+    listTags: build.query<ListTagsApiResponse, ListTagsApiArg>({
+      query: () => ({ url: `/api/tags` }),
     }),
     readCurrentUser: build.query<ReadCurrentUserApiResponse, ReadCurrentUserApiArg>({
       query: () => ({ url: `/api/user` }),
@@ -72,7 +99,7 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as api };
-export type ListArticlesApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList[];
+export type ListArticlesApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList;
 export type ListArticlesApiArg = {
   /** Filter articles by tag. */
   tag?: string;
@@ -88,6 +115,19 @@ export type ListArticlesApiArg = {
 export type CreateArticleApiResponse = /** status 201 Article successfully created */ ArticlePayloadArticle;
 export type CreateArticleApiArg = {
   articlePayloadArticleCreate: ArticlePayloadArticleCreate;
+};
+export type PersonalFeedApiResponse = /** status 200 Articles list successfully retrieved */ ArticlesList;
+export type PersonalFeedApiArg = {
+  /** Filter articles by tag. */
+  tag?: string;
+  /** Filter articles by author (username). */
+  author?: string;
+  /** Filter articles favorited by user (username). */
+  favorited?: string;
+  /** Limit number of returned articles. */
+  limit?: number;
+  /** Offset/skip number of articles. */
+  offset?: number;
 };
 export type ReadArticleApiResponse = /** status 200 Article successfully retrieved */ ArticlePayloadArticle;
 export type ReadArticleApiArg = {
@@ -105,6 +145,18 @@ export type DeleteArticleApiArg = {
   /** Article's slug identifier. */
   slug: string;
 };
+export type FavoriteArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
+export type FavoriteArticleApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+};
+export type UnfavoriteArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
+export type UnfavoriteArticleApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+};
+export type ListTagsApiResponse = /** status 200 Tags list successfully retrieved */ TagsList;
+export type ListTagsApiArg = void;
 export type ReadCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
 export type ReadCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200 User details and fresh JWT. */ UserPayloadUser;
@@ -225,6 +277,10 @@ export type ArticlePayloadArticleUpdate = {
         This is will be used to generate a slug for this article. */
     title?: string;
   };
+};
+export type TagsList = {
+  /** List of tags. */
+  tags: string[];
 };
 export type UserPayloadUser = {
   user: {

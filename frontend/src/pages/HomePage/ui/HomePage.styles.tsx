@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 
+import { TABLET_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
 
 export const PageWrapper = styled.div`
@@ -32,4 +33,35 @@ export const BannerDescription = styled.p`
   text-align: center;
   font-weight: 300;
   font-size: 24px;
+`;
+
+export const MainContent = styled.div`
+  width: 100%;
+  padding: 1rem 0.5rem;
+  display: flex;
+  gap: 1rem;
+
+  @media (max-width: ${TABLET_WIDTH}px) {
+    flex-direction: column;
+  }
+`;
+
+export const FeedContainer = styled.div`
+  width: 100%;
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const PreviewList = styled.div`
+  padding-bottom: 1rem;
+`;
+
+export const TagsContainer = styled.div`
+  width: 100%;
+  flex: 1;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;

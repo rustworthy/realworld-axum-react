@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt,clippy
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
@@ -88,6 +90,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
+          CAPTCHA_SECRET: ${{ secrets.CAPTCHA_SECRET }}
           # note how we are using the `setup` comamand over `deploy`; this is 
           # to ensure that the accessories (including the otlp sidecar) are
           # launched if they are not already running, while if they are running,

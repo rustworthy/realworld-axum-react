@@ -24,6 +24,7 @@ use validator_derive::Validate;
     responses(
         (status = 200, description = "User details and fresh JWT.", body = UserPayload<User>),
         (status = 401, description = "Token missing or invalid."),
+        (status = 404, description = "User not found (deactivated or deleted)."),
         (status = 500, description = "Internal server error."),
     ),
     security(("HttpAuthBearerJWT" = [])),
@@ -32,16 +33,25 @@ use validator_derive::Validate;
 #[axum::debug_handler]
 pub(crate) async fn read_current_user(
     ctx: State<Arc<AppContext>>,
-    id: UserID,
+    uid: UserID,
 ) -> Result<Json<UserPayload<User>>, Error> {
-    let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
+    let user = sqlx::query!(
+        r#"
+        SELECT email, username, bio, image FROM users WHERE user_id = $1
+        "#,
+        *uid
+    )
+    .fetch_optional(&ctx.db)
+    .await?
+    .ok_or(Error::NotFound)?;
+    let jwt_string = issue_token(*uid, &ctx.enc_key)?;
     let payload = UserPayload {
         user: User {
-            email: "pavel@mikhalkevich.com".into(),
+            email: user.email,
             token: jwt_string,
-            username: "pavel.mikhalkevich".into(),
-            bio: "".into(),
-            image: None,
+            username: user.username,
+            bio: user.bio,
+            image: utils::parse_image_url(user.image.as_deref())?,
         },
     };
     Ok(Json(payload))
