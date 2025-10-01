@@ -18,23 +18,6 @@ async fn update_user_unauthenticated(ctx: TestContext) {
 }
 
 // test update with invalid payloads
-async fn assert_invalid_update(ctx: &TestContext, update: serde_json::Value, msg: &str) {
-    let user = fake::create_activated_user(&ctx).await;
-    let url = ctx.backend_url.join("/api/user").unwrap();
-
-    let response = ctx
-        .http_client
-        .put(url)
-        .bearer_auth(user.token)
-        .json(&json!({ "user": update }))
-        .send()
-        .await
-        .unwrap();
-
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY, "{msg}");
-    assert!(!response.bytes().await.unwrap().is_empty());
-}
-
 async fn update_user_issues(ctx: TestContext) {
     let cases = [
         (
@@ -68,12 +51,25 @@ async fn update_user_issues(ctx: TestContext) {
     ];
 
     for (case, msg) in cases {
-        assert_invalid_update(&ctx, case, msg).await;
+        let user = fake::create_activated_user(&ctx).await;
+        let url = ctx.backend_url.join("/api/user").unwrap();
+
+        let response = ctx
+            .http_client
+            .put(url)
+            .bearer_auth(user.token)
+            .json(&json!({ "user": case }))
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY, "{msg}");
+        assert!(!response.bytes().await.unwrap().is_empty());
     }
 }
 
 // test update user with the same username and email
-async fn update_user_with_the_same_data(ctx: TestContext) {
+async fn update_user_with_duplicate_data(ctx: TestContext) {
     let user1 = fake::create_activated_user(&ctx).await;
     let user2 = fake::create_activated_user(&ctx).await;
     let url = ctx.backend_url.join("/api/user").unwrap();
@@ -213,7 +209,7 @@ async fn update_user_success(ctx: TestContext) {
 mod tests {
     crate::async_test!(update_user_unauthenticated);
     crate::async_test!(update_user_issues);
-    crate::async_test!(update_user_with_the_same_data);
+    crate::async_test!(update_user_with_duplicate_data);
     crate::async_test!(remove_previous_image);
     crate::async_test!(update_user_success);
 }
