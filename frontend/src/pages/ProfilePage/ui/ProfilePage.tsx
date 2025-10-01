@@ -6,7 +6,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useListArticlesQuery, useReadCurrentUserQuery } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
-import { Preview } from "@/shared/ui/Article/Preview";
+import { Preview, PreviewProps } from "@/shared/ui/Article/Preview";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Pagination, PaginationProps } from "@/shared/ui/Pagination";
 import { Tabs } from "@/shared/ui/Tabs";
@@ -39,7 +39,15 @@ export const ProfilePage = () => {
   });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
-  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
+
+  // we normally do not render pagination controls at all if there are no pages
+  // or there is a single page (the latter is probably a matter of taste and user
+  // feedback); there are edge cases though: imagine the `Favorited Articles` tab
+  // is active, there are two pages initially, the user is on the second page and
+  // they start revoking the articles; this way they can have the entire `page=2`
+  // empty and there will be no control at hand to go to the first (and only) page,
+  // unless we cover this case with `(pagesCount === 1 && empty)` check
+  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
 
   const { data: profileData, isLoading: isProfileDataLoading } = useReadCurrentUserQuery();
   if (!profileData) return isProfileDataLoading ? null : <NotFoundPage />;
@@ -52,6 +60,19 @@ export const ProfilePage = () => {
       return params;
     });
     return selected;
+  };
+
+  const afterArticleActionCallback: PreviewProps["afterActionCallback"] = (action) => {
+    if (action !== "unfavorite") return;
+    // this is the last item in the favorited list and they are revoking their
+    // "like", so let's navigate them to the previous page (meaning page of the
+    // paginated view)
+    if (isFavoritedView && data?.articles.length === 1 && page > 1) {
+      setSearchParams((params) => {
+        params.set("page", (page - 1).toString());
+        return params;
+      });
+    }
   };
 
   return (
@@ -94,7 +115,12 @@ export const ProfilePage = () => {
                 ? // TODO: add skeleton while loading
                   null
                 : data!.articles.map((article) => (
-                    <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                    <Preview
+                      afterActionCallback={afterArticleActionCallback}
+                      actionsEnabled={isAuthenticated}
+                      article={article}
+                      key={article.slug}
+                    />
                   ))}
           </S.PreviewList>
           {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}

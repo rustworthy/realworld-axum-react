@@ -38,7 +38,7 @@ export const HomePage: FC = () => {
   // but not at this offset; so we need to check both `artcilesCount` and `articles.length`;
   // note that we prefer not to render pagination controls, if there is only one page
   const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
-  const shouldPaginate = typeof pagesCount === "number" && pagesCount > 1 && !empty;
+  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
 
   const { data: tagsData, isLoading: isTagsRequestLoading } = useListTagsQuery();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
