@@ -205,7 +205,6 @@ async fn update_user_success(ctx: TestContext) {
     }
 }
 
-// p
 mod tests {
     crate::async_test!(update_user_unauthenticated);
     crate::async_test!(update_user_issues);
