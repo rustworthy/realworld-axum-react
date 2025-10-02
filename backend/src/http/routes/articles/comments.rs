@@ -1,5 +1,5 @@
 use super::Author;
-use crate::http::errors::{Error, Validation};
+use crate::http::errors::{Error, ResultExt as _, Validation};
 use crate::http::extractors::UserID;
 use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
@@ -107,7 +107,8 @@ pub async fn create_comment(
         &comment.body
     )
     .fetch_optional(&ctx.db)
-    .await?
+    .await
+    .on_constraint("comments_user_id_fkey", |_| Error::Unauthorized)?
     .ok_or(Error::NotFound)?;
 
     let payload = CommentPayload {

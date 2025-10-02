@@ -91,6 +91,29 @@ async fn create_comment(ctx: TestContext) {
         user.image
     );
     assert_eq!(payload["comment"]["author"]["following"], false);
+
+    // let's imagine a user got authenticated, but then deleted ...
+    let another_user = fake::create_activated_user(&ctx).await;
+    sqlx::query("DELETE FROM users WHERE username = $1")
+        .bind(&another_user.username)
+        .execute(&ctx.db_pool)
+        .await
+        .unwrap();
+
+    // ... and try to post another comment
+    let resp = ctx
+        .http_client
+        .post(
+            ctx.backend_url
+                .join(&format!("/api/articles/{}/comments", &slugs[0]))
+                .expect("valid url"),
+        )
+        .json(&json!({"comment": {"body": "There is a typo!"}}))
+        .bearer_auth(&another_user.token) // NB: token is still valid
+        .send()
+        .await
+        .expect("http request to succeed");
+    assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
 }
 
 mod tests {
