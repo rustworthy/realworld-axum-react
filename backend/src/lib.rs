@@ -6,6 +6,8 @@ extern crate tracing;
 extern crate serde;
 #[macro_use]
 extern crate utoipa_axum;
+#[macro_use]
+extern crate utoipa;
 
 mod config;
 mod http;

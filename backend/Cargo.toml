@@ -50,7 +50,12 @@ tower-http = { version = "0.6.6", features = ["cors", "fs"] }
 axum = { version = "0.8.6", features = ["macros"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_with = { version = "3.14.1", features = ["chrono"] }
-utoipa = { version = "5.4.0", features = ["axum_extras", "url", "chrono"] }
+utoipa = { version = "5.4.0", features = [
+  "axum_extras",
+  "url",
+  "chrono",
+  "uuid",
+] }
 utoipa-axum = "0.2.0"
 sqlx = { version = "0.8", features = [
   "runtime-tokio",
