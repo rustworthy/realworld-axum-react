@@ -173,5 +173,56 @@ pub async fn list_comments(
     Path(slug): Path<String>,
     uid: MaybeUserID,
 ) -> Result<Json<CommentsList>, Error> {
-    todo!()
+    let article_id = sqlx::query_scalar!(r"SELECT article_id FROM articles WHERE slug = $1", &slug)
+        .fetch_optional(&ctx.db)
+        .await?
+        .ok_or(Error::NotFound)?;
+
+    let comments = sqlx::query!(
+        r#"
+        SELECT
+            comment.comment_id AS comment_id,
+            comment.created_at AS comment_created_at,
+            comment.updated_at AS comment_updated_at,
+            comment.body AS comment_body,
+            comment_author.bio AS comment_author_bio,
+            comment_author.username AS comment_author_username,
+            comment_author.image AS comment_author_image,
+            (
+                $1::UUID IS NOT NULL AND EXISTS
+                    (
+                        SELECT 1 FROM follows
+                        WHERE followed_user_id = comment_author.user_id
+                        AND following_user_id = $1
+                    )
+            ) AS "comment_author_following!"
+        FROM comments comment JOIN users comment_author USING (user_id)
+        WHERE comment.article_id = $2
+        "#,
+        uid.0.as_deref(),
+        article_id,
+    )
+    .fetch_all(&ctx.db)
+    .await?;
+    let payload = CommentsList {
+        comments: comments
+            .into_iter()
+            .map(|data| {
+                let comment = Comment {
+                    id: data.comment_id,
+                    created_at: data.comment_created_at,
+                    updated_at: data.comment_updated_at.unwrap_or(data.comment_created_at),
+                    body: data.comment_body,
+                    author: Author {
+                        username: data.comment_author_username,
+                        bio: data.comment_author_bio,
+                        image: parse_image_url(data.comment_author_image.as_deref())?,
+                        following: data.comment_author_following,
+                    },
+                };
+                Ok(comment)
+            })
+            .collect::<Result<_, Error>>()?,
+    };
+    Ok(Json(payload))
 }
