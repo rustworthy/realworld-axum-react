@@ -1,6 +1,6 @@
 use super::Author;
 use crate::http::errors::{Error, ResultExt as _, Validation};
-use crate::http::extractors::UserID;
+use crate::http::extractors::{MaybeUserID, UserID};
 use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
 use axum::extract::{Json, Path, State};
@@ -10,6 +10,7 @@ use uuid::Uuid;
 use validator::Validate;
 use validator_derive::Validate;
 
+// ----------------------------- CREATE COMMENT -------------------------------
 /// Container for comment creation endpoint.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub(crate) struct CommentPayload<U> {
@@ -77,7 +78,6 @@ pub(crate) struct Comment {
     security(("HttpAuthBearerJWT" = [])),
 )]
 #[instrument(name = "CREATE COMMENT", skip(ctx))]
-#[allow(unused)]
 pub async fn create_comment(
     ctx: State<Arc<AppContext>>,
     Path(slug): Path<String>,
@@ -130,4 +130,48 @@ pub async fn create_comment(
     };
 
     Ok(Json(payload))
+}
+
+// -------------------------------- LIST COMMENTS -----------------------------
+
+/// Contrainer for list comments endpoint.
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct CommentsList {
+    /// List of comments.
+    comments: Vec<Comment>,
+}
+
+/// List comments to article.
+///
+/// Authentication is optional.
+#[utoipa::path(
+    get,
+    path = "/{slug}/comments",
+    tags = ["Articles"],
+    params(
+        (
+            "slug" = String, Path,
+            format = "slug",
+            description = "Article's slug identifier.",
+            example = "why-memory-safety-matters"
+        ),
+    ),
+    responses(
+        (status = 200, description = "Comments list successfully retrieved", body = CommentsList),
+        (status = 401, description = "Token missing or invalid (in case authenicated access has been used)"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        (),
+        ("HttpAuthBearerJWT" = []),
+    ),
+)]
+#[instrument(name = "LIST COMMENTS", skip(ctx))]
+#[allow(unused)]
+pub async fn list_comments(
+    ctx: State<Arc<AppContext>>,
+    Path(slug): Path<String>,
+    uid: MaybeUserID,
+) -> Result<Json<CommentsList>, Error> {
+    todo!()
 }
