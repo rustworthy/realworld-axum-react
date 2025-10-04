@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH deleted_article AS (\n            DELETE FROM articles\n            WHERE slug = $1 AND user_id = $2\n            RETURNING article_id\n        )\n        SELECT \n            EXISTS(SELECT article_id FROM articles WHERE slug = $1) \"existed!\",\n            EXISTS(SELECT article_id FROM deleted_article) \"deleted!\";\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "existed!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "deleted!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "dc8132f8559010317819212d075455f898238fa561f2e2bb2f9242bf451582f0"
+}

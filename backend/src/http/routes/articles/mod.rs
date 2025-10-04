@@ -8,7 +8,6 @@ use utoipa_axum::router::OpenApiRouter;
 
 mod comments;
 mod crud;
-mod favorite;
 mod list;
 mod tags;
 
@@ -108,6 +107,11 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
             crud::delete_article,
         ))
         .routes(routes!(crud::favorite_article, crud::unfavorite_article,))
+        .routes(routes!(
+            comments::create_comment,
+            comments::list_comments,
+            comments::delete_comment,
+        ))
         .routes(routes!(crud::read_article,))
         .routes(routes!(list::list_articles,))
         .routes(routes!(list::personal_feed,));

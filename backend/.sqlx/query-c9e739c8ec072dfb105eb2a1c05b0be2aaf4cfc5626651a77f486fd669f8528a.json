@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH comment AS (\n            INSERT INTO comments (article_id, user_id, body)\n            SELECT article_id, $2, $3 FROM articles WHERE slug = $1\n            RETURNING comment_id, created_at, updated_at\n        )\n        SELECT\n            comment.comment_id AS comment_id,\n            comment.created_at AS comment_created_at,\n            comment.updated_at AS comment_updated_at,\n            comment_author.bio AS comment_author_bio,\n            comment_author.username AS comment_author_username,\n            comment_author.image AS comment_author_image\n        FROM comment JOIN users comment_author ON user_id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "comment_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "comment_created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "comment_updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "comment_author_bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "comment_author_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "comment_author_image",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "c9e739c8ec072dfb105eb2a1c05b0be2aaf4cfc5626651a77f486fd669f8528a"
+}

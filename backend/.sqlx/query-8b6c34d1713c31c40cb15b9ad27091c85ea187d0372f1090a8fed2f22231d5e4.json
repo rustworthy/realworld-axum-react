@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            comment.comment_id AS comment_id,\n            comment.created_at AS comment_created_at,\n            comment.updated_at AS comment_updated_at,\n            comment.body AS comment_body,\n            comment_author.bio AS comment_author_bio,\n            comment_author.username AS comment_author_username,\n            comment_author.image AS comment_author_image,\n            (\n                $1::UUID IS NOT NULL AND EXISTS\n                    (\n                        SELECT 1 FROM follows\n                        WHERE followed_user_id = comment_author.user_id\n                        AND following_user_id = $1\n                    )\n            ) AS \"comment_author_following!\"\n        FROM comments comment JOIN users comment_author USING (user_id)\n        WHERE comment.article_id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "comment_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "comment_created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "comment_updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "comment_body",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "comment_author_bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "comment_author_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "comment_author_image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "comment_author_following!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "8b6c34d1713c31c40cb15b9ad27091c85ea187d0372f1090a8fed2f22231d5e4"
+}

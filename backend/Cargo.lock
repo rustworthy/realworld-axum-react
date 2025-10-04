@@ -4362,6 +4362,7 @@ dependencies = [
  "regex",
  "syn",
  "url",
+ "uuid",
 ]
 
 [[package]]
