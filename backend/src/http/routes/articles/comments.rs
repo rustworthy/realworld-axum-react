@@ -5,6 +5,7 @@ use crate::http::routes::users::utils::parse_image_url;
 use crate::state::AppContext;
 use axum::extract::{Json, Path, State};
 use chrono::{DateTime, Utc};
+use reqwest::StatusCode;
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
@@ -167,7 +168,6 @@ pub(crate) struct CommentsList {
     ),
 )]
 #[instrument(name = "LIST COMMENTS", skip(ctx))]
-#[allow(unused)]
 pub async fn list_comments(
     ctx: State<Arc<AppContext>>,
     Path(slug): Path<String>,
@@ -225,4 +225,47 @@ pub async fn list_comments(
             .collect::<Result<_, Error>>()?,
     };
     Ok(Json(payload))
+}
+
+// ------------------------------ DELETE COMMENT -------------------------------
+
+/// Delete comment.
+///
+/// Authentication required.
+#[utoipa::path(
+    delete,
+    path = "/{slug}/comments/{comment_id}",
+    tags = ["Articles"],
+    params(
+        (
+            "slug" = String, Path,
+            format = "slug",
+            description = "Article's slug identifier.",
+            example = "why-memory-safety-matters"
+        ),
+        (
+            "comment_id" = String, Path,
+            format = Uuid,
+        ),
+
+    ),
+    responses(
+        (status = 204, description = "Comment deleted"),
+        (status = 401, description = "Token missing or invalid"),
+        (status = 404, description = "Artcile or comment not found"),
+        (status = 500, description = "Internal server error."),
+    ),
+    security(
+        ("HttpAuthBearerJWT" = []),
+    ),
+)]
+#[instrument(name = "DELETE COMMENT", skip(ctx))]
+#[allow(unused)]
+pub async fn delete_comment(
+    ctx: State<Arc<AppContext>>,
+    Path(slug): Path<String>,
+    Path(comment_id): Path<String>,
+    uid: UserID,
+) -> Result<StatusCode, Error> {
+    todo!();
 }
