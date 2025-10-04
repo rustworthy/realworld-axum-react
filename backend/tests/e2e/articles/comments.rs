@@ -5,7 +5,7 @@ use url::Url;
 
 use crate::utils::{TestContext, fake};
 
-async fn create_comment(ctx: TestContext) {
+async fn create_read_and_delete_comments(ctx: TestContext) {
     // let's try to create a comment without authentication
     // (we know that the article `whatever` is not there and that payload
     // is missing, but authentication check always comes first)
@@ -114,8 +114,73 @@ async fn create_comment(ctx: TestContext) {
         .await
         .expect("http request to succeed");
     assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
+
+    // let's "re-create" our second user and make it so they are following
+    // the artcticle's author
+    let another_user = fake::create_activated_user(&ctx).await;
+    // at the time of writing this test, we do not have follow/unfollow
+    // endpoints yet, ans so we are talking to db directly here
+    sqlx::query(
+        r#"
+        INSERT INTO follows (followed_user_id, following_user_id)
+        VALUES (
+            (SELECT user_id FROM users WHERE username = $1),
+            (SELECT user_id FROM users WHERE username = $2)
+        );
+        "#,
+    )
+    .bind(&user.username) // article and the sole comment author
+    .bind(&another_user.username) // article and comment reader
+    .execute(&ctx.db_pool)
+    .await
+    .unwrap();
+
+    // let's list the comments w/o authentication first
+    let resp = ctx
+        .http_client
+        .get(
+            ctx.backend_url
+                .join(&format!("/api/articles/{}/comments", &slugs[0]))
+                .expect("valid url"),
+        )
+        .send()
+        .await
+        .expect("http request to succeed");
+    assert_eq!(resp.status(), StatusCode::OK);
+    let payload: Value = resp.json().await.expect("JSON payload");
+    assert_eq!(payload["comments"].as_array().unwrap().len(), 1);
+    assert!(payload["comments"][0]["body"].is_string());
+    // the default for `following` is `false` when dealing
+    // with unauthenticated requests to public routes
+    assert!(
+        !payload["comments"][0]["author"]["following"]
+            .as_bool()
+            .unwrap()
+    );
+
+    // if we now send an authenticated request, we should be able to see
+    // that our another user is actually following the comment's author
+    let resp = ctx
+        .http_client
+        .get(
+            ctx.backend_url
+                .join(&format!("/api/articles/{}/comments", &slugs[0]))
+                .expect("valid url"),
+        )
+        .bearer_auth(&another_user.token)
+        .send()
+        .await
+        .expect("http request to succeed");
+    assert_eq!(resp.status(), StatusCode::OK);
+    let payload: Value = resp.json().await.expect("JSON payload");
+    assert_eq!(payload["comments"].as_array().unwrap().len(), 1);
+    assert!(
+        payload["comments"][0]["author"]["following"] // NB
+            .as_bool()
+            .unwrap()
+    );
 }
 
 mod tests {
-    crate::async_test!(create_comment);
+    crate::async_test!(create_read_and_delete_comments);
 }
