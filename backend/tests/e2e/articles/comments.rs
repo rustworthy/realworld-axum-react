@@ -179,6 +179,42 @@ async fn create_read_and_delete_comments(ctx: TestContext) {
             .as_bool()
             .unwrap()
     );
+
+    // what if they now try to delete the comment
+    let delete_comment_url = ctx
+        .backend_url
+        .join(&format!(
+            "/api/articles/{}/comments/{}",
+            &slugs[0],
+            payload["comments"][0]["id"].as_str().unwrap()
+        ))
+        .expect("valid url");
+    let resp = ctx
+        .http_client
+        .delete(delete_comment_url.clone())
+        .bearer_auth(&another_user.token) // they never author this comment!
+        .send()
+        .await
+        .expect("http request to succeed");
+    assert_eq!(resp.status(), StatusCode::FORBIDDEN);
+
+    // while the comment's author can delete their comment
+    let resp = ctx
+        .http_client
+        .delete(delete_comment_url)
+        .bearer_auth(&user.token)
+        .send()
+        .await
+        .expect("http request to succeed");
+    assert_eq!(resp.status(), StatusCode::NO_CONTENT);
+
+    // finally, let's check db state
+    let ncomments: i64 =
+        sqlx::query_scalar(r#"SELECT COALESCE(COUNT(*), 0) AS "count!" FROM comments"#)
+            .fetch_one(&ctx.db_pool)
+            .await
+            .unwrap();
+    assert_eq!(ncomments, 0);
 }
 
 mod tests {

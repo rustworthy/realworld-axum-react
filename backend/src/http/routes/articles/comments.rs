@@ -241,18 +241,21 @@ pub async fn list_comments(
             "slug" = String, Path,
             format = "slug",
             description = "Article's slug identifier.",
-            example = "why-memory-safety-matters"
+            example = "why-memory-safety-matters",
         ),
         (
             "comment_id" = String, Path,
             format = Uuid,
+            example = "123e4567-e89b-12d3-a456-426614174000",
         ),
 
     ),
     responses(
         (status = 204, description = "Comment deleted"),
         (status = 401, description = "Token missing or invalid"),
-        (status = 404, description = "Artcile or comment not found"),
+        (status = 403, description = "User does not have permissions to delete this comment"),
+        (status = 404, description = "Article or comment not found"),
+        (status = 422, description = "Malformed comment_id in path", body = Validation),
         (status = 500, description = "Internal server error."),
     ),
     security(
@@ -260,12 +263,47 @@ pub async fn list_comments(
     ),
 )]
 #[instrument(name = "DELETE COMMENT", skip(ctx))]
-#[allow(unused)]
 pub async fn delete_comment(
     ctx: State<Arc<AppContext>>,
-    Path(slug): Path<String>,
-    Path(comment_id): Path<String>,
+    Path((slug, comment_id)): Path<(String, String)>,
     uid: UserID,
 ) -> Result<StatusCode, Error> {
-    todo!();
+    let comment_id = Uuid::parse_str(&comment_id)
+        .map_err(|_| Error::unprocessable_entity([("path", "comment_id is not a valid UUID")]))?;
+
+    let res = sqlx::query!(
+        r#"
+        WITH
+            comment_deleted AS (
+                DELETE FROM comments
+                WHERE comment_id = $1 AND user_id = $2
+                RETURNING 1
+            ),
+            comment_existed AS (
+                SELECT 1 FROM comments WHERE comment_id = $1::TEXT::UUID
+            ),
+            article_exists AS (
+                SELECT 1 FROM articles WHERE slug = $3
+            )
+        SELECT
+            EXISTS(SELECT 1 FROM comment_deleted) AS "comment_deleted!",
+            EXISTS(SELECT 1 FROM comment_existed) AS "comment_existed!",
+            EXISTS(SELECT 1 FROM article_exists) AS "article_exists!"
+        "#,
+        &comment_id,
+        *uid,
+        &slug,
+    )
+    .fetch_one(&ctx.db)
+    .await?;
+
+    if res.comment_deleted {
+        return Ok(StatusCode::NO_CONTENT);
+    }
+
+    if !res.article_exists || !res.comment_existed {
+        return Err(Error::NotFound);
+    }
+
+    Err(Error::Forbidden)
 }

@@ -343,7 +343,7 @@ pub async fn delete_article(
 ) -> Result<StatusCode, Error> {
     let details = sqlx::query!(
         r#"
-        WITH deleted_article as (
+        WITH deleted_article AS (
             DELETE FROM articles
             WHERE slug = $1 AND user_id = $2
             RETURNING article_id
