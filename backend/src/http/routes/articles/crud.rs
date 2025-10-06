@@ -12,7 +12,6 @@ use crate::{
 use axum::Json;
 use axum::extract::{Path, State, rejection::JsonRejection};
 use axum::http::StatusCode;
-use serde::Deserialize;
 use std::sync::Arc;
 use utoipa::ToSchema;
 use validator::Validate;
@@ -84,6 +83,13 @@ pub async fn create_article(
 ) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
     let ArticlePayload { article } = input?.0;
     article.validate()?;
+
+    if ctx.skip_content_moderation {
+        warn!("content verification disabled via app configuration");
+    } else {
+        ctx.moderator.moderate(&article.body).await?;
+    }
+
     let slug = slug::slugify(&article.title);
     let details = sqlx::query!(
         r#"
