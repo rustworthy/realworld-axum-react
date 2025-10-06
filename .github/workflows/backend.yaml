@@ -91,6 +91,7 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
           CAPTCHA_SECRET: ${{ secrets.CAPTCHA_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # note how we are using the `setup` comamand over `deploy`; this is 
           # to ensure that the accessories (including the otlp sidecar) are
           # launched if they are not already running, while if they are running,
