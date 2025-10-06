@@ -6,6 +6,7 @@ use utoipa_axum::router::OpenApiRouter;
 
 mod auth;
 mod current;
+mod profiles;
 mod register;
 pub(crate) mod utils;
 
@@ -37,6 +38,29 @@ pub(crate) struct User {
     image: Option<Url>,
 }
 
+#[derive(Debug, Serialize, ToSchema)]
+pub(crate) struct UserProfile {
+    /// User's name or nickname.
+    ///
+    /// This is  - just like the user's `email` - case-insensitively unique
+    /// in the system.
+    #[schema(example = "rob.pike1984")]
+    username: String,
+
+    /// User's biography.
+    ///
+    /// Empty string means biography has never been provided.
+    bio: String,
+
+    /// Location of user's image (if any).
+    #[schema(required = true)]
+    image: Option<Url>,
+
+    /// Following
+    #[schema(required = true)]
+    following: bool,
+}
+
 /// Container for all user management related endpoints.
 ///
 /// See <https://realworld-docs.netlify.app/specifications/backend/endpoints/>
@@ -45,11 +69,22 @@ pub(crate) struct UserPayload<U> {
     user: U,
 }
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub(crate) struct UserProfilePayload<U> {
+    profile: U,
+}
+
 // ------------------------------- ROUTER --------------------------------------
 pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
     let user_router = OpenApiRouter::new().routes(routes!(
         current::read_current_user,
         current::update_current_user,
+    ));
+
+    let user_profile = OpenApiRouter::new().routes(routes!(
+        profiles::profile,
+        profiles::follow_profile,
+        profiles::unfollow_profile,
     ));
 
     let auth_router = OpenApiRouter::new()
@@ -63,5 +98,6 @@ pub(crate) fn router(ctx: Arc<AppContext>) -> OpenApiRouter {
     OpenApiRouter::new()
         .nest("/user", user_router)
         .nest("/users", auth_router)
+        .nest("/profiles", user_profile)
         .with_state(ctx)
 }

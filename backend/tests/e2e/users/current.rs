@@ -50,13 +50,14 @@ async fn update_user_issues(ctx: TestContext) {
         ),
     ];
 
+    let url = ctx.backend_url.join("/api/user").unwrap();
+
     for (case, msg) in cases {
         let user = fake::create_activated_user(&ctx).await;
-        let url = ctx.backend_url.join("/api/user").unwrap();
 
         let response = ctx
             .http_client
-            .put(url)
+            .put(url.clone())
             .bearer_auth(user.token)
             .json(&json!({ "user": case }))
             .send()

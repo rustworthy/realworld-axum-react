@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            WITH target AS (\n                SELECT user_id, username, bio, image\n                FROM users\n                WHERE username = $1\n            ),\n            deleted AS (\n                DELETE FROM follows WHERE following_user_id = $2 AND followed_user_id = (SELECT user_id FROM target)\n            )\n            SELECT\n                target.username,\n                target.bio,\n                target.image,\n                target.user_id,\n                FALSE AS \"user_following!\"\n            FROM target\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_following!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "0419a0ff326eb632344f4ef8f1da5c63dac4f14fcff91909c564dafb31648683"
+}
