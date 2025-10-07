@@ -181,7 +181,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         openai_base_url: None,
         skip_email_verification: None,
         skip_captcha_verification: None,
-        skip_content_moderation: None,
+        // TODO: unset once the mock server is ready
+        skip_content_moderation: Some(true),
     };
 
     // launch back-end application
