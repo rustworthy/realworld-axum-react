@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            username,\n            bio,\n            image,\n            user_id,\n            (\n                $1::UUID IS NOT NULL AND EXISTS\n                    (\n                        SELECT 1 FROM follows\n                        WHERE followed_user_id = user_id\n                        AND following_user_id = $1\n                    )\n            ) AS \"following!\"\n        FROM users\n        WHERE username = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "following!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "5f6902fe2c90e5d9f726923893e6a2befb484e85ec9079325582d19d1ac33016"
+}

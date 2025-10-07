@@ -56,8 +56,7 @@ pub(crate) struct UserProfile {
     #[schema(required = true)]
     image: Option<Url>,
 
-    /// Following
-    #[schema(required = true)]
+    /// Following, if the current user is subscribed to the searched user
     following: bool,
 }
 
