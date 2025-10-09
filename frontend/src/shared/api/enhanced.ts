@@ -170,6 +170,42 @@ const api = generatedApi.enhanceEndpoints({
       // articles this can get messy;
       invalidatesTags: ["Article"],
     },
+    followProfile: {
+      invalidatesTags: ["ArticlePersonalFeed"],
+      async onQueryStarted({ username }, { dispatch, queryFulfilled }) {
+        const patchResults = [];
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("profile", { username }, (draft) => {
+              Object.assign(draft.profile, { following: true });
+            }),
+          ),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((result) => result.undo());
+        }
+      },
+    },
+    unfollowProfile: {
+      invalidatesTags: ["ArticlePersonalFeed"],
+      async onQueryStarted({ username }, { dispatch, queryFulfilled }) {
+        const patchResults = [];
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("profile", { username }, (draft) => {
+              Object.assign(draft.profile, { following: false });
+            }),
+          ),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((result) => result.undo());
+        }
+      },
+    }
   },
 });
 
