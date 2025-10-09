@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useListArticlesQuery, useReadCurrentUserQuery } from "@/shared/api";
+import { useListArticlesQuery, useProfileQuery } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
 import { Preview, PreviewProps } from "@/shared/ui/Article/Preview";
@@ -49,10 +49,10 @@ export const ProfilePage = () => {
   // unless we cover this case with `(pagesCount === 1 && empty)` check
   const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
 
-  const { data: profileData, isLoading: isProfileDataLoading } = useReadCurrentUserQuery();
+  const { data: profileData, isLoading: isProfileDataLoading } = useProfileQuery({ username });
   if (!profileData) return isProfileDataLoading ? null : <NotFoundPage />;
-  const user = profileData.user;
-  const isProfileOwner = loggedInUser?.username === user.username;
+  const profile = profileData.profile;
+  const isProfileOwner = loggedInUser?.username === profile.username;
 
   const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
     setSearchParams((params) => {
@@ -79,9 +79,9 @@ export const ProfilePage = () => {
     <S.PageWrapper>
       <S.Banner>
         <S.BannerContainer>
-          <Avatar size="lg" imageUrl={user.image} username={user.username} />
-          <S.ProfileTitle>{user.username}</S.ProfileTitle>
-          <S.ProfileBio>{truncateText(user.bio, 600)}</S.ProfileBio>
+          <Avatar size="lg" imageUrl={profile.image} username={profile.username} />
+          <S.ProfileTitle>{profile.username}</S.ProfileTitle>
+          <S.ProfileBio>{truncateText(profile.bio, 600)}</S.ProfileBio>
           <S.ProfileActions>
             {isProfileOwner ? (
               <ActionButton

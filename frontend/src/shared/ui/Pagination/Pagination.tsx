@@ -21,6 +21,7 @@ export const Pagination: FC<PaginationProps> = ({ forcePage, onPageChange, pageC
         previousClassName="PreviousPageListItem"
         nextLinkClassName="NextPage"
         nextClassName="NextPageListItem"
+        breakLinkClassName="Break"
         breakLabel="..."
         nextLabel=">"
         pageRangeDisplayed={2}
