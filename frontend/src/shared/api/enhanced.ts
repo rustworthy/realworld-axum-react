@@ -205,7 +205,7 @@ const api = generatedApi.enhanceEndpoints({
           patchResults.forEach((result) => result.undo());
         }
       },
-    }
+    },
   },
 });
 

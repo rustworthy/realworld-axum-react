@@ -1,7 +1,13 @@
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
 
-import { useDeleteArticleMutation, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "@/shared/api";
+import {
+  useDeleteArticleMutation,
+  useFavoriteArticleMutation,
+  useFollowProfileMutation,
+  useUnfavoriteArticleMutation,
+  useUnfollowProfileMutation,
+} from "@/shared/api";
 import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { formatEventsCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
@@ -25,14 +31,25 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
   const [deleteArticle, { isLoading: isDeleteLoading }] = useDeleteArticleMutation();
   const [favArticle, { isLoading: isFavLoading }] = useFavoriteArticleMutation();
   const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();
+  const [followProfile, { isLoading: isFollowLoading }] = useFollowProfileMutation();
+  const [unfollowProfile, { isLoading: isUnfollowLoading }] = useUnfollowProfileMutation();
 
   const authorUsername = article.author.username;
   const isLoading = isDeleteLoading || isFavLoading || isUnfavLoading;
   const isAuthor = authorUsername === user?.username;
+  const isFollowing = article.author.following;
 
   const performAction = useCallback(
     async (action: string) => {
       switch (action) {
+        case "follow": {
+          await followProfile({ username: authorUsername });
+          return;
+        }
+        case "unfollow": {
+          await unfollowProfile({ username: authorUsername });
+          return;
+        }
         case "favorite": {
           const result = await favArticle({ slug: article.slug });
           if (result.error) {
@@ -77,14 +94,24 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
 
       {user ? (
         <S.ArticleActions>
-          {/* -----------------------  follow/unfollow -------------------- */}
+          {/* -----------------------  follow/unfollow --------------------- */}
+          {!isAuthor && isFollowing ? (
+            <ActionButton
+              onClick={() => performAction("unfollow")}
+              isDisabled={isUnfollowLoading}
+              className="btn-outline-secondary"
+            >
+              <PlusCircledIcon />
+              {`Unfollow ${truncateText(authorUsername)}`}
+            </ActionButton>
+          ) : !isAuthor && !isFollowing ? (
+            <ActionButton onClick={() => performAction("follow")} isDisabled={isFollowLoading} className="btn-outline-secondary">
+              <PlusCircledIcon />
+              {`Follow ${truncateText(authorUsername)}`}
+            </ActionButton>
+          ) : null}
 
-          <ActionButton isDisabled={isAuthor || isLoading} className="btn-outline-secondary">
-            <PlusCircledIcon />
-            {`Follow ${truncateText(authorUsername)}`}
-          </ActionButton>
-
-          {/* --------------------- favorite/unfavorite ------------------- */}
+          {/* --------------------- favorite/unfavorite -------------------- */}
           {article.favorited ? (
             <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary">
               <HeartFilledIcon />
@@ -97,25 +124,24 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
             </ActionButton>
           )}
 
-          {/* --------------------------- edit --------------------------- */}
-          <ActionButton
-            isDisabled={!isAuthor || isLoading}
-            onClick={() => performAction("edit")}
-            className="btn-outline-secondary compact"
-          >
-            <Pencil2Icon />
-            Edit Article
-          </ActionButton>
+          {/* ------------------------- edit/delete ------------------------ */}
+          {isAuthor ? (
+            <>
+              <ActionButton
+                isDisabled={!isAuthor || isLoading}
+                onClick={() => performAction("edit")}
+                className="btn-outline-secondary compact"
+              >
+                <Pencil2Icon />
+                Edit Article
+              </ActionButton>
 
-          {/* -------------------------- delete -------------------------- */}
-          <ActionButton
-            isDisabled={!isAuthor || isLoading}
-            onClick={() => performAction("delete")}
-            className="btn-outline-danger compact"
-          >
-            <TrashIcon />
-            Delete Article
-          </ActionButton>
+              <ActionButton isDisabled={isLoading} onClick={() => performAction("delete")} className="btn-outline-danger compact">
+                <TrashIcon />
+                Delete Article
+              </ActionButton>
+            </>
+          ) : null}
         </S.ArticleActions>
       ) : null}
     </S.ArticleMeta>
