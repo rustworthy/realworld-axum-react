@@ -188,6 +188,12 @@ export const {
   useUnfavoriteArticleMutation,
   usePersonalFeedQuery,
   useListTagsQuery,
+  useProfileQuery,
+  useFollowProfileMutation,
+  useUnfollowProfileMutation,
+  useListCommentsQuery,
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
 } = api;
 
 export type {

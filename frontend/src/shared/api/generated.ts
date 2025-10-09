@@ -49,6 +49,22 @@ const injectedRtkApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    listComments: build.query<ListCommentsApiResponse, ListCommentsApiArg>({
+      query: (queryArg) => ({ url: `/api/articles/${queryArg.slug}/comments` }),
+    }),
+    createComment: build.mutation<CreateCommentApiResponse, CreateCommentApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/comments`,
+        method: "POST",
+        body: queryArg.commentPayloadCommentCreate,
+      }),
+    }),
+    deleteComment: build.mutation<DeleteCommentApiResponse, DeleteCommentApiArg>({
+      query: (queryArg) => ({
+        url: `/api/articles/${queryArg.slug}/comments/${queryArg.commentId}`,
+        method: "DELETE",
+      }),
+    }),
     favoriteArticle: build.mutation<FavoriteArticleApiResponse, FavoriteArticleApiArg>({
       query: (queryArg) => ({
         url: `/api/articles/${queryArg.slug}/favorite`,
@@ -58,6 +74,21 @@ const injectedRtkApi = api.injectEndpoints({
     unfavoriteArticle: build.mutation<UnfavoriteArticleApiResponse, UnfavoriteArticleApiArg>({
       query: (queryArg) => ({
         url: `/api/articles/${queryArg.slug}/favorite`,
+        method: "DELETE",
+      }),
+    }),
+    profile: build.query<ProfileApiResponse, ProfileApiArg>({
+      query: (queryArg) => ({ url: `/api/profiles/${queryArg.username}` }),
+    }),
+    followProfile: build.mutation<FollowProfileApiResponse, FollowProfileApiArg>({
+      query: (queryArg) => ({
+        url: `/api/profiles/${queryArg.username}/follow`,
+        method: "POST",
+      }),
+    }),
+    unfollowProfile: build.mutation<UnfollowProfileApiResponse, UnfollowProfileApiArg>({
+      query: (queryArg) => ({
+        url: `/api/profiles/${queryArg.username}/follow`,
         method: "DELETE",
       }),
     }),
@@ -145,6 +176,23 @@ export type DeleteArticleApiArg = {
   /** Article's slug identifier. */
   slug: string;
 };
+export type ListCommentsApiResponse = /** status 200 Comments list successfully retrieved */ CommentsList;
+export type ListCommentsApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+};
+export type CreateCommentApiResponse = /** status 200 Comment successfully created */ CommentPayloadComment;
+export type CreateCommentApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+  commentPayloadCommentCreate: CommentPayloadCommentCreate;
+};
+export type DeleteCommentApiResponse = unknown;
+export type DeleteCommentApiArg = {
+  /** Article's slug identifier. */
+  slug: string;
+  commentId: string;
+};
 export type FavoriteArticleApiResponse = /** status 200 Article successfully updated */ ArticlePayloadArticle;
 export type FavoriteArticleApiArg = {
   /** Article's slug identifier. */
@@ -154,6 +202,20 @@ export type UnfavoriteArticleApiResponse = /** status 200 Article successfully u
 export type UnfavoriteArticleApiArg = {
   /** Article's slug identifier. */
   slug: string;
+};
+export type ProfileApiResponse = /** status 200 User profile successfully retrieved */ UserProfilePayloadUserProfile;
+export type ProfileApiArg = {
+  username: string;
+};
+export type FollowProfileApiResponse =
+  /** status 200 User successfully started follow current user's profile */ UserProfilePayloadUserProfile;
+export type FollowProfileApiArg = {
+  username: string;
+};
+export type UnfollowProfileApiResponse =
+  /** status 200 User successfully unfollow from current user's profile */ UserProfilePayloadUserProfile;
+export type UnfollowProfileApiArg = {
+  username: string;
 };
 export type ListTagsApiResponse = /** status 200 Tags list successfully retrieved */ TagsList;
 export type ListTagsApiArg = void;
@@ -276,6 +338,59 @@ export type ArticlePayloadArticleUpdate = {
         
         This is will be used to generate a slug for this article. */
     title?: string;
+  };
+};
+export type Comment = {
+  /** Details of the comment's author */
+  author: Author;
+  /** Comment's text. */
+  body: string;
+  /** When this comment was created. */
+  createdAt: string;
+  /** Comment's unique identifier. */
+  id: string;
+  /** When this comment was last update. */
+  updatedAt: string;
+};
+export type CommentsList = {
+  /** List of comments. */
+  comments: Comment[];
+};
+export type CommentPayloadComment = {
+  comment: {
+    /** Details of the comment's author */
+    author: Author;
+    /** Comment's text. */
+    body: string;
+    /** When this comment was created. */
+    createdAt: string;
+    /** Comment's unique identifier. */
+    id: string;
+    /** When this comment was last update. */
+    updatedAt: string;
+  };
+};
+export type CommentPayloadCommentCreate = {
+  comment: {
+    /** Comment's text. */
+    body: string;
+  };
+};
+export type UserProfilePayloadUserProfile = {
+  profile: {
+    /** User's biography.
+        
+        Empty string means biography has never been provided. */
+    bio: string;
+    /** Following, if the current user is subscribed to the searched user */
+    following: boolean;
+    /** Location of user's image (if any). */
+    image: string | null;
+    /** User's name or nickname.
+        
+        This is  - just like the user's `email` - case-insensitively unique
+        in the system. */
+    username: string;
   };
 };
 export type TagsList = {
