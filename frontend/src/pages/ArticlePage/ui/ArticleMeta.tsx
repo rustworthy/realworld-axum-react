@@ -102,12 +102,12 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
               className="btn-outline-secondary"
             >
               <PlusCircledIcon />
-              {`Unfollow ${truncateText(authorUsername)}`}
+              {`Unfollow ${truncateText(authorUsername, 10)}`}
             </ActionButton>
           ) : !isAuthor && !isFollowing ? (
             <ActionButton onClick={() => performAction("follow")} isDisabled={isFollowLoading} className="btn-outline-secondary">
               <PlusCircledIcon />
-              {`Follow ${truncateText(authorUsername)}`}
+              {`Follow ${truncateText(authorUsername, 12)}`}
             </ActionButton>
           ) : null}
 

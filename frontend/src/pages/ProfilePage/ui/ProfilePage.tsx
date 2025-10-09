@@ -129,15 +129,15 @@ export const ProfilePage = () => {
               ? null
               : isArticlesDataLoading
                 ? // TODO: add skeleton while loading
-                  null
+                null
                 : data!.articles.map((article) => (
-                    <Preview
-                      afterActionCallback={afterArticleActionCallback}
-                      actionsEnabled={isAuthenticated}
-                      article={article}
-                      key={article.slug}
-                    />
-                  ))}
+                  <Preview
+                    afterActionCallback={afterArticleActionCallback}
+                    actionsEnabled={isAuthenticated}
+                    article={article}
+                    key={article.slug}
+                  />
+                ))}
           </S.PreviewList>
           {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
         </S.FeedContainer>
