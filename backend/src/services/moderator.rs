@@ -5,8 +5,11 @@ use openai_dive::v1::resources::moderation::ModerationInput;
 use openai_dive::v1::resources::moderation::ModerationObject;
 use openai_dive::v1::resources::moderation::ModerationParametersBuilder;
 use openai_dive::v1::resources::moderation::ModerationResponse;
+use openai_dive::v1::resources::moderation::Results;
 use std::sync::Arc;
+use std::vec;
 use tokio::task::JoinSet;
+use tracing::Instrument;
 use url::Url;
 
 pub struct Moderator {
@@ -17,7 +20,7 @@ pub struct Moderator {
 pub struct Verdict {
     pub processable: bool,
     pub flagged: bool,
-    pub details: Vec<String>,
+    pub details: Vec<Results>,
 }
 
 impl Default for Verdict {
@@ -48,72 +51,66 @@ impl Moderator {
     /// text or images.
     ///
     /// See: <https://platform.openai.com/docs/guides/moderation>
+    #[instrument(name = "MODERATE ARTICLE", skip_all)]
     pub async fn moderate(&self, content: &str) -> anyhow::Result<Verdict> {
-        let image_urls = utils::parse_content(&content);
-
-        let mut image_urls = image_urls.iter();
+        let image_urls = utils::parse_content(content);
         let mut tasks = JoinSet::new();
-        match image_urls.next() {
-            // we have not identified images in the content, so we are only
-            // checking text content
-            None => {
-                let parameters = ModerationParametersBuilder::default()
-                    .model("omni-moderation-latest")
-                    .input(ModerationInput::Text(content.to_string()))
-                    .build()
-                    .context("failed to build moderation parameters")?;
-                let client = Arc::clone(&self.client);
-                tasks.spawn(async move { client.moderations().create(parameters).await });
-            }
-            Some(image_url) => {
-                // we got at least one image, so let's combine it with the text
-                // content and send as a multimodal object ...
-                let parameters = ModerationParametersBuilder::default()
-                    .model("omni-moderation-latest")
-                    .input(ModerationInput::MultiModal(vec![
-                        ModerationObject::text(content),
-                        ModerationObject::image_url(image_url.as_str()),
-                    ]))
-                    .build()
-                    .context("failed to build moderation parameters")?;
-                let client = Arc::clone(&self.client);
-                tasks.spawn(async move { client.moderations().create(parameters).await });
 
-                // ... and also send the rest of the images (if any);
-                // unfortunately, the OpenAI Moderation API will error back if
-                // more than 1 image is attached to the multi-modal request,
-                // and, as of October 2025, there is no option to send an image
-                // object specifically, so we are (ab)using the multi-modal option
-                while let Some(image_url) = image_urls.next() {
-                    let parameters = ModerationParametersBuilder::default()
-                        .model("omni-moderation-latest")
-                        .input(ModerationInput::MultiModal(vec![
-                            // not attaching text content to each image to reduce
-                            // traffic and token consumption; admittedly, this
-                            // may lead to inferior results _if_ the model treats
-                            // the textual content as the context for the image
-                            // we are asking to check (or vice versa); however,
-                            // for now we only want to flag images that are
-                            // obviously indecent in any context
-                            ModerationObject::image_url(image_url.as_str()),
-                        ]))
-                        .build()
-                        .context("failed to build moderation parameters")?;
-                    let client = Arc::clone(&self.client);
-                    tasks.spawn(async move { client.moderations().create(parameters).await });
-                }
-            }
-        };
+        // send text content for moderation; we are not combining it
+        // with an image (even if there is at least one): our testing
+        // showed that a low resolution indecent image may not be flagged
+        // and oftentimes indecent text (e.g. harassment) accompanying this
+        // low resolution image is not getting flagged either, but if we split
+        // those, the image is still no flagged but the same text _is_.
+        let parameters = ModerationParametersBuilder::default()
+            .model("omni-moderation-latest")
+            .input(ModerationInput::Text(content.to_string()))
+            .build()
+            .context("failed to build moderation parameters")?;
+        let client = Arc::clone(&self.client);
+        tasks.spawn(
+            async move { client.moderations().create(parameters).await }
+                .instrument(info_span!("text check")),
+        );
+
+        // unfortunately, the OpenAI Moderation API will error back if
+        // more than 1 image is attached to the multi-modal request,
+        // and, as of October 2025, there is no option to send an image
+        // object specifically, so we are (ab)using the multi-modal option
+        for image_url in image_urls {
+            let parameters = ModerationParametersBuilder::default()
+                .model("omni-moderation-latest")
+                .input(ModerationInput::MultiModal(vec![
+                    // not attaching text content to each image to reduce
+                    // traffic and token consumption; admittedly, this
+                    // may lead to inferior results _if_ the model treats
+                    // the textual content as the context for the image
+                    // we are asking to check (or vice versa); however,
+                    // for now we only want to flag images that are
+                    // obviously indecent in any context
+                    ModerationObject::image_url(image_url.as_str()),
+                ]))
+                .build()
+                .context("failed to build moderation parameters")?;
+            let client = Arc::clone(&self.client);
+            tasks.spawn(
+                async move { client.moderations().create(parameters).await }
+                    .instrument(info_span!("image check", image_url = %image_url)),
+            );
+        }
 
         let mut verdict = Verdict::default();
         while let Some(result) = tasks.join_next().await {
             match result.context("failed to join moderation task")? {
                 Ok(ModerationResponse { results, .. }) => {
                     for result in results {
-                        verdict.flagged = dbg!(result).flagged;
+                        if result.flagged {
+                            verdict.flagged = true;
+                            verdict.details.push(result);
+                        }
                     }
                 }
-                Err(APIError::InvalidRequestError(e)) => {
+                Err(APIError::InvalidRequestError(e)) | Err(APIError::BadRequestError(e)) => {
                     verdict.processable = false;
                     dbg!(e);
                 }
@@ -122,7 +119,7 @@ impl Moderator {
                 }
             }
         }
-        Ok(dbg!(verdict))
+        Ok(verdict)
     }
 }
 

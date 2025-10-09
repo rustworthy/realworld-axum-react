@@ -96,9 +96,15 @@ pub async fn create_article(
             )]));
         }
         if verdict.flagged {
+            warn!(
+                content = article.body,
+                flagged = true,
+                details = serde_json::to_string(&verdict.details).ok(),
+                "article flagged"
+            );
             return Err(Error::unprocessable_entity([(
                 "body",
-                r#"Out system has flagged article content.
+                r#"Our system has flagged article content.
                 Please make sure there is no violent or otherwise indecent content in text and/or images"#,
             )]));
         }

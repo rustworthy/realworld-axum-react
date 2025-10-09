@@ -180,6 +180,13 @@ watch: db/start prepare
 	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --clear --exec "run" --no-dot-ignores
 
+.PHONY: otel
+watch/otel: jaeger/start
+	fuser -k ${APP_PORT}/tcp || true
+	RUST_LOG="realworld_axum_react=info,axum=error" \
+		OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
+		cargo watch --clear --exec "run" --no-dot-ignores
+
 .PHONY: fmt
 fmt:
 	cargo fmt
@@ -190,11 +197,3 @@ check:
 	SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
 	SQLX_OFFLINE=1 cargo doc --no-deps --all-features
 
-.PHONY: otel
-otel: jaeger/start
-	fuser -k ${APP_PORT}/tcp || true
-	RUST_LOG="realworld_axum_react=info,axum=error" \
-	OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
-	DATABASE_URL=${POSTGRES_URL} \
-	MIGRATE=true \
-		cargo run
