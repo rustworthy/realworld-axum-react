@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useListArticlesQuery, useReadCurrentUserQuery } from "@/shared/api";
+import { useFollowProfileMutation, useListArticlesQuery, useProfileQuery, useUnfollowProfileMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
 import { Preview, PreviewProps } from "@/shared/ui/Article/Preview";
@@ -11,7 +11,7 @@ import { Avatar } from "@/shared/ui/Avatar";
 import { Pagination, PaginationProps } from "@/shared/ui/Pagination";
 import { Tabs } from "@/shared/ui/Tabs";
 import { ActionButton } from "@/shared/ui/controls/Button";
-import { GearIcon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { GearIcon, MinusCircledIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 
 import * as S from "./Profile.styles";
 
@@ -31,14 +31,14 @@ export const ProfilePage = () => {
   const feed = searchParams.get("feed");
   const isFavoritedView = feed === "favorited";
 
-  const { data, isLoading } = useListArticlesQuery({
+  const { data, isLoading: isArticlesDataLoading } = useListArticlesQuery({
     limit: ARTICLES_PER_PAGE,
     offset,
     author: isFavoritedView ? undefined : username,
     favorited: isFavoritedView ? username : undefined,
   });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
-  const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
+  const empty = !isArticlesDataLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
 
   // we normally do not render pagination controls at all if there are no pages
   // or there is a single page (the latter is probably a matter of taste and user
@@ -49,10 +49,13 @@ export const ProfilePage = () => {
   // unless we cover this case with `(pagesCount === 1 && empty)` check
   const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
 
-  const { data: profileData, isLoading: isProfileDataLoading } = useReadCurrentUserQuery();
+  const [followProfile, { isLoading: isFollowLoading }] = useFollowProfileMutation();
+  const [unfollowProfile, { isLoading: isUnfollowLoading }] = useUnfollowProfileMutation();
+  const { data: profileData, isLoading: isProfileDataLoading } = useProfileQuery({ username });
   if (!profileData) return isProfileDataLoading ? null : <NotFoundPage />;
-  const user = profileData.user;
-  const isProfileOwner = loggedInUser?.username === user.username;
+  const profile = profileData.profile;
+  const isProfileOwner = loggedInUser?.username === profile.username;
+  const isFollowingProfile = profileData.profile.following;
 
   const handlePageClick: PaginationProps["onPageChange"] = ({ selected }) => {
     setSearchParams((params) => {
@@ -79,25 +82,38 @@ export const ProfilePage = () => {
     <S.PageWrapper>
       <S.Banner>
         <S.BannerContainer>
-          <Avatar size="lg" imageUrl={user.image} username={user.username} />
-          <S.ProfileTitle>{user.username}</S.ProfileTitle>
-          <S.ProfileBio>{truncateText(user.bio, 600)}</S.ProfileBio>
+          <Avatar size="lg" imageUrl={profile.image} username={profile.username} />
+          <S.ProfileTitle>{profile.username}</S.ProfileTitle>
+          <S.ProfileBio>{truncateText(profile.bio, 600)}</S.ProfileBio>
           <S.ProfileActions>
             {isProfileOwner ? (
               <ActionButton
                 onClick={() => navigate(ROUTES.SETTINGS)}
-                isDisabled={isLoading}
+                isDisabled={isArticlesDataLoading}
                 className="btn-outline-secondary fit"
               >
                 <GearIcon />
                 Edit Profile Settings
               </ActionButton>
-            ) : (
-              <ActionButton isDisabled={isLoading} className="btn-outline-secondary fit">
+            ) : isAuthenticated && isFollowingProfile ? (
+              <ActionButton
+                onClick={() => unfollowProfile({ username })}
+                isDisabled={isUnfollowLoading}
+                className="btn-outline-secondary fit"
+              >
+                <MinusCircledIcon />
+                {`Unfollow ${truncateText(username)}`}
+              </ActionButton>
+            ) : isAuthenticated && !isFollowingProfile ? (
+              <ActionButton
+                onClick={() => followProfile({ username })}
+                isDisabled={isFollowLoading}
+                className="btn-outline-secondary fit"
+              >
                 <PlusCircledIcon />
                 {`Follow ${truncateText(username)}`}
               </ActionButton>
-            )}
+            ) : null}
           </S.ProfileActions>
         </S.BannerContainer>
       </S.Banner>
@@ -111,7 +127,7 @@ export const ProfilePage = () => {
           <S.PreviewList>
             {empty
               ? null
-              : isLoading
+              : isArticlesDataLoading
                 ? // TODO: add skeleton while loading
                   null
                 : data!.articles.map((article) => (

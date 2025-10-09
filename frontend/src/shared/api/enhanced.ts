@@ -14,7 +14,7 @@ const api = generatedApi.enhanceEndpoints({
   endpoints: {
     listArticles: {
       providesTags: (result, _error, arg) =>
-        result ? [{ type: "Article" as const, id: JSON.stringify(arg) }, "Article"] : ["Article"],
+        result ? [{ type: "ArticleGlobalFeed" as const, id: JSON.stringify(arg) }, "ArticleGlobalFeed"] : ["ArticleGlobalFeed"],
     },
     personalFeed: {
       providesTags: (result, _error, arg) =>
@@ -22,11 +22,14 @@ const api = generatedApi.enhanceEndpoints({
           ? [{ type: "ArticlePersonalFeed" as const, id: JSON.stringify(arg) }, "ArticlePersonalFeed"]
           : ["ArticlePersonalFeed"],
     },
+    readArticle: {
+      providesTags: (result, _error, { slug }) => (result ? [{ type: "Article" as const, id: slug }, "Article"] : ["Article"]),
+    },
     createArticle: {
       // TODO: we can be smarter here and prepend this article to
       // 1) their global feed and 2) list of articles by tag; for
       // now though we are going with invalidation
-      invalidatesTags: ["Article"],
+      invalidatesTags: ["ArticleGlobalFeed"],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
@@ -57,7 +60,7 @@ const api = generatedApi.enhanceEndpoints({
           // utilize an rtk's `selectInvalidatedBy` helper that returns all
           // the chache registries this item is found in:
           // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#selectinvalidatedby
-          for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["Article"])) {
+          for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(getState(), ["ArticleGlobalFeed"])) {
             if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
             dispatch(
               api.util.updateQueryData(endpointName, originalArgs, (draft) => {
@@ -95,7 +98,10 @@ const api = generatedApi.enhanceEndpoints({
         // just like in `updateArticle` operation, search for this article in
         // cache registries and only surgically update it in each registry ...
         const state = getState() as AppState;
-        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article", "ArticlePersonalFeed"])) {
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, [
+          "ArticleGlobalFeed",
+          "ArticlePersonalFeed",
+        ])) {
           if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
@@ -110,7 +116,7 @@ const api = generatedApi.enhanceEndpoints({
           );
           // ... and invalidate the favorited list
           if ((originalArgs as ListArticlesApiArg).favorited === state.auth.user?.username) {
-            dispatch(api.util.invalidateTags([{ type: "Article", id: JSON.stringify(originalArgs) }]));
+            dispatch(api.util.invalidateTags([{ type: "ArticleGlobalFeed", id: JSON.stringify(originalArgs) }]));
           }
         }
         try {
@@ -133,7 +139,10 @@ const api = generatedApi.enhanceEndpoints({
         // similar to `favoriteArticle` operation, update the article if it's
         // found in cached lists ...
         const state = getState() as AppState;
-        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article", "ArticlePersonalFeed"])) {
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, [
+          "ArticleGlobalFeed",
+          "ArticlePersonalFeed",
+        ])) {
           if (endpointName !== "listArticles" && endpointName !== "personalFeed") continue;
           patchResults.push(
             dispatch(
@@ -147,7 +156,7 @@ const api = generatedApi.enhanceEndpoints({
           );
           // ... and invalidate the favorited list
           if ((originalArgs as ListArticlesApiArg).favorited === state.auth.user?.username) {
-            dispatch(api.util.invalidateTags([{ type: "Article", id: JSON.stringify(originalArgs) }]));
+            dispatch(api.util.invalidateTags([{ type: "ArticleGlobalFeed", id: JSON.stringify(originalArgs) }]));
           }
         }
         try {
@@ -168,7 +177,69 @@ const api = generatedApi.enhanceEndpoints({
       // not be in the personal feed and so there is no need to refetch, but
       // then, if we decide that there should be other roles capable of deleting
       // articles this can get messy;
-      invalidatesTags: ["Article"],
+      invalidatesTags: ["ArticleGlobalFeed"],
+    },
+    followProfile: {
+      invalidatesTags: ["ArticlePersonalFeed"],
+      async onQueryStarted({ username }, { dispatch, queryFulfilled, getState }) {
+        const patchResults = [];
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("profile", { username }, (draft) => {
+              draft.profile.following = true;
+            }),
+          ),
+        );
+        const state = getState() as AppState;
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article"])) {
+          if (endpointName !== "readArticle") continue;
+          patchResults.push(
+            dispatch(
+              api.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                if (draft.article.author.username === username) {
+                  draft.article.author.following = true;
+                }
+              }),
+            ),
+          );
+        }
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((result) => result.undo());
+        }
+      },
+    },
+    unfollowProfile: {
+      invalidatesTags: ["ArticlePersonalFeed"],
+      async onQueryStarted({ username }, { dispatch, queryFulfilled, getState }) {
+        const patchResults = [];
+        patchResults.push(
+          dispatch(
+            api.util.updateQueryData("profile", { username }, (draft) => {
+              Object.assign(draft.profile, { following: false });
+            }),
+          ),
+        );
+        const state = getState() as AppState;
+        for (const { endpointName, originalArgs } of api.util.selectInvalidatedBy(state, ["Article"])) {
+          if (endpointName !== "readArticle") continue;
+          patchResults.push(
+            dispatch(
+              api.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                if (draft.article.author.username === username) {
+                  draft.article.author.following = false;
+                }
+              }),
+            ),
+          );
+        }
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((result) => result.undo());
+        }
+      },
     },
   },
 });
@@ -188,6 +259,12 @@ export const {
   useUnfavoriteArticleMutation,
   usePersonalFeedQuery,
   useListTagsQuery,
+  useProfileQuery,
+  useFollowProfileMutation,
+  useUnfollowProfileMutation,
+  useListCommentsQuery,
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
 } = api;
 
 export type {
