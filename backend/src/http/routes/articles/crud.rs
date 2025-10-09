@@ -87,7 +87,21 @@ pub async fn create_article(
     if ctx.skip_content_moderation {
         warn!("content verification disabled via app configuration");
     } else {
-        ctx.moderator.moderate(&article.body).await?;
+        let verdict = ctx.moderator.moderate(&article.body).await?;
+        if !verdict.processable {
+            return Err(Error::unprocessable_entity([(
+                "body",
+                r#"Please make sure image content is formatted correctly
+                and links are valid and accessible."#,
+            )]));
+        }
+        if verdict.flagged {
+            return Err(Error::unprocessable_entity([(
+                "body",
+                r#"Out system has flagged article content.
+                Please make sure there is no violent or otherwise indecent content in text and/or images"#,
+            )]));
+        }
     }
 
     let slug = slug::slugify(&article.title);

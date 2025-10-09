@@ -1,8 +1,10 @@
 use anyhow::Context;
 use openai_dive::v1::api::Client;
+use openai_dive::v1::error::APIError;
 use openai_dive::v1::resources::moderation::ModerationInput;
 use openai_dive::v1::resources::moderation::ModerationObject;
 use openai_dive::v1::resources::moderation::ModerationParametersBuilder;
+use openai_dive::v1::resources::moderation::ModerationResponse;
 use std::sync::Arc;
 use tokio::task::JoinSet;
 use url::Url;
@@ -11,10 +13,21 @@ pub struct Moderator {
     client: Arc<Client>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Verdict {
+    pub processable: bool,
     pub flagged: bool,
     pub details: Vec<String>,
+}
+
+impl Default for Verdict {
+    fn default() -> Self {
+        Verdict {
+            processable: true,
+            flagged: false,
+            details: Vec::new(),
+        }
+    }
 }
 
 impl Moderator {
@@ -69,13 +82,13 @@ impl Moderator {
                 // ... and also send the rest of the images (if any);
                 // unfortunately, the OpenAI Moderation API will error back if
                 // more than 1 image is attached to the multi-modal request,
-                // and as of October 2025 there is no option to send an image
-                // object specifically, so we are (ab)using a multi-modal option
+                // and, as of October 2025, there is no option to send an image
+                // object specifically, so we are (ab)using the multi-modal option
                 while let Some(image_url) = image_urls.next() {
                     let parameters = ModerationParametersBuilder::default()
                         .model("omni-moderation-latest")
                         .input(ModerationInput::MultiModal(vec![
-                            // not attching text content to each image to reduce
+                            // not attaching text content to each image to reduce
                             // traffic and token consumption; admittedly, this
                             // may lead to inferior results _if_ the model treats
                             // the textual content as the context for the image
@@ -92,11 +105,24 @@ impl Moderator {
             }
         };
 
+        let mut verdict = Verdict::default();
         while let Some(result) = tasks.join_next().await {
-            let result = result.context("failed to join moderation task")?;
-            dbg!(result);
+            match result.context("failed to join moderation task")? {
+                Ok(ModerationResponse { results, .. }) => {
+                    for result in results {
+                        verdict.flagged = dbg!(result).flagged;
+                    }
+                }
+                Err(APIError::InvalidRequestError(e)) => {
+                    verdict.processable = false;
+                    dbg!(e);
+                }
+                Err(e) => {
+                    return Err(anyhow::anyhow!(e));
+                }
+            }
         }
-        Ok(Verdict::default())
+        Ok(dbg!(verdict))
     }
 }
 
