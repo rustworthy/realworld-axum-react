@@ -86,6 +86,7 @@ pub(crate) async fn profile(
     ),
     responses(
         (status = 200, description = "User successfully started follow current user's profile", body = UserProfilePayload<UserProfile>),
+        (status = 400, description = "Bad request"),
         (status = 401, description = "Unauthorized", body = Validation),
         (status = 500, description = "Internal server error."),
     ),
