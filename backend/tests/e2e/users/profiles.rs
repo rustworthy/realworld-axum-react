@@ -12,7 +12,7 @@ async fn follow_user_profile(ctx: TestContext) {
     let response = ctx.http_client.get(url).send().await.unwrap();
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    // create user2 and fetch their profile
+    // ---------- create user2 and fetch their profile ----------
     let user2 = fake::create_activated_user(&ctx).await;
     let url_path = format!("/api/profiles/{}", user2.username);
     let url = ctx.backend_url.join(&url_path).unwrap();
