@@ -1,5 +1,5 @@
 use crate::utils::{TestContext, fake};
-use reqwest::{StatusCode};
+use reqwest::StatusCode;
 use serde_json::{Value, json};
 
 async fn follow_user_profile(ctx: TestContext) {
@@ -17,7 +17,13 @@ async fn follow_user_profile(ctx: TestContext) {
     let url_path = format!("/api/profiles/{}", user2.username);
     let url = ctx.backend_url.join(&url_path).unwrap();
 
-    let response = ctx.http_client.get(url).send().await.unwrap();
+    let response = ctx
+        .http_client
+        .get(url)
+        .bearer_auth(user1.token.clone())
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
 
     // ---------- check if user1 following user2 ----------
@@ -34,12 +40,7 @@ async fn follow_user_profile(ctx: TestContext) {
     let url_path = format!("/api/profiles/{}/follow", user2.username);
     let url = ctx.backend_url.join(&url_path).unwrap();
 
-    let response = ctx
-        .http_client
-        .post(url)
-        .send()
-        .await
-        .unwrap();
+    let response = ctx.http_client.post(url).send().await.unwrap();
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
     // ---------- user1 follow user2 with auth ----------
@@ -69,12 +70,7 @@ async fn follow_user_profile(ctx: TestContext) {
     let url_path = format!("/api/profiles/{}", user2.username);
     let url = ctx.backend_url.join(&url_path).unwrap();
 
-    let response = ctx
-        .http_client
-        .get(url)
-        .send()
-        .await
-        .unwrap();
+    let response = ctx.http_client.get(url).send().await.unwrap();
 
     let expected_json = json!({
         "profile": {
@@ -122,7 +118,7 @@ async fn follow_user_profile(ctx: TestContext) {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 }
 
 mod tests {
