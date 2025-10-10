@@ -117,7 +117,7 @@ async fn follow_user_profile(ctx: TestContext) {
     let response = ctx
         .http_client
         .post(url)
-        .bearer_auth(user1.token.clone())
+        .bearer_auth(user1.token)
         .send()
         .await
         .unwrap();
