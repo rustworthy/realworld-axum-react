@@ -33,7 +33,6 @@ export const LightTheme = {
       comment: {
         borderColor: "#e5e5e5",
         backgroundColor: palette.c02,
-        footerBackgroundColor: "#f5f5f5",
         textColor: palette.c01,
       },
     },

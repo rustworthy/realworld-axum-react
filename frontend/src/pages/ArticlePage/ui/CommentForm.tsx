@@ -1,17 +1,18 @@
 import { FC, useState } from "react";
 import { Controller, FieldErrors, useForm } from "react-hook-form";
 
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
 import { UserPayloadUser, useCreateCommentMutation } from "@/shared/api";
+import { ANY_TODO } from "@/shared/types/common.types";
 import { AuthorInfo } from "@/shared/ui/Article";
 import { Button } from "@/shared/ui/controls/Button";
 import { Textarea } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import { TCreateCommentSchema, createCommentDefaultValues, createCommentSchema } from "./CommentForm.schema";
 import * as S from "./CommentForm.styles";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { ANY_TODO } from "@/shared/types/common.types";
-import { toast } from "sonner";
 
 export type ArticleMetaProps = {
   user: UserPayloadUser["user"];

@@ -68,29 +68,3 @@ export const CommentsContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
 `;
-
-export const Comment = styled.div`
-  border: 1px solid ${({ theme }) => theme.page.article.comment.borderColor};
-  border-radius: 4px;
-  margin-bottom: 16px;
-  background-color: ${({ theme }) => theme.page.article.comment.backgroundColor};
-`;
-
-export const CommentBody = styled.div`
-  padding: 16px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: ${({ theme }) => theme.page.article.comment.textColor};
-`;
-
-export const CommentFooter = styled.div`
-  background: ${({ theme }) => theme.page.article.comment.footerBackgroundColor};
-  border-top: 1px solid ${({ theme }) => theme.page.article.comment.borderColor};
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.page.article.comment.textColor};
-  opacity: 0.8;
-`;

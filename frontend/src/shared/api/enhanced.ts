@@ -78,18 +78,32 @@ const api = generatedApi.enhanceEndpoints({
       providesTags: (result, _error, { slug }) => (result ? [{ type: "ArticleComments" as const, id: slug }] : []),
     },
     createComment: {
-      // TODO: update optimistically
-      //invalidatesTags: (result, _error, { slug }) => (result ? [{ type: "ArticleComments" as const, id: slug }] : []),
       async onQueryStarted({ slug }, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(generatedApi.util.updateQueryData("listComments", { slug }, (draft) => {
-            draft.comments.unshift(data.comment)
-          }));
+          dispatch(
+            generatedApi.util.updateQueryData("listComments", { slug }, (draft) => {
+              draft.comments.unshift(data.comment);
+            }),
+          );
         } catch {
           // no-op
         }
-      }
+      },
+    },
+    deleteComment: {
+      async onQueryStarted({ slug, commentId }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            generatedApi.util.updateQueryData("listComments", { slug }, (draft) => {
+              draft.comments = draft.comments.filter((comment) => comment.id !== commentId);
+            }),
+          );
+        } catch {
+          // no-op
+        }
+      },
     },
     // favoriting/unfavorting are less critical operations and so we can actually
     // use optimistic update for both of them;

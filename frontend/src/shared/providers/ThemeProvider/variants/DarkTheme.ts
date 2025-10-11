@@ -35,7 +35,6 @@ export const DarkTheme: AppThemeType = {
       comment: {
         borderColor: "#555",
         backgroundColor: palette.c01,
-        footerBackgroundColor: "#333",
         textColor: palette.c06,
       },
     },
