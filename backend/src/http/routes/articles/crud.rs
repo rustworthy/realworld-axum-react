@@ -25,7 +25,8 @@ pub struct ArticleCreate {
     /// This is will be used to generate a slug for this article.
     #[schema(
         examples("Your very own programming language", "Deploying with Kamal"),
-        min_length = 1
+        min_length = 1,
+        max_length = 200
     )]
     #[validate(length(min = 1, message = "title should be at least 1 character long"))]
     title: String,
@@ -33,7 +34,8 @@ pub struct ArticleCreate {
     /// Article's description.
     #[schema(
         examples("This articles shares our knowledge on how to design a programming language",),
-        min_length = 1
+        min_length = 1,
+        max_length = 200
     )]
     #[validate(length(min = 1, message = "description should be at least 1 character long"))]
     description: String,
@@ -41,7 +43,9 @@ pub struct ArticleCreate {
     /// Article's contents.
     #[schema(
         examples("Before we begin ... And that's pretty much it. Happy coding!",),
-        min_length = 1
+        min_length = 1,
+        // 2.5k words * 5chars (English)
+        max_length = 12500
     )]
     #[validate(length(min = 1, message = "body should be at least 1 character long"))]
     body: String,
@@ -50,8 +54,13 @@ pub struct ArticleCreate {
     #[schema(
         example = json!(vec!["programming".to_string(), "language design".to_string()]),
         min_items = 1,
+        max_items = 10,
     )]
-    #[validate(length(min = 1, message = "tags list should contain at least 1 item"))]
+    #[validate(length(
+        min = 1,
+        max = 10,
+        message = "tags list should contain at least 1 and up to 15 items"
+    ))]
     #[serde(rename = "tagList")]
     tags: Vec<String>,
 }
@@ -83,32 +92,7 @@ pub async fn create_article(
 ) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
     let ArticlePayload { article } = input?.0;
     article.validate()?;
-
-    if ctx.skip_content_moderation {
-        warn!("content verification disabled via app configuration");
-    } else {
-        let verdict = ctx.moderator.moderate(&article.body).await?;
-        if !verdict.processable {
-            return Err(Error::unprocessable_entity([(
-                "body",
-                r#"Please make sure image content is formatted correctly
-                and links are valid and accessible."#,
-            )]));
-        }
-        if verdict.flagged {
-            warn!(
-                content = article.body,
-                flagged = true,
-                details = serde_json::to_string(&verdict.details).ok(),
-                "article flagged"
-            );
-            return Err(Error::unprocessable_entity([(
-                "body",
-                r#"Our system has flagged article content.
-                Please make sure there is no violent or otherwise indecent content in text and/or images"#,
-            )]));
-        }
-    }
+    utils::check_article_body(&ctx, &article.body).await?;
 
     let slug = slug::slugify(&article.title);
     let details = sqlx::query!(
@@ -172,6 +156,7 @@ pub struct ArticleUpdate {
     #[schema(
         examples("Your very own programming language", "Deploying with Kamal"),
         min_length = 1,
+        max_length = 200,
         nullable = false
     )]
     #[validate(length(min = 1, message = "title should be at least 1 character long"))]
@@ -181,6 +166,7 @@ pub struct ArticleUpdate {
     #[schema(
         examples("This articles shares our knowledge on how to design a programming language",),
         min_length = 1,
+        max_length = 200,
         nullable = false
     )]
     #[validate(length(min = 1, message = "description should be at least 1 character long"))]
@@ -190,7 +176,9 @@ pub struct ArticleUpdate {
     #[schema(
         examples("Before we begin ... And that's pretty much it. Happy coding!",),
         min_length = 1,
-        nullable = false
+        // 2.5k words * 5chars (English)
+        max_length = 12500,
+        nullable = false,
     )]
     #[validate(length(min = 1, message = "body should be at least 1 character long"))]
     body: Option<String>,
@@ -199,9 +187,14 @@ pub struct ArticleUpdate {
     #[schema(
         example = json!(vec!["programming".to_string(), "language design".to_string()]),
         min_items = 1,
+        max_items = 10,
         nullable = false
     )]
-    #[validate(length(min = 1, message = "tags list should contain at least 1 item"))]
+    #[validate(length(
+        min = 1,
+        max = 10,
+        message = "tags list should contain at least 1 and up to 15 items"
+    ))]
     #[serde(rename = "tagList")]
     tags: Option<Vec<String>>,
 }
@@ -249,6 +242,11 @@ pub async fn update_article(
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
     let ArticlePayload { article: patch } = input?.0;
     patch.validate()?;
+
+    if let Some(ref body) = patch.body {
+        utils::check_article_body(&ctx, body).await?;
+    }
+
     let new_slug = patch.title.as_deref().map(slug::slugify);
     let details = sqlx::query!(
         r#"
@@ -582,5 +580,42 @@ mod db {
                 following: false,
             },
         })
+    }
+}
+
+mod utils {
+    use crate::AppContext;
+    use crate::http::errors::Error;
+
+    pub(super) async fn check_article_body(ctx: &AppContext, body: &String) -> Result<(), Error> {
+        if ctx.skip_content_moderation {
+            warn!("content moderation disabled via app configuration");
+            return Ok(());
+        }
+
+        let verdict = ctx.moderator.moderate(body).await?;
+        if !verdict.processable {
+            return Err(Error::unprocessable_entity([(
+                "body",
+                r#"Please make sure image content is formatted correctly
+                and links are valid and accessible."#,
+            )]));
+        }
+
+        if verdict.flagged {
+            warn!(
+                content = body,
+                flagged = true,
+                details = serde_json::to_string(&verdict.details).ok(),
+                "article flagged"
+            );
+            return Err(Error::unprocessable_entity([(
+                "body",
+                r#"Our system has flagged article content.
+                Please make sure there is no violent or otherwise indecent content in text and/or images"#,
+            )]));
+        }
+
+        Ok(())
     }
 }
