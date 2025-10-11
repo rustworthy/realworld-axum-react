@@ -3,15 +3,15 @@ import { useLocation, useParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useReadArticleQuery } from "@/shared/api";
+import { useListCommentsQuery, useReadArticleQuery } from "@/shared/api";
 import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
-import { TagList } from "@/shared/ui/Article";
+import { AuthorInfo, TagList } from "@/shared/ui/Article";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { ArticleComments } from "./ArticleComments";
 import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
+import { CommentForm } from "./CommentForm";
 
 /**
  * Adjust links to work with browser router.
@@ -27,6 +27,7 @@ export const ArticlePage: FC = () => {
   if (!slug) return <NotFoundPage />;
   const location = useLocation();
   const { data, isLoading } = useReadArticleQuery({ slug: slug! });
+  const { data: commentsData, isLoading: isCommentsDataLoading } = useListCommentsQuery({ slug: slug! });
   const { user } = useAuth();
   const { isDarkMode } = useTernaryDarkMode();
   useHashScrollIn(data);
@@ -53,7 +54,21 @@ export const ArticlePage: FC = () => {
       </S.MainContent>
 
       <S.CommentsContainer>
-        <ArticleComments user={user} />
+        {user ? <CommentForm slug={slug!} user={user} /> : null}
+        <div>
+          {isCommentsDataLoading ? (
+            <p>Loading comments...</p>
+          ) : (
+            commentsData?.comments.map((comment) => (
+              <S.Comment key={comment.id}>
+                <S.CommentBody>{comment.body}</S.CommentBody>
+                <S.CommentFooter>
+                  <AuthorInfo imageUrl={comment.author.image} username={comment.author.username} authoredAt={comment.createdAt} />
+                </S.CommentFooter>
+              </S.Comment>
+            ))
+          )}
+        </div>
       </S.CommentsContainer>
     </S.PageWrapper>
   );

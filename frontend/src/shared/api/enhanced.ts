@@ -74,7 +74,13 @@ const api = generatedApi.enhanceEndpoints({
         }
       },
     },
-
+    listComments: {
+      providesTags: (result, _error, { slug }) => (result ? [{ type: "ArticleComments" as const, id: slug }] : []),
+    },
+    createComment: {
+      // TODO: update optimistically
+      invalidatesTags: (result, _error, { slug }) => (result ? [{ type: "ArticleComments" as const, id: slug }] : []),
+    },
     // favoriting/unfavorting are less critical operations and so we can actually
     // use optimistic update for both of them;
     //
@@ -274,5 +280,6 @@ export type {
   ArticlePayloadArticle,
   ListArticlesApiResponse,
   UpdateArticleApiArg,
+  CreateCommentApiArg,
   UserPayloadUser,
 } from "./generated";
