@@ -10,7 +10,7 @@ import {
 } from "@/shared/api";
 import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
-import { formatEventsCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
+import { formatCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
 import { AuthorInfo } from "@/shared/ui/Article";
 import { ActionButton } from "@/shared/ui/controls/Button";
 import { HeartFilledIcon, HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
@@ -115,7 +115,7 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
           {article.favorited ? (
             <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary">
               <HeartFilledIcon />
-              Unfavorite Article <span>({formatEventsCount(article.favoritesCount)})</span>
+              Unfavorite Article <span>({formatCount(article.favoritesCount)})</span>
             </ActionButton>
           ) : (
             <ActionButton onClick={() => performAction("favorite")} isDisabled={isLoading} className="btn-outline-primary">

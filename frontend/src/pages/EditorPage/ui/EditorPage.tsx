@@ -12,7 +12,7 @@ import { FormPage } from "@/shared/ui/FormPage";
 import { toast } from "sonner";
 
 import { EditorForm } from "./EditorForm";
-import { TEditorPageSchema } from "./EditorPage.schema";
+import { ARTICLE_MAX_LENGTH, TEditorPageSchema } from "./EditorPage.schema";
 
 const CreateArcticle = () => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const CreateArcticle = () => {
 
   return (
     <FormPage.Container title="New Article">
-      <EditorForm initialErrors={initialErrors} onSubmit={onSubmit} disabled={isLoading} />
+      <EditorForm maxLength={ARTICLE_MAX_LENGTH} initialErrors={initialErrors} onSubmit={onSubmit} disabled={isLoading} />
     </FormPage.Container>
   );
 };
@@ -100,6 +100,7 @@ const UpdateArticle = () => {
   return isLoading ? null : (
     <FormPage.Container title="Update Article">
       <EditorForm
+        maxLength={ARTICLE_MAX_LENGTH}
         initialValues={data!.article}
         initialErrors={initialErrors}
         onSubmit={onSubmit}

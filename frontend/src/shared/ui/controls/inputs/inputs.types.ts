@@ -39,4 +39,5 @@ export interface IEditorInputProps extends IInputProps {
   name: string;
   value: MDEditorProps["value"];
   onChange?: MDEditorProps["onChange"];
+  maxLength?: number;
 }

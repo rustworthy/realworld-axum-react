@@ -9,7 +9,17 @@ import { FormInputContainer, FormInputError, FormInputErrorContainer } from "../
 import { IEditorInputProps } from "../inputs.types";
 import * as S from "./EditorInput.styles";
 
-export const EditorInput: FC<IEditorInputProps> = ({ id, label, placeholder, required, name, value, onChange, error }) => {
+export const EditorInput: FC<IEditorInputProps> = ({
+  id,
+  label,
+  placeholder,
+  required,
+  name,
+  value,
+  onChange,
+  error,
+  maxLength = 5_000,
+}) => {
   const { isDarkMode } = useTernaryDarkMode();
 
   return (
@@ -19,7 +29,7 @@ export const EditorInput: FC<IEditorInputProps> = ({ id, label, placeholder, req
       </SrOnly>
       <S.EditorContainer data-color-mode={isDarkMode ? "dark" : "light"} className="container">
         <MDEditor
-          textareaProps={{ placeholder: placeholder ?? label, required, id, name }}
+          textareaProps={{ placeholder: placeholder ?? label, required, id, name, maxLength }}
           value={value}
           onChange={onChange}
           // https://github.com/uiwjs/react-md-editor?tab=readme-ov-file#security
