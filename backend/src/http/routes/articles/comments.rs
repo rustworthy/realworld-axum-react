@@ -198,9 +198,15 @@ pub async fn list_comments(
             ) AS "comment_author_following!"
         FROM comments comment JOIN users comment_author USING (user_id)
         WHERE comment.article_id = $2
+        ORDER BY comment_created_at DESC
+        LIMIT $3
         "#,
         uid.0.as_deref(),
         article_id,
+        // Realword spec is not mentioning this. Apparently, comment lists
+        // should support either pagination or infinite scrolling; meanwhile,
+        // we are setting a magic number limit
+        100,
     )
     .fetch_all(&ctx.db)
     .await?;
