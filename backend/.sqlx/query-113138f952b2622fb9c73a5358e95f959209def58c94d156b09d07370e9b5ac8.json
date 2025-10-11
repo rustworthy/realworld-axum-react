@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            comment.comment_id AS comment_id,\n            comment.created_at AS comment_created_at,\n            comment.updated_at AS comment_updated_at,\n            comment.body AS comment_body,\n            comment_author.bio AS comment_author_bio,\n            comment_author.username AS comment_author_username,\n            comment_author.image AS comment_author_image,\n            (\n                $1::UUID IS NOT NULL AND EXISTS\n                    (\n                        SELECT 1 FROM follows\n                        WHERE followed_user_id = comment_author.user_id\n                        AND following_user_id = $1\n                    )\n            ) AS \"comment_author_following!\"\n        FROM comments comment JOIN users comment_author USING (user_id)\n        WHERE comment.article_id = $2\n        ",
+  "query": "\n        SELECT\n            comment.comment_id AS comment_id,\n            comment.created_at AS comment_created_at,\n            comment.updated_at AS comment_updated_at,\n            comment.body AS comment_body,\n            comment_author.bio AS comment_author_bio,\n            comment_author.username AS comment_author_username,\n            comment_author.image AS comment_author_image,\n            (\n                $1::UUID IS NOT NULL AND EXISTS\n                    (\n                        SELECT 1 FROM follows\n                        WHERE followed_user_id = comment_author.user_id\n                        AND following_user_id = $1\n                    )\n            ) AS \"comment_author_following!\"\n        FROM comments comment JOIN users comment_author USING (user_id)\n        WHERE comment.article_id = $2\n        ORDER BY comment_created_at DESC\n        LIMIT $3\n        ",
   "describe": {
     "columns": [
       {
@@ -47,7 +47,8 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid"
+        "Uuid",
+        "Int8"
       ]
     },
     "nullable": [
@@ -61,5 +62,5 @@
       null
     ]
   },
-  "hash": "8b6c34d1713c31c40cb15b9ad27091c85ea187d0372f1090a8fed2f22231d5e4"
+  "hash": "113138f952b2622fb9c73a5358e95f959209def58c94d156b09d07370e9b5ac8"
 }
