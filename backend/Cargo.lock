@@ -2627,8 +2627,6 @@ dependencies = [
  "serde",
  "serde_html_form",
  "serde_json",
- "tokio",
- "tokio-util",
 ]
 
 [[package]]
@@ -3468,12 +3466,10 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-rustls",
- "hyper-tls",
  "hyper-util",
  "js-sys",
  "log",
  "mime_guess",
- "native-tls",
  "percent-encoding",
  "pin-project-lite",
  "quinn",
@@ -3484,7 +3480,6 @@ dependencies = [
  "serde_urlencoded",
  "sync_wrapper",
  "tokio",
- "tokio-native-tls",
  "tokio-rustls",
  "tokio-util",
  "tower",
