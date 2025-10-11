@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::{UserProfile, UserProfilePayload};
 use crate::AppContext;
-use crate::http::errors::{Error, Validation};
+use crate::http::errors::{Error, ResultExt, Validation};
 use crate::http::extractors::{MaybeUserID, UserID};
 use crate::http::routes::users::utils::parse_image_url;
 use axum::extract::{Json, Path, State};
@@ -86,6 +86,7 @@ pub(crate) async fn profile(
     ),
     responses(
         (status = 200, description = "User successfully started follow current user's profile", body = UserProfilePayload<UserProfile>),
+        (status = 400, description = "Bad request"),
         (status = 401, description = "Unauthorized", body = Validation),
         (status = 500, description = "Internal server error."),
     ),
@@ -122,7 +123,8 @@ pub(crate) async fn follow_profile(
         uid.0
     )
     .fetch_optional(&ctx.db)
-    .await?
+    .await
+    .on_constraint("follows_no_self_follow", |_| Error::BadRequest)?
     .ok_or(Error::NotFound)?;
 
     let payload = UserProfilePayload {
