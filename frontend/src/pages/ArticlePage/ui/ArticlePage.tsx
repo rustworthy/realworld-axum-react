@@ -13,7 +13,6 @@ import { ArticleComments } from "./ArticleComments";
 import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
 
-
 /**
  * Adjust links to work with browser router.
  *
@@ -49,12 +48,13 @@ export const ArticlePage: FC = () => {
           <MDEditor.Markdown source={article.body} urlTransform={(url) => urlTransform(url, location.pathname)} />
           <TagList tags={article.tagList} />
         </S.ArticleContent>
-
         <S.Separator />
-
         <ArticleMeta article={article} user={user} />
-        <ArticleComments user={user} />
       </S.MainContent>
+
+      <S.CommentsContainer>
+        <ArticleComments user={user} />
+      </S.CommentsContainer>
     </S.PageWrapper>
   );
 };

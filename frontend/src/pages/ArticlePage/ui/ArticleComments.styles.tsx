@@ -1,10 +1,5 @@
 import styled from "@emotion/styled";
 
-export const CommentSection = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-`;
-
 export const CommentForm = styled.form`
   border: 1px solid ${({ theme }) => theme.page.article.comment.borderColor};
   border-radius: 4px;
@@ -76,26 +71,4 @@ export const CommentFooter = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.page.article.comment.textColor};
   opacity: 0.8;
-`;
-
-export const CommentAuthor = styled.a`
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-export const CommentDate = styled.span`
-  margin-left: auto;
-`;
-
-export const ModOptions = styled.span`
-  opacity: 0.6;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 1;
-  }
 `;

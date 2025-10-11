@@ -90,7 +90,7 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
 
   return (
     <S.ArticleMeta>
-      <AuthorInfo article={article} />
+      <AuthorInfo imageUrl={article.author.image} username={article.author.username} authoredAt={article.createdAt} />
 
       {user ? (
         <S.ArticleActions>

@@ -54,7 +54,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterAction
   return (
     <S.PreviewContainer>
       <S.PreviewMeta>
-        <AuthorInfo article={article} />
+        <AuthorInfo imageUrl={article.author.image} username={article.author.username} authoredAt={article.createdAt} />
         {!actionsEnabled ? null : article.favorited ? (
           <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary fit">
             <HeartFilledIcon />

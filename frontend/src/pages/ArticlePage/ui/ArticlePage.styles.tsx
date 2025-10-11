@@ -60,3 +60,10 @@ export const Separator = styled.hr`
   margin: 32px 0;
 `;
 
+export const CommentsContainer = styled.div`
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;

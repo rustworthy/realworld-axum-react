@@ -42,11 +42,14 @@ export const MainLayout = () => {
                     Home
                   </S.HeaderNavItem>
                   <S.HeaderNavItem $isActive={pathname === ROUTES.EDITOR} onClick={() => navigate(ROUTES.EDITOR)}>
-
                     <Pencil2Icon />
                     New Article
                   </S.HeaderNavItem>
-                  <S.HeaderNavItem className="Compact" $isActive={pathname === ROUTES.SETTINGS} onClick={() => navigate(ROUTES.SETTINGS)}>
+                  <S.HeaderNavItem
+                    className="Compact"
+                    $isActive={pathname === ROUTES.SETTINGS}
+                    onClick={() => navigate(ROUTES.SETTINGS)}
+                  >
                     <GearIcon />
                     Settings
                   </S.HeaderNavItem>
