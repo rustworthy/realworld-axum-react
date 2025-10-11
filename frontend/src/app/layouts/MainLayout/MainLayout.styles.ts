@@ -24,7 +24,8 @@ export const Header = styled.header`
   padding: 1rem 1.5rem;
 
   @media (max-width: ${MOBILE_WIDTH}px) {
-    height: 4.25rem;
+    height: 4.75rem;
+    padding: 0.75rem 1rem;
   }
 `;
 
@@ -32,7 +33,7 @@ export const HeaderContainer = styled(LayoutContainer)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 3rem;
 `;
 
 export const HeaderLink = styled(Link)`
@@ -50,19 +51,29 @@ export const HeaderNavList = styled.ul`
   align-items: center;
 
   @media (max-width: ${MOBILE_WIDTH}px) {
-    gap: 0.25rem 1rem;
-    justify-content: flex-end;
+    gap: 0.25rem 0;
+    justify-content: space-around;
   }
 `;
 
 export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`
+  height: 1.8rem;
+  width: fit-content;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 4px;
   cursor: pointer;
   opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
   &:hover {
     opacity: ${(props) => (props.$isActive ? 1 : 0.8)};
+  }
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    width: 7.5rem;
+    &.Compact {
+      width: 5rem;
+    }
   }
 `;
 
