@@ -1,5 +1,8 @@
+import { Link } from "react-router";
+
 import styled from "@emotion/styled";
 
+import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
@@ -17,17 +20,22 @@ export const Wrapper = styled.div`
 
 export const Header = styled.header`
   width: 100%;
-  height: 56px;
-  padding: 8px 16px;
+  height: 3.5rem;
+  padding: 1rem 1.5rem;
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    height: 4.25rem;
+  }
 `;
 
 export const HeaderContainer = styled(LayoutContainer)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 `;
 
-export const HeaderLink = styled.a`
+export const HeaderLink = styled(Link)`
   font-size: 24px;
   font-family: "Titillium Web", sans-serif;
   color: ${({ theme }) => theme.mainLayout.logo.textColor};
@@ -36,9 +44,15 @@ export const HeaderLink = styled.a`
 
 export const HeaderNavList = styled.ul`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+
+  @media (max-width: ${MOBILE_WIDTH}px) {
+    gap: 0.25rem 1rem;
+    justify-content: flex-end;
+  }
 `;
 
 export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`

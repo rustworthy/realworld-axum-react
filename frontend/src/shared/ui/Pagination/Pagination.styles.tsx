@@ -5,6 +5,7 @@ export const Pagination = styled.div`
     font-size: 1rem;
     display: flex;
     gap: 0.5rem;
+    padding: 0rem 1rem;
 
     .Page,
     .PreviousPage,
