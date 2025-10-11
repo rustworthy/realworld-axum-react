@@ -30,5 +30,5 @@ export const base = createApi({
   reducerPath: "api",
   baseQuery: BaseQueryWrapper,
   endpoints: () => ({}),
-  tagTypes: ["Article", "ArticlePersonalFeed"],
+  tagTypes: ["Article", "ArticleGlobalFeed", "ArticlePersonalFeed"],
 });

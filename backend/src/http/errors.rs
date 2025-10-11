@@ -32,6 +32,9 @@ pub(crate) enum Error {
     #[error("unauthorized")]
     Unauthorized,
 
+    #[error("bad request")]
+    BadRequest,
+
     #[error("not found")]
     NotFound,
 
@@ -78,6 +81,7 @@ impl IntoResponse for Error {
                 [(header::WWW_AUTHENTICATE, "Bearer")],
             )
                 .into_response(),
+            Self::BadRequest => StatusCode::BAD_REQUEST.into_response(),
             Self::NotFound => StatusCode::NOT_FOUND.into_response(),
             Self::Forbidden => StatusCode::FORBIDDEN.into_response(),
             Self::Unprocessable(validation) => {

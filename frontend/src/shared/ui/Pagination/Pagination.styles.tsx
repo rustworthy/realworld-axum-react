@@ -8,7 +8,8 @@ export const Pagination = styled.div`
 
     .Page,
     .PreviousPage,
-    .NextPage {
+    .NextPage,
+    .Break {
       display: inline-block;
       cursor: pointer;
       padding: 0.5rem 0.75rem;
