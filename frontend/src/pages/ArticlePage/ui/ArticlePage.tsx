@@ -13,7 +13,6 @@ import { ArticleComments } from "./ArticleComments";
 import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
 
-const IS_COMMENT_FEAUTURE_FINISHED = false;
 
 /**
  * Adjust links to work with browser router.
@@ -54,7 +53,7 @@ export const ArticlePage: FC = () => {
         <S.Separator />
 
         <ArticleMeta article={article} user={user} />
-        {IS_COMMENT_FEAUTURE_FINISHED ? <ArticleComments user={user} /> : null}
+        <ArticleComments user={user} />
       </S.MainContent>
     </S.PageWrapper>
   );

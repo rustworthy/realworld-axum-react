@@ -3,7 +3,9 @@ import { FC } from "react";
 import type { UserPayloadUser } from "@/shared/api";
 import { formatDate } from "@/shared/lib/utils";
 
-import * as S from "./ArticlePage.styles";
+import * as S from "./ArticleComments.styles";
+import { Avatar } from "@/shared/ui/Avatar";
+import { Button } from "@/shared/ui/controls/Button";
 
 export const ArticleComments: FC<{ user: UserPayloadUser["user"] | null }> = ({ user }) => {
   const comments = [
@@ -28,8 +30,10 @@ export const ArticleComments: FC<{ user: UserPayloadUser["user"] | null }> = ({ 
             <S.CommentTextarea placeholder="Write a comment..." rows={3} />
           </S.CommentFormBody>
           <S.CommentFormFooter>
-            <S.CommentAuthorImage src={user.image || ""} alt={user.username} />
-            <S.CommentButton type="submit">Post Comment</S.CommentButton>
+            <Avatar size="sm" imageUrl={user.image} username={user.username} />
+            <Button dataTestId="post_comment_button" isDisabled={false}>
+              Post Comment
+            </Button>
           </S.CommentFormFooter>
         </S.CommentForm>
       )}
@@ -38,7 +42,7 @@ export const ArticleComments: FC<{ user: UserPayloadUser["user"] | null }> = ({ 
         <S.Comment key={comment.id}>
           <S.CommentBody>{comment.body}</S.CommentBody>
           <S.CommentFooter>
-            <S.CommentAuthorImage src={comment.author.image} alt={comment.author.username} />
+            <Avatar size="sm" imageUrl={comment.author.image} username={comment.author.username} />
             <S.CommentAuthor href={`/profile/${comment.author.username}`}>{comment.author.username}</S.CommentAuthor>
             <S.CommentDate>{formatDate(comment.createdAt)}</S.CommentDate>
             {user?.username === comment.author.username && (
