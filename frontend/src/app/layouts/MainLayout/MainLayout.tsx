@@ -32,7 +32,7 @@ export const MainLayout = () => {
       <S.Wrapper>
         <S.Header>
           <S.HeaderContainer>
-            <S.HeaderLink href={ROUTES.HOME}>conduit</S.HeaderLink>
+            <S.HeaderLink to={ROUTES.HOME}>conduit</S.HeaderLink>
 
             {isAuthenticated ? (
               <nav>
