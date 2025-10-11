@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { Controller, FieldErrors, useForm } from "react-hook-form";
 
+import { formatCount } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,12 +10,13 @@ import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./
 import * as S from "./EditorPage.styles";
 
 export type EditorFormProps = {
+  maxLength: number;
   onSubmit: (article: TEditorPageSchema) => void;
   disabled: boolean;
   initialValues?: TEditorPageSchema;
   initialErrors?: FieldErrors<TEditorPageSchema>;
 };
-export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialValues, initialErrors }) => {
+export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialValues, initialErrors, maxLength }) => {
   const {
     control,
     setValue,
@@ -55,10 +57,11 @@ export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialVal
         value={watch("body") as string}
         onChange={(value) => setValue("body", value)}
         error={errors.body?.message}
-        label="Write your article (in markdown)"
+        label={`Write your article (in markdown, up to ${formatCount(maxLength)} characters)`}
         required
         id="editor_body"
         name="body"
+        maxLength={maxLength}
       />
 
       <Controller

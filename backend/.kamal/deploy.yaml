@@ -30,6 +30,7 @@ env:
     - SECRET_KEY
     - MAILER_TOKEN
     - CAPTCHA_SECRET
+    - OPENAI_API_KEY
   tags:
     migrator:
       clear:

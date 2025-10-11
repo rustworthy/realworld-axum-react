@@ -39,6 +39,6 @@ export function truncateText(text: string, maxLen = 15): string {
  * Values exceeding 1000 will be formatted using float plus `k`,
  * e.g. 1344 likes will formatted as `1.3k`.
  */
-export function formatEventsCount(count: number): string {
+export function formatCount(count: number): string {
   return count < 1_000 ? count.toString() : `${(count / 1_000).toFixed(1)}k`;
 }

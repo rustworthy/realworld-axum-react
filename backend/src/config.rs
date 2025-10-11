@@ -22,6 +22,8 @@ pub struct Config {
     pub mailer_endpoint: Url,
     pub mailer_from: String,
     pub captcha_secret: SecretString,
+    pub openai_api_key: SecretString,
+    pub openai_base_url: Option<Url>,
     pub frontend_url: Url,
     pub migrate: bool,
     pub allowed_origins: Vec<String>,
@@ -29,7 +31,7 @@ pub struct Config {
     pub port: u16,
     pub docs_ui_path: Option<String>,
 
-    /// Skip email and/or captcha verification logic.
+    /// Skip email and/or captcha verification logic and/or content moderation.
     ///
     /// This is something we only need to satisfy Realdworld project's
     /// end-to-end test suite: the spec allows to create an account as
@@ -37,6 +39,7 @@ pub struct Config {
     /// whether it exists and belongs to the user who is trying to register.
     pub skip_email_verification: Option<bool>,
     pub skip_captcha_verification: Option<bool>,
+    pub skip_content_moderation: Option<bool>,
 }
 
 impl Config {

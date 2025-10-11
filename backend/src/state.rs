@@ -1,4 +1,5 @@
 use crate::services::mailer::ResendMailer;
+use crate::services::moderator::Moderator;
 use crate::{config::Config, services::captcha::Captcha};
 use anyhow::Context;
 use jsonwebtoken::{DecodingKey, EncodingKey};
@@ -12,9 +13,11 @@ pub(crate) struct AppContext {
     pub db: PgPool,
     pub mailer: ResendMailer,
     pub captcha: Captcha,
+    pub moderator: Moderator,
     pub frontend_url: Url,
     pub skip_email_verification: bool,
     pub skip_captcha_verification: bool,
+    pub skip_content_moderation: bool,
 }
 
 impl AppContext {
@@ -32,6 +35,10 @@ impl AppContext {
             None,
         );
         let captcha = Captcha::new(config.captcha_secret.clone(), None);
+        let moderator = Moderator::new(
+            config.openai_api_key.expose_secret().to_string(),
+            config.openai_base_url.clone(),
+        );
 
         let ctx = AppContext {
             enc_key: EncodingKey::from_base64_secret(secret)?,
@@ -39,9 +46,11 @@ impl AppContext {
             db: pool.clone(),
             mailer: resend,
             captcha,
+            moderator,
             frontend_url: config.frontend_url.clone(),
             skip_email_verification: config.skip_email_verification.unwrap_or_default(),
             skip_captcha_verification: config.skip_captcha_verification.unwrap_or_default(),
+            skip_content_moderation: config.skip_content_moderation.unwrap_or_default(),
         };
         Ok(ctx)
     }

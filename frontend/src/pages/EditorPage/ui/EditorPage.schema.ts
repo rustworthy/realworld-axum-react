@@ -1,16 +1,21 @@
 import * as z from "zod";
 
-const nonempty = (fieldName: string) => {
+export const ARTICLE_MAX_LENGTH = 12_500;
+
+const nonempty = (fieldName: string, maxLength: number) => {
   return z.preprocess(
     (v) => (typeof v === "string" ? v.trim() : v),
-    z.string().nonempty({ message: `${fieldName} is required` }),
+    z
+      .string()
+      .nonempty({ message: `${fieldName} is required` })
+      .max(maxLength),
   );
 };
 
 export const editorPageSchema = z.object({
-  title: nonempty("Title"),
-  description: nonempty("Description"),
-  body: nonempty("Article body"),
+  title: nonempty("Title", 200),
+  description: nonempty("Description", 200),
+  body: nonempty("Article body", ARTICLE_MAX_LENGTH),
   tagList: z.preprocess(
     (csvTags) => {
       // the tags are already preprocessed, e.g. when
@@ -29,7 +34,10 @@ export const editorPageSchema = z.object({
         .filter((tag) => tag !== "");
       return Array.from(new Set(tags));
     },
-    z.array(z.string().nonempty({ message: "tag cannot be empty" })).nonempty({ message: "At least 1 tag is required" }),
+    z
+      .array(z.string().nonempty({ message: "tag cannot be empty" }).max(15))
+      .nonempty({ message: "At least 1 tag is required" })
+      .max(10),
   ),
 });
 

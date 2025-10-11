@@ -176,8 +176,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         mailer_token: SecretString::from("re_"),
         mailer_endpoint: mailer_server.uri().parse().unwrap(),
         mailer_from: "hello@realworld-axum-react.org".to_string(),
+        openai_api_key: SecretString::from("sk-pro-test"),
+        // TODO: spawn service similar to email
+        openai_base_url: None,
         skip_email_verification: None,
         skip_captcha_verification: None,
+        // TODO: unset once the mock server is ready
+        skip_content_moderation: Some(true),
     };
 
     // launch back-end application

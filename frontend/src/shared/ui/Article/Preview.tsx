@@ -3,7 +3,7 @@ import { Link } from "react-router";
 
 import { ArticlePayloadArticle, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
-import { formatEventsCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
+import { formatCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
 import { HeartFilledIcon, HeartIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
@@ -58,7 +58,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterAction
         {!actionsEnabled ? null : article.favorited ? (
           <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary fit">
             <HeartFilledIcon />
-            <span>{formatEventsCount(article.favoritesCount)}</span>
+            <span>{formatCount(article.favoritesCount)}</span>
           </ActionButton>
         ) : (
           <ActionButton onClick={() => performAction("favorite")} isDisabled={isLoading} className="btn-outline-primary fit">
