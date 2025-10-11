@@ -61,6 +61,7 @@ export const Separator = styled.hr`
 `;
 
 export const CommentsContainer = styled.div`
+  padding: 0.5rem;
   max-width: 42rem;
   margin: 0 auto;
   display: flex;

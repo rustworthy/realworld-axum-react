@@ -1,9 +1,10 @@
 import { FC } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import { UserPayloadUser, useCreateCommentMutation } from "@/shared/api";
 import { AuthorInfo } from "@/shared/ui/Article";
 import { Button } from "@/shared/ui/controls/Button";
+import { Textarea } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { TCreateCommentSchema, createCommentDefaultValues, createCommentSchema } from "./CommentForm.schema";
@@ -17,7 +18,11 @@ export type ArticleMetaProps = {
 export const CommentForm: FC<ArticleMetaProps> = ({ user, slug }) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation();
 
-  const { register, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(createCommentSchema),
     defaultValues: { ...createCommentDefaultValues },
   });
@@ -29,7 +34,20 @@ export const CommentForm: FC<ArticleMetaProps> = ({ user, slug }) => {
   return (
     <S.CommentForm noValidate aria-disabled={isCreateCommentLoading} onSubmit={handleSubmit(onSubmit)}>
       <S.CommentFormBody>
-        <S.CommentTextarea placeholder="Write a comment..." rows={3} {...register("body")} />
+        <Controller
+          control={control}
+          name="body"
+          render={({ field }) => (
+            <Textarea
+              rows={6}
+              field={field}
+              required
+              id="post_comment_field"
+              label="White a comment..."
+              error={errors.body?.message}
+            />
+          )}
+        />
       </S.CommentFormBody>
       <S.CommentFormFooter>
         <AuthorInfo imageUrl={user.image} username={user.username} />
