@@ -63,6 +63,15 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: realworld-axum-react
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v5
       - name: Install stable
@@ -74,9 +83,25 @@ jobs:
         run: cargo build --release
       - name: Run app in release mode
         env:
-          SKIP_CAPTCHA_VERIFICATION: true
-          SKIP_EMAIL_VERIFICATION: true
-          SKIP_CONTENT_MODERATION: true
+          SKIP_EMAIL_VERIFICATION: true   # NB
+          SKIP_CAPTCHA_VERIFICATION: true # NB
+          SKIP_CONTENT_MODERATION: true   # NB
+          IP: 127.0.0.1
+          PORT: 8000
+          MIGRATE: true
+          FRONTEND_URL: http://localhost:8000
+          ALLOWED_ORIGINS: ["http://localhost:8000"]
+          # A 256-bit log base64-encoded secret from .env.example
+          SECRET_KEY: "R1ltNBHbZ1XngTiBxOo7oEWySPiuUxQ9b2uI2URJ94g="
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realworld-axum-react
+          #  We are skipping email verification for the purpose of the e2e spec tests,
+          #  but the token, endpoint, and sender address are still required variable,
+          #  so taking from our .env.example (same for captcha and content moderation)
+          MAILER_TOKEN: re_D******e_Lz*********************Ts
+          MAILER_FROM: onboarding@resend.dev
+          MAILER_ENDPOINT: https://api.resend.com
+          CAPTCHA_SECRET: 1x0000000000000000000000000000000AA
+          OPENAI_API_KEY: sk-proj-***
         run: ./target/release/realworld-axum-react &
       - name: Run Realworld spec tests
         env:
@@ -90,7 +115,7 @@ jobs:
     uses: "./.github/workflows/browser-test.yaml"
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [check, unit-test, api-test, browser-test]
+    needs: [check, unit-test, api-test, spec-test, browser-test]
     runs-on: ubuntu-latest
     defaults:
       run:
