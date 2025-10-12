@@ -7,6 +7,7 @@ export const PageWrapper = styled.div`
   height: 100%;
   background-color: ${({ theme }) => theme.page.article.content.backgroundColor};
   color: ${({ theme }) => theme.page.article.content.textColor};
+  padding-bottom: 2rem;
 `;
 
 export const Banner = styled.div`

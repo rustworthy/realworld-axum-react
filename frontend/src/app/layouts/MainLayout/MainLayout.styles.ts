@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 import styled from "@emotion/styled";
 
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
+import { MOBILE_WIDTH, TABLET_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
@@ -23,7 +23,7 @@ export const Header = styled.header`
   height: 3.5rem;
   padding: 1rem 1.5rem;
 
-  @media (max-width: ${MOBILE_WIDTH}px) {
+  @media (max-width: ${TABLET_WIDTH}px) {
     height: 4.75rem;
     padding: 0.75rem 1rem;
   }
@@ -50,8 +50,8 @@ export const HeaderNavList = styled.ul`
   flex-wrap: wrap;
   align-items: center;
 
-  @media (max-width: ${MOBILE_WIDTH}px) {
-    gap: 0.25rem 0;
+  @media (max-width: ${TABLET_WIDTH}px) {
+    gap: 0.25rem 0.5rem;
     justify-content: space-around;
   }
 `;

@@ -3,8 +3,6 @@ import styled from "@emotion/styled";
 export const Comment = styled.div`
   border: 1px solid ${({ theme }) => theme.page.article.comment.borderColor};
   border-radius: 4px;
-  margin-bottom: 16px;
-  background-color: ${({ theme }) => theme.page.article.comment.backgroundColor};
 `;
 
 export const CommentBody = styled.div`

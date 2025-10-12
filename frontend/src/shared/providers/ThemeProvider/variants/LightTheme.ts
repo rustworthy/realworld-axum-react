@@ -32,7 +32,6 @@ export const LightTheme = {
       },
       comment: {
         borderColor: "#e5e5e5",
-        backgroundColor: palette.c02,
         textColor: palette.c01,
       },
     },
