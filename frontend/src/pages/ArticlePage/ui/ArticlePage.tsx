@@ -3,17 +3,16 @@ import { useLocation, useParams } from "react-router";
 
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { useReadArticleQuery } from "@/shared/api";
+import { useListCommentsQuery, useReadArticleQuery } from "@/shared/api";
 import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
 import { TagList } from "@/shared/ui/Article";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { ArticleComments } from "./ArticleComments";
 import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
-
-const IS_COMMENT_FEAUTURE_FINISHED = false;
+import { CommentForm } from "./CommentForm";
+import { CommentList } from "./CommentList";
 
 /**
  * Adjust links to work with browser router.
@@ -29,6 +28,7 @@ export const ArticlePage: FC = () => {
   if (!slug) return <NotFoundPage />;
   const location = useLocation();
   const { data, isLoading } = useReadArticleQuery({ slug: slug! });
+  const { data: commentsData } = useListCommentsQuery({ slug: slug! });
   const { user } = useAuth();
   const { isDarkMode } = useTernaryDarkMode();
   useHashScrollIn(data);
@@ -50,12 +50,14 @@ export const ArticlePage: FC = () => {
           <MDEditor.Markdown source={article.body} urlTransform={(url) => urlTransform(url, location.pathname)} />
           <TagList tags={article.tagList} />
         </S.ArticleContent>
-
         <S.Separator />
-
         <ArticleMeta article={article} user={user} />
-        {IS_COMMENT_FEAUTURE_FINISHED ? <ArticleComments user={user} /> : null}
       </S.MainContent>
+
+      <S.CommentsContainer>
+        {user ? <CommentForm slug={slug!} user={user} /> : null}
+        {commentsData ? <CommentList slug={slug!} comments={commentsData.comments} user={user} /> : null}
+      </S.CommentsContainer>
     </S.PageWrapper>
   );
 };

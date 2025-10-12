@@ -16,7 +16,7 @@ import { ActionButton } from "@/shared/ui/controls/Button";
 import { HeartFilledIcon, HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
-import * as S from "./ArticlePage.styles";
+import * as S from "./ArticleMeta.styles";
 
 export type ArticleMetaProps = {
   article: ArticlePayloadArticle["article"];
@@ -90,7 +90,7 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
 
   return (
     <S.ArticleMeta>
-      <AuthorInfo article={article} />
+      <AuthorInfo imageUrl={article.author.image} username={article.author.username} authoredAt={article.createdAt} />
 
       {user ? (
         <S.ArticleActions>

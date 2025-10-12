@@ -2,6 +2,7 @@ use super::Author;
 use crate::http::errors::{Error, ResultExt as _, Validation};
 use crate::http::extractors::{MaybeUserID, UserID};
 use crate::http::routes::users::utils::parse_image_url;
+use crate::http::utils;
 use crate::state::AppContext;
 use axum::extract::{Json, Path, State};
 use chrono::{DateTime, Utc};
@@ -86,6 +87,8 @@ pub async fn create_comment(
     Json(CommentPayload { comment }): Json<CommentPayload<CommentCreate>>,
 ) -> Result<Json<CommentPayload<Comment>>, Error> {
     comment.validate()?;
+
+    utils::moderate_content(&ctx, &comment.body, "body").await?;
 
     let data = sqlx::query!(
         r#"
@@ -198,9 +201,15 @@ pub async fn list_comments(
             ) AS "comment_author_following!"
         FROM comments comment JOIN users comment_author USING (user_id)
         WHERE comment.article_id = $2
+        ORDER BY comment_created_at DESC
+        LIMIT $3
         "#,
         uid.0.as_deref(),
         article_id,
+        // Realword spec is not mentioning this. Apparently, comment lists
+        // should support either pagination or infinite scrolling; meanwhile,
+        // we are setting a magic number limit
+        100,
     )
     .fetch_all(&ctx.db)
     .await?;

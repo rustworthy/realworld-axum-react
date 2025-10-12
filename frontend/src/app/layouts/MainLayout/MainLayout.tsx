@@ -7,7 +7,7 @@ import { truncateText } from "@/shared/lib/utils";
 import { useIsGlobalLoading } from "@/shared/store/loading";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Loader } from "@/shared/ui/Loader";
-import { GearIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { GearIcon, HomeIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import * as S from "./MainLayout.styles";
@@ -37,14 +37,19 @@ export const MainLayout = () => {
             {isAuthenticated ? (
               <nav>
                 <S.HeaderNavList>
-                  <S.HeaderNavItem $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
+                  <S.HeaderNavItem className="Compact" $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
+                    <HomeIcon />
                     Home
                   </S.HeaderNavItem>
                   <S.HeaderNavItem $isActive={pathname === ROUTES.EDITOR} onClick={() => navigate(ROUTES.EDITOR)}>
                     <Pencil2Icon />
                     New Article
                   </S.HeaderNavItem>
-                  <S.HeaderNavItem $isActive={pathname === ROUTES.SETTINGS} onClick={() => navigate(ROUTES.SETTINGS)}>
+                  <S.HeaderNavItem
+                    className="Compact"
+                    $isActive={pathname === ROUTES.SETTINGS}
+                    onClick={() => navigate(ROUTES.SETTINGS)}
+                  >
                     <GearIcon />
                     Settings
                   </S.HeaderNavItem>
@@ -53,7 +58,7 @@ export const MainLayout = () => {
                     onClick={() => navigate(`${ROUTES.PROFILE}/${user!.username}`)}
                   >
                     <Avatar imageUrl={user!.image} username={user!.username} />
-                    {truncateText(user!.username, 20)}
+                    {truncateText(user!.username, 12)}
                   </S.HeaderNavItem>
                 </S.HeaderNavList>
               </nav>
