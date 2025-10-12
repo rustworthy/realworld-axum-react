@@ -161,11 +161,10 @@ test/e2e/browser:
 .PHONY: test/all
 test/all: test test/e2e test/e2e/browser
 
-
-# NB! Application should be launched with `SKIP_CAPTCHA_VERIFICATION` and
-# `SKIP_EMAIL_VERIFICATION` set to `true`. This is something we are not doing
-# (and not going to) in production, but required to make the spec tests pass,
-# since email verification and anti-bot verification is not required by spec.
+# NB! Application should be launched with `SKIP_CAPTCHA_VERIFICATION`, `SKIP_EMAIL_VERIFICATION`
+# and `SKIP_CONTENT_MODERATION` set to `true`. This is something we are not doing (and not going to)
+# in production, but required to make the spec tests pass, since email verification and anti-bot 
+# verification is not required by spec.
 .PHONY: test/e2e/spec
 test/e2e/spec:
 	git clone https://github.com/gothinkster/realworld.git --branch main --single-branch || true
