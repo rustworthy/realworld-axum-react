@@ -90,7 +90,7 @@ jobs:
           PORT: 8000
           MIGRATE: true
           FRONTEND_URL: http://localhost:8000
-          ALLOWED_ORIGINS: ["http://localhost:8000"]
+          ALLOWED_ORIGINS: '["http://localhost:8000"]'
           # A 256-bit log base64-encoded secret from .env.example
           SECRET_KEY: "R1ltNBHbZ1XngTiBxOo7oEWySPiuUxQ9b2uI2URJ94g="
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realworld-axum-react
