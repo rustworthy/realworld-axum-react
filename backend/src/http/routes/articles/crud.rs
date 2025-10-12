@@ -87,11 +87,15 @@ pub async fn create_article(
     id: UserID,
     input: Result<Json<ArticlePayload<ArticleCreate>>, JsonRejection>,
 ) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
-    let ArticlePayload { article } = input?.0;
+    let ArticlePayload { mut article } = input?.0;
     article.validate()?;
     utils::moderate_content(&ctx, &article.body, "body").await?;
 
     let slug = slug::slugify(&article.title);
+
+    // Realworld end-to-end test suite expects tags to be sorted
+    article.tags.sort();
+
     let details = sqlx::query!(
         r#"
         WITH article as (
@@ -237,7 +241,7 @@ pub async fn update_article(
     uid: UserID,
     input: Result<Json<ArticlePayload<ArticleUpdate>>, JsonRejection>,
 ) -> Result<Json<ArticlePayload<Article>>, Error> {
-    let ArticlePayload { article: patch } = input?.0;
+    let ArticlePayload { article: mut patch } = input?.0;
     patch.validate()?;
 
     if let Some(ref body) = patch.body {
@@ -245,6 +249,12 @@ pub async fn update_article(
     }
 
     let new_slug = patch.title.as_deref().map(slug::slugify);
+
+    // Realworld end-to-end test suite expects tags to be sorted
+    if let Some(tags) = patch.tags.as_mut() {
+        tags.sort();
+    }
+
     let details = sqlx::query!(
         r#"
         WITH updated_article as (
