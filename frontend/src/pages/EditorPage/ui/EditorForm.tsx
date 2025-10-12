@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
 import * as S from "./EditorPage.styles";
+import { FormPage } from "@/shared/ui/FormPage";
 
 export type EditorFormProps = {
   maxLength: number;
@@ -30,7 +31,7 @@ export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialVal
   });
 
   return (
-    <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={disabled}>
+    <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={disabled}>
       <Controller
         control={control}
         name="title"
@@ -83,6 +84,6 @@ export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialVal
           Publish Article
         </Button>
       </S.SubmitButtonContainer>
-    </S.EditorForm>
+    </FormPage.Form>
   );
 };

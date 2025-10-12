@@ -37,7 +37,7 @@ export const MainLayout = () => {
             {isAuthenticated ? (
               <nav>
                 <S.HeaderNavList>
-                  <S.HeaderNavItem className="Compact" $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
+                  <S.HeaderNavItem className="Compact Home" $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
                     <HomeIcon />
                     Home
                   </S.HeaderNavItem>

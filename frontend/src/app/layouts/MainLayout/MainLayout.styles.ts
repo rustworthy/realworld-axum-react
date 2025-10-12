@@ -20,7 +20,7 @@ export const Wrapper = styled.div`
 
 export const Header = styled.header`
   width: 100%;
-  height: 3.5rem;
+  height: 4.5rem;
   padding: 1rem 1.5rem;
 
   @media (max-width: ${TABLET_WIDTH}px) {
@@ -71,6 +71,9 @@ export const HeaderNavItem = styled.li<{ $isActive?: boolean }>`
 
   @media (max-width: ${MOBILE_WIDTH}px) {
     width: 7.5rem;
+    &.Home {
+      display: none;
+    }
     &.Compact {
       width: 5rem;
     }
