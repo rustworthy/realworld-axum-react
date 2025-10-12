@@ -2,6 +2,7 @@ use super::Author;
 use crate::http::errors::{Error, ResultExt as _, Validation};
 use crate::http::extractors::{MaybeUserID, UserID};
 use crate::http::routes::users::utils::parse_image_url;
+use crate::http::utils;
 use crate::state::AppContext;
 use axum::extract::{Json, Path, State};
 use chrono::{DateTime, Utc};
@@ -86,6 +87,8 @@ pub async fn create_comment(
     Json(CommentPayload { comment }): Json<CommentPayload<CommentCreate>>,
 ) -> Result<Json<CommentPayload<Comment>>, Error> {
     comment.validate()?;
+
+    utils::moderate_content(&ctx, &comment.body, "body").await?;
 
     let data = sqlx::query!(
         r#"

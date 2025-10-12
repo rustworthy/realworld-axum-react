@@ -1,14 +1,11 @@
 use super::{Article, ArticlePayload, Author};
 use crate::http::errors::ResultExt as _;
+use crate::http::errors::{Error, Validation};
 use crate::http::extractors::MaybeUserID;
+use crate::http::extractors::UserID;
 use crate::http::routes::users;
-use crate::{
-    http::{
-        errors::{Error, Validation},
-        extractors::UserID,
-    },
-    state::AppContext,
-};
+use crate::http::utils;
+use crate::state::AppContext;
 use axum::Json;
 use axum::extract::{Path, State, rejection::JsonRejection};
 use axum::http::StatusCode;
@@ -92,7 +89,7 @@ pub async fn create_article(
 ) -> Result<(StatusCode, Json<ArticlePayload<Article>>), Error> {
     let ArticlePayload { article } = input?.0;
     article.validate()?;
-    utils::check_article_body(&ctx, &article.body).await?;
+    utils::moderate_content(&ctx, &article.body, "body").await?;
 
     let slug = slug::slugify(&article.title);
     let details = sqlx::query!(
@@ -244,7 +241,7 @@ pub async fn update_article(
     patch.validate()?;
 
     if let Some(ref body) = patch.body {
-        utils::check_article_body(&ctx, body).await?;
+        utils::moderate_content(&ctx, body, "body").await?;
     }
 
     let new_slug = patch.title.as_deref().map(slug::slugify);
@@ -580,42 +577,5 @@ mod db {
                 following: false,
             },
         })
-    }
-}
-
-mod utils {
-    use crate::AppContext;
-    use crate::http::errors::Error;
-
-    pub(super) async fn check_article_body(ctx: &AppContext, body: &String) -> Result<(), Error> {
-        if ctx.skip_content_moderation {
-            warn!("content moderation disabled via app configuration");
-            return Ok(());
-        }
-
-        let verdict = ctx.moderator.moderate(body).await?;
-        if !verdict.processable {
-            return Err(Error::unprocessable_entity([(
-                "body",
-                r#"Please make sure image content is formatted correctly
-                and links are valid and accessible."#,
-            )]));
-        }
-
-        if verdict.flagged {
-            warn!(
-                content = body,
-                flagged = true,
-                details = serde_json::to_string(&verdict.details).ok(),
-                "article flagged"
-            );
-            return Err(Error::unprocessable_entity([(
-                "body",
-                r#"Our system has flagged article content.
-                Please make sure there is no violent or otherwise indecent content in text and/or images"#,
-            )]));
-        }
-
-        Ok(())
     }
 }

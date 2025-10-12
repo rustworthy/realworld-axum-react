@@ -4,3 +4,4 @@ pub(crate) mod extractors;
 pub(crate) mod jwt;
 pub(crate) mod openapi;
 pub(crate) mod routes;
+pub(crate) mod utils;
