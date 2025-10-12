@@ -70,12 +70,14 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
+      - name: Build app in release mode
+        run: cargo build --release
       - name: Run app in release mode
         env:
           SKIP_CAPTCHA_VERIFICATION: true
           SKIP_EMAIL_VERIFICATION: true
           SKIP_CONTENT_MODERATION: true
-        run: cargo run --release &
+        run: ./target/release/realworld-axum-react &
       - name: Run Realworld spec tests
         env:
           USERNAME: user`date +%s`
