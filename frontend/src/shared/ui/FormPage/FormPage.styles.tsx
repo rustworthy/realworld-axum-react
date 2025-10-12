@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
+
 import { LayoutContainer } from "../Container";
 
 export const PageWrapper = styled(LayoutContainer)`

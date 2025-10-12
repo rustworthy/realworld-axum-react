@@ -2,13 +2,13 @@ import { FC } from "react";
 import { Controller, FieldErrors, useForm } from "react-hook-form";
 
 import { formatCount } from "@/shared/lib/utils";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
 import * as S from "./EditorPage.styles";
-import { FormPage } from "@/shared/ui/FormPage";
 
 export type EditorFormProps = {
   maxLength: number;
