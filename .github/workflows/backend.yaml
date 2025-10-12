@@ -58,6 +58,32 @@ jobs:
         run: cargo generate-lockfile
       - name: run API tests
         run: cargo test --release --test e2e --features=api-test
+  spec-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: cargo generate-lockfile
+        if: hashFiles('Cargo.lock') == ''
+        run: cargo generate-lockfile
+      - name: Run app in release mode
+        env:
+          SKIP_CAPTCHA_VERIFICATION: true
+          SKIP_EMAIL_VERIFICATION: true
+          SKIP_CONTENT_MODERATION: true
+        run: cargo run --release &
+      - name: Run Realworld spec tests
+        env:
+          USERNAME: user`date +%s`
+          PASSWORD: password`date +%s`
+          APIURL: http://localhost:8000/api
+        run: |
+          git clone https://github.com/gothinkster/realworld.git --branch main --single-branch
+          ./realworld/api/run-api-tests.sh
   browser-test:
     uses: "./.github/workflows/browser-test.yaml"
   deploy:
