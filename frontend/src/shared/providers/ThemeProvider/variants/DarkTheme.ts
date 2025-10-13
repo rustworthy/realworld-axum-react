@@ -54,6 +54,10 @@ export const DarkTheme: AppThemeType = {
     },
     textColor: palette.c06,
     backgroundColor: palette.c01,
+    header: {
+      dropdownMenu:
+        { backgroundColor: "#222222" },
+    },
     footer: {
       textColor: palette.c02,
       backgroundColor: "linear-gradient(#485563, #29323c)",
