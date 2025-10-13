@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Controller, FieldErrors, useForm } from "react-hook-form";
 
 import { formatCount } from "@/shared/lib/utils";
+import { FormPage } from "@/shared/ui/FormPage";
 import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +31,7 @@ export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialVal
   });
 
   return (
-    <S.EditorForm noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={disabled}>
+    <FormPage.Form noValidate onSubmit={handleSubmit(onSubmit)} aria-disabled={disabled}>
       <Controller
         control={control}
         name="title"
@@ -83,6 +84,6 @@ export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialVal
           Publish Article
         </Button>
       </S.SubmitButtonContainer>
-    </S.EditorForm>
+    </FormPage.Form>
   );
 };

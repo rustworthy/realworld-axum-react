@@ -1,11 +1,6 @@
 import styled from "@emotion/styled";
 
 import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
-import { FormPage } from "@/shared/ui/FormPage";
-
-export const EditorForm = styled(FormPage.Form)`
-  max-width: 59rem;
-`;
 
 export const SubmitButtonContainer = styled.div`
   display: flex;
