@@ -29,8 +29,18 @@ export const HomePage: FC = () => {
   const tag = searchParams.get("tag");
   const isTagView = tag !== null;
   const isPersonalFeed = searchParams.get("feed") === "personal" && !isTagView;
-  const useArticlesList = isPersonalFeed ? usePersonalFeedQuery : useListArticlesQuery;
-  const { data, isLoading } = useArticlesList({ limit: ARTICLES_PER_PAGE, offset, tag: tag ?? undefined });
+
+  // we cannot call hooks conditionally (depending on whether is personal prior
+  // global feed view), but we are still able to fetch data conditionally with
+  // the API rtk-query offers us:
+  // https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
+  const personalFeenResult = usePersonalFeedQuery({ limit: ARTICLES_PER_PAGE, offset }, { skip: !isPersonalFeed });
+  const globalFeedResult = useListArticlesQuery(
+    { limit: ARTICLES_PER_PAGE, offset, tag: tag ?? undefined },
+    { skip: isPersonalFeed },
+  );
+  const { data, isLoading } = isPersonalFeed ? personalFeenResult : globalFeedResult;
+
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   // it's possible that url contains page that is past the aricles: e.g. they might
   // have manullay inserted the parameter (which is less likely) or the number of
