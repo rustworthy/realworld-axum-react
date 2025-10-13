@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 
+import { TABLET_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
 
 export const PageWrapper = styled.div`
@@ -62,8 +63,8 @@ export const Separator = styled.hr`
 `;
 
 export const CommentsContainer = styled.div`
+  max-width: ${TABLET_CONTAINER_WIDTH}px;
   padding: 0.5rem;
-  max-width: 42rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

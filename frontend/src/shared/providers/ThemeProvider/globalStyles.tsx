@@ -61,6 +61,50 @@ export const GlobalStyles = () => {
             background: inherit;
           }
         }
+
+        @keyframes slideUpAndFade {
+          from {
+            opacity: 0;
+            transform: translateY(2px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideRightAndFade {
+          from {
+            opacity: 0;
+            transform: translateX(-2px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideDownAndFade {
+          from {
+            opacity: 0;
+            transform: translateY(-2px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideLeftAndFade {
+          from {
+            opacity: 0;
+            transform: translateX(2px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
       `}
     />
   );

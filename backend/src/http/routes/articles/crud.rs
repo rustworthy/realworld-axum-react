@@ -557,7 +557,15 @@ mod db {
                 (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,
                 author.username AS author_username,
                 author.bio AS author_bio,
-                author.image AS author_image
+                author.image AS author_image,
+                (
+                    $2::UUID IS NOT NULL AND EXISTS
+                    (
+                        SELECT 1 FROM follows
+                        WHERE followed_user_id = author.user_id
+                        AND following_user_id = $2
+                    )
+                ) AS "author_following!"
             FROM "articles" article
             JOIN "users" author USING (user_id)
             WHERE slug = $1;
@@ -583,8 +591,7 @@ mod db {
                 bio: details.author_bio,
                 image: users_utils::parse_image_url(details.author_image.as_deref())?,
                 username: details.author_username,
-                // TODO: update once the follow/unfollow logic is there
-                following: false,
+                following: details.author_following,
             },
         })
     }

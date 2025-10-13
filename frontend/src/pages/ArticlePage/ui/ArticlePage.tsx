@@ -6,6 +6,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useListCommentsQuery, useReadArticleQuery } from "@/shared/api";
 import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
 import { TagList } from "@/shared/ui/Article";
+import { LayoutContainer } from "@/shared/ui/Container";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
@@ -53,11 +54,12 @@ export const ArticlePage: FC = () => {
         <S.Separator />
         <ArticleMeta article={article} user={user} />
       </S.MainContent>
-
-      <S.CommentsContainer>
-        {user ? <CommentForm slug={slug!} user={user} /> : null}
-        {commentsData ? <CommentList slug={slug!} comments={commentsData.comments} user={user} /> : null}
-      </S.CommentsContainer>
+      <LayoutContainer>
+        <S.CommentsContainer>
+          {user ? <CommentForm slug={slug!} user={user} /> : null}
+          {commentsData ? <CommentList slug={slug!} comments={commentsData.comments} user={user} /> : null}
+        </S.CommentsContainer>
+      </LayoutContainer>
     </S.PageWrapper>
   );
 };

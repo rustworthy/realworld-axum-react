@@ -5,7 +5,7 @@ import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
 import { Avatar } from "@/shared/ui/Avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { GearIcon, HamburgerMenuIcon, HomeIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { AvatarIcon, EnterIcon, GearIcon, HamburgerMenuIcon, HomeIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
 import * as S from "./Header.styles";
 
@@ -27,32 +27,29 @@ export const Header = () => {
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content style={{ background: "white" }} sideOffset={5}>
+              <S.DropDownMenuContent sideOffset={5}>
                 {isAuthenticated ? (
                   <>
-                    <DropdownMenu.Item className="">
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
                         <HomeIcon />
                         Home
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className="">
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem $isActive={pathname === ROUTES.EDITOR} onClick={() => navigate(ROUTES.EDITOR)}>
                         <Pencil2Icon />
                         New Article
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className="">
-                      <S.HeaderNavItem
-                        className="Compact"
-                        $isActive={pathname === ROUTES.SETTINGS}
-                        onClick={() => navigate(ROUTES.SETTINGS)}
-                      >
+                    <DropdownMenu.Item>
+                      <S.HeaderNavItem $isActive={pathname === ROUTES.SETTINGS} onClick={() => navigate(ROUTES.SETTINGS)}>
                         <GearIcon />
                         Settings
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className="">
+                    <S.DropdownMenuSeparator />
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem
                         $isActive={pathname === `${ROUTES.PROFILE}/${user!.username}`}
                         onClick={() => navigate(`${ROUTES.PROFILE}/${user!.username}`)}
@@ -64,25 +61,28 @@ export const Header = () => {
                   </>
                 ) : (
                   <>
-                    <DropdownMenu.Item className="">
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem $isActive={pathname === ROUTES.HOME} onClick={() => navigate(ROUTES.HOME)}>
                         <HomeIcon />
                         Home
                       </S.HeaderNavItem>
-                    </DropdownMenu.Item>{" "}
-                    <DropdownMenu.Item className="">
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNIN} onClick={() => navigate(ROUTES.SIGNIN)}>
+                        <EnterIcon />
                         Sign in
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className="">
+                    <DropdownMenu.Item>
                       <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNUP} onClick={() => navigate(ROUTES.SIGNUP)}>
+                        <AvatarIcon />
                         Sign up
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
                   </>
                 )}
-              </DropdownMenu.Content>
+                <S.DropdownMenuArrow />
+              </S.DropDownMenuContent>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
         </S.DropDownMenuWrapper>
@@ -133,11 +133,13 @@ export const Header = () => {
                 </li>
                 <li>
                   <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNIN} onClick={() => navigate(ROUTES.SIGNIN)}>
+                    <EnterIcon />
                     Sign in
                   </S.HeaderNavItem>
                 </li>
                 <li>
                   <S.HeaderNavItem $isActive={pathname === ROUTES.SIGNUP} onClick={() => navigate(ROUTES.SIGNUP)}>
+                    <AvatarIcon />
                     Sign up
                   </S.HeaderNavItem>
                 </li>

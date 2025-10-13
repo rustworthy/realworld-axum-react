@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 
+import { MOBILE_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 import { FormPage } from "@/shared/ui/FormPage";
 
 export const OTPInstruction = styled.p`
@@ -7,5 +8,5 @@ export const OTPInstruction = styled.p`
 `;
 
 export const OTPForm = styled(FormPage.Form)`
-  max-width: 28rem;
+  max-width: ${MOBILE_CONTAINER_WIDTH}px;
 `;
