@@ -13,6 +13,7 @@ import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
+import { LayoutContainer } from "@/shared/ui/Container";
 
 /**
  * Adjust links to work with browser router.
@@ -53,11 +54,12 @@ export const ArticlePage: FC = () => {
         <S.Separator />
         <ArticleMeta article={article} user={user} />
       </S.MainContent>
-
-      <S.CommentsContainer>
-        {user ? <CommentForm slug={slug!} user={user} /> : null}
-        {commentsData ? <CommentList slug={slug!} comments={commentsData.comments} user={user} /> : null}
-      </S.CommentsContainer>
+      <LayoutContainer>
+        <S.CommentsContainer>
+          {user ? <CommentForm slug={slug!} user={user} /> : null}
+          {commentsData ? <CommentList slug={slug!} comments={commentsData.comments} user={user} /> : null}
+        </S.CommentsContainer>
+      </LayoutContainer>
     </S.PageWrapper>
   );
 };
