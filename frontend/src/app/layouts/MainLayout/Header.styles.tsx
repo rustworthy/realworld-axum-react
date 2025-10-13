@@ -1,10 +1,10 @@
 import { Link } from "react-router";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import styled from "@emotion/styled";
 
 import { TABLET_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export const HeaderContainer = styled(LayoutContainer)`
   display: flex;
@@ -47,41 +47,41 @@ export const DropDownMenuWrapper = styled.div`
 // https://www.radix-ui.com/primitives/docs/components/dropdown-menu
 export const DropDownMenuContent = styled(DropdownMenu.Content)`
   font-family: "Source Sans Pro", sans-serif;
-	min-width: 8rem;
+  min-width: 8rem;
   margin: 0.125rem 0.5rem;
-	padding: 0.25rem 1rem 0.5rem;
-	background-color: ${({ theme }) => theme.mainLayout.header.dropdownMenu.backgroundColor};
+  padding: 0.25rem 1rem 0.5rem;
+  background-color: ${({ theme }) => theme.mainLayout.header.dropdownMenu.backgroundColor};
   color: ${({ theme }) => theme.mainLayout.textColor};
-	border-radius: 6px;
-	box-shadow:
-		0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-		0px 10px 20px -15px rgba(22, 23, 24, 0.2);
-	animation-duration: 400ms;
-	animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-	will-change: transform, opacity;
+  border-radius: 6px;
+  box-shadow:
+    0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
 
   &[data-side="top"] {
-	  animation-name: slideDownAndFade;
+    animation-name: slideDownAndFade;
   }
   &[data-side="right"] {
     animation-name: slideLeftAndFade;
   }
   &[data-side="bottom"] {
-	  animation-name: slideUpAndFade;
+    animation-name: slideUpAndFade;
   }
   &[data-side="left"] {
-	  animation-name: slideRightAndFade;
+    animation-name: slideRightAndFade;
   }
-`
+`;
 
 export const DropdownMenuArrow = styled(DropdownMenu.Arrow)`
-	fill: ${({ theme }) => theme.mainLayout.header.dropdownMenu.backgroundColor};
-`
+  fill: ${({ theme }) => theme.mainLayout.header.dropdownMenu.backgroundColor};
+`;
 
 export const DropdownMenuSeparator = styled(DropdownMenu.Separator)`
-	height: 1px;
+  height: 1px;
   background-color: ${({ theme }) => theme.mainLayout.textColor};
-	margin: 0.5rem 0.125rem 0.75rem;
+  margin: 0.5rem 0.125rem 0.75rem;
 `;
 
 export const NavWrapper = styled.nav`

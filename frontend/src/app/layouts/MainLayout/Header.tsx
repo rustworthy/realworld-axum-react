@@ -5,7 +5,7 @@ import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
 import { Avatar } from "@/shared/ui/Avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { AvatarIcon, EnterIcon, GearIcon, HamburgerMenuIcon, HomeIcon, LockClosedIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { AvatarIcon, EnterIcon, GearIcon, HamburgerMenuIcon, HomeIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
 import * as S from "./Header.styles";
 
@@ -43,10 +43,7 @@ export const Header = () => {
                       </S.HeaderNavItem>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item>
-                      <S.HeaderNavItem
-                        $isActive={pathname === ROUTES.SETTINGS}
-                        onClick={() => navigate(ROUTES.SETTINGS)}
-                      >
+                      <S.HeaderNavItem $isActive={pathname === ROUTES.SETTINGS} onClick={() => navigate(ROUTES.SETTINGS)}>
                         <GearIcon />
                         Settings
                       </S.HeaderNavItem>

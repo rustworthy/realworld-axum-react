@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
+import { MOBILE_WIDTH, TABLET_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 
 export const SubmitButtonContainer = styled.div`
   display: flex;
@@ -24,7 +24,7 @@ export const SubmitButtonContainer = styled.div`
 
 export const LogoutSectionWrapper = styled.div`
   width: 100%;
-  max-width: 35rem;
+  max-width: ${TABLET_CONTAINER_WIDTH}px;
   padding: 0 0.75rem 1.5rem;
 `;
 

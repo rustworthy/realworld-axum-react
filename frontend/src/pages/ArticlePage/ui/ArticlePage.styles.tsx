@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
+import { TABLET_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 import { LayoutContainer } from "@/shared/ui/Container";
-import { LARGE_CONTAINER_WIDTH, TABLET_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 
 export const PageWrapper = styled.div`
   width: 100%;

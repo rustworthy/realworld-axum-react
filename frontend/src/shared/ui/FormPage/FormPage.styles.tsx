@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import { MOBILE_WIDTH } from "@/shared/constants/styles.constants";
+import { MOBILE_WIDTH, TABLET_CONTAINER_WIDTH } from "@/shared/constants/styles.constants";
 
 import { LayoutContainer } from "../Container";
 
@@ -25,7 +25,7 @@ export const Title = styled.h1`
 
 export const Form = styled.form<{ maxWidth?: string }>`
   width: 100%;
-  max-width: ${(props) => props.maxWidth ?? "35rem"};
+  max-width: ${(props) => props.maxWidth ?? `${TABLET_CONTAINER_WIDTH}px`};
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;

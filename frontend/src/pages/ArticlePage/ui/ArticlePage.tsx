@@ -6,6 +6,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useListCommentsQuery, useReadArticleQuery } from "@/shared/api";
 import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
 import { TagList } from "@/shared/ui/Article";
+import { LayoutContainer } from "@/shared/ui/Container";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
@@ -13,7 +14,6 @@ import { ArticleMeta } from "./ArticleMeta";
 import * as S from "./ArticlePage.styles";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
-import { LayoutContainer } from "@/shared/ui/Container";
 
 /**
  * Adjust links to work with browser router.
