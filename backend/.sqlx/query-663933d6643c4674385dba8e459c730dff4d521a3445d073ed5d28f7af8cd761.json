@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                article.slug,\n                article.title,\n                article.description,\n                article.body,\n                article.tags,\n                article.created_at,\n                article.updated_at,\n                (\n                    $2::UUID IS NOT NULL AND\n                    EXISTS(\n                        SELECT 1 FROM favorites\n                        WHERE article_id = article.article_id AND user_id = $2::UUID\n                    )\n                ) AS \"favorited!\",\n                (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,\n                author.username AS author_username,\n                author.bio AS author_bio,\n                author.image AS author_image\n            FROM \"articles\" article\n            JOIN \"users\" author USING (user_id)\n            WHERE slug = $1;\n            ",
+  "query": "\n            SELECT\n                article.slug,\n                article.title,\n                article.description,\n                article.body,\n                article.tags,\n                article.created_at,\n                article.updated_at,\n                (\n                    $2::UUID IS NOT NULL AND\n                    EXISTS(\n                        SELECT 1 FROM favorites\n                        WHERE article_id = article.article_id AND user_id = $2::UUID\n                    )\n                ) AS \"favorited!\",\n                (SELECT COUNT(*) FROM favorites WHERE article_id = article.article_id) AS favorited_count,\n                author.username AS author_username,\n                author.bio AS author_bio,\n                author.image AS author_image,\n                (\n                    $2::UUID IS NOT NULL AND EXISTS\n                    (\n                        SELECT 1 FROM follows\n                        WHERE followed_user_id = author.user_id\n                        AND following_user_id = $2\n                    )\n                ) AS \"author_following!\"\n            FROM \"articles\" article\n            JOIN \"users\" author USING (user_id)\n            WHERE slug = $1;\n            ",
   "describe": {
     "columns": [
       {
@@ -62,6 +62,11 @@
         "ordinal": 11,
         "name": "author_image",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "author_following!",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -82,8 +87,9 @@
       null,
       false,
       false,
-      true
+      true,
+      null
     ]
   },
-  "hash": "e4cf165f01233181b2b4e02410ffe29c1d3181088f2618e5895b73c202de628b"
+  "hash": "663933d6643c4674385dba8e459c730dff4d521a3445d073ed5d28f7af8cd761"
 }
