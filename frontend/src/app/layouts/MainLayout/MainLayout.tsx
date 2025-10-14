@@ -4,14 +4,13 @@ import { Outlet } from "react-router";
 import { useAuthSnapshotRestoration } from "@/features/auth";
 import { useIsGlobalLoading } from "@/shared/store/loading";
 import { Loader } from "@/shared/ui/Loader";
-import { useTernaryDarkMode } from "usehooks-ts";
 
+import { Footer } from "./Footer";
 import { Header } from "./Header/Header";
 import * as S from "./MainLayout.styles";
 import "./mdeditor.css";
 
 export const MainLayout = () => {
-  const { toggleTernaryDarkMode } = useTernaryDarkMode();
   const isGlobalLoading = useIsGlobalLoading();
   const { isRestoring } = useAuthSnapshotRestoration();
   if (isRestoring) return null;
@@ -29,14 +28,7 @@ export const MainLayout = () => {
           </Suspense>
         </S.ChildrenContainer>
 
-        <S.Footer>
-          <S.FooterContainer>
-            <S.ThemeSwitch role="button" aria-label="switch color scheme" onClick={toggleTernaryDarkMode} />
-            <S.FooterLink href="https://github.com/rustworthy/realworld-axum-react" target="_blank">
-              Fork on GitHub
-            </S.FooterLink>
-          </S.FooterContainer>
-        </S.Footer>
+        <Footer />
       </S.Wrapper>
     </>
   );

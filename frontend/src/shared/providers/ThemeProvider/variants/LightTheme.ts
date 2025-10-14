@@ -57,8 +57,8 @@ export const LightTheme = {
       dropdownMenu: { backgroundColor: palette.c02 },
     },
     footer: {
-      textColor: palette.c02,
-      backgroundColor: "linear-gradient(#485563, #29323c)",
+      textColor: "#bbbbbb",
+      backgroundColor: "#f3f3f3",
     },
   },
 
