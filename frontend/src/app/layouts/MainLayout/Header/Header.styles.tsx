@@ -14,6 +14,13 @@ export const HeaderContainer = styled(LayoutContainer)`
   padding: 0.75rem 1.25rem;
 `;
 
+export const LogoWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`;
+
 export const HeaderLink = styled(Link)`
   font-size: 24px;
   font-family: "Titillium Web", sans-serif;
@@ -28,10 +35,10 @@ export const DropDownMenuWrapper = styled.div`
   }
 
   & button.IconButton {
-	  all: unset;
+    all: unset;
     cursor: pointer;
-	  border-radius: 100%;
-	  height: 2rem;
+    border-radius: 100%;
+    height: 2rem;
     width: 2rem;
     display: inline-flex;
     align-items: center;
@@ -39,9 +46,8 @@ export const DropDownMenuWrapper = styled.div`
     color: ${({ theme }) => theme.mainLayout.textColor};
     border: solid 1px ${({ theme }) => theme.mainLayout.textColor};
     background-color: transparent;
-	  user-select: none;
+    user-select: none;
   }
-}
 `;
 
 // https://www.radix-ui.com/primitives/docs/components/dropdown-menu

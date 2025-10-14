@@ -6,7 +6,7 @@ import { useIsGlobalLoading } from "@/shared/store/loading";
 import { Loader } from "@/shared/ui/Loader";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { Header } from "./Header";
+import { Header } from "./Header/Header";
 import * as S from "./MainLayout.styles";
 import "./mdeditor.css";
 
@@ -22,6 +22,7 @@ export const MainLayout = () => {
 
       <S.Wrapper>
         <Header />
+
         <S.ChildrenContainer>
           <Suspense fallback={<div>Suspense loader will be here</div>}>
             <Outlet />

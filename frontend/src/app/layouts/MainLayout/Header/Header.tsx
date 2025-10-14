@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router";
 
+import { ThemeToggler } from "@/features/ThemeToggler";
 import { useAuth } from "@/features/auth";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
@@ -17,7 +18,11 @@ export const Header = () => {
   return (
     <header>
       <S.HeaderContainer>
-        <S.HeaderLink to={ROUTES.HOME}>conduit</S.HeaderLink>
+        <S.LogoWrapper>
+          <S.HeaderLink to={ROUTES.HOME}>conduit</S.HeaderLink>
+          <ThemeToggler />
+        </S.LogoWrapper>
+
         {/* ----------------------- mobiles and tablets --------------------- */}
         <S.DropDownMenuWrapper>
           <DropdownMenu.Root>
@@ -86,6 +91,7 @@ export const Header = () => {
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
         </S.DropDownMenuWrapper>
+
         {/* --------------------------- larger screens --------------------- */}
         <S.NavWrapper>
           <S.HeaderNavList>
