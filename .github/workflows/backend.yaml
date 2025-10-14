@@ -21,6 +21,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt,clippy
+      - name: install sqlx
+        run: cargo install sqlx-cli
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
@@ -30,6 +32,8 @@ jobs:
         run: SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
       - name: cargo doc --no-deps --all-features
         run: cargo doc --no-deps --all-features
+      - name: detect sqlx metadata drift
+        run: cargo sqlx prepare --check
   unit-test:
     runs-on: ubuntu-latest
     defaults:

@@ -193,6 +193,7 @@ fmt:
 .PHONY: check
 check:
 	cargo fmt --check
+	cargo sqlx prepare --check
 	SQLX_OFFLINE=1 cargo clippy --all-features --all-targets
 	SQLX_OFFLINE=1 cargo doc --no-deps --all-features
 
