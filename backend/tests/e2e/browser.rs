@@ -11,14 +11,14 @@ async fn has_link_to_github_repo(ctx: TestContext) {
         .client
         .wait()
         .at_most(WAIT_TIMEOUT)
-        .for_element(Locator::LinkText("Fork on GitHub"))
+        .for_element(Locator::LinkText("Thinkster"))
         .await
         .unwrap();
     elem.follow().await.unwrap();
 
     assert_eq!(
         ctx.client.current_url().await.unwrap().domain(),
-        Some("github.com"),
+        Some("thinkster.io"),
     );
 }
 
