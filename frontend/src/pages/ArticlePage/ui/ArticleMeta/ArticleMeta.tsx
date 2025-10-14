@@ -1,6 +1,7 @@
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router";
 
+import { AuthorInfo } from "@/entities/Article";
 import {
   useDeleteArticleMutation,
   useFavoriteArticleMutation,
@@ -11,23 +12,23 @@ import {
 import type { ArticlePayloadArticle, UserPayloadUser } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { formatCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
-import { AuthorInfo } from "@/shared/ui/Article";
 import { ActionButton } from "@/shared/ui/controls/Button";
 import { HeartFilledIcon, HeartIcon, Pencil2Icon, PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
 import * as S from "./ArticleMeta.styles";
 
-export type ArticleMetaProps = {
+export interface IArticleMetaProps {
   article: ArticlePayloadArticle["article"];
   user: UserPayloadUser["user"] | null;
-};
+}
 
 /**
  * Article's metadata and actions panel.
  */
-export const ArticleMeta: FC<ArticleMetaProps> = ({ article, user }) => {
+export const ArticleMeta: FC<IArticleMetaProps> = ({ article, user }) => {
   const navigate = useNavigate();
+
   const [deleteArticle, { isLoading: isDeleteLoading }] = useDeleteArticleMutation();
   const [favArticle, { isLoading: isFavLoading }] = useFavoriteArticleMutation();
   const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();

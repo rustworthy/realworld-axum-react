@@ -27,6 +27,10 @@ interfacing part).
 - **[Webpack]** - Module bundler and dev server
 - **[Kamal]** - Zero-downtime deployments
 
+### Frontend architecture: FSD (Feature Slice Design)
+
+![image](FSD_scheme.png)
+
 ### E2E Testing
 
 - **[Testcontainers]** - Integration testing with real databases

@@ -11,10 +11,10 @@ import { ANY_TODO } from "@/shared/types/common.types";
 import { FormPage } from "@/shared/ui/FormPage";
 import { toast } from "sonner";
 
+import { ARTICLE_MAX_LENGTH, TEditorPageSchema } from "../model/EditorPage.schema";
 import { EditorForm } from "./EditorForm";
-import { ARTICLE_MAX_LENGTH, TEditorPageSchema } from "./EditorPage.schema";
 
-const CreateArcticle = () => {
+export const CreateArticlePage = () => {
   const navigate = useNavigate();
   const [create, { isLoading }] = useCreateArticleMutation();
   const [initialErrors, setInitialErrors] = useState<FieldErrors<TEditorPageSchema> | undefined>(undefined);
@@ -53,7 +53,7 @@ const CreateArcticle = () => {
   );
 };
 
-const UpdateArticle = () => {
+export const UpdateArticlePage = () => {
   const { slug } = useParams();
   // if the `slug` is not in path params, we are rending create
   // article view and so we are expecting slug to be there
@@ -109,7 +109,3 @@ const UpdateArticle = () => {
     </FormPage.Container>
   );
 };
-
-export const EditorPage = () => null;
-EditorPage.CreateView = CreateArcticle;
-EditorPage.UpdateView = UpdateArticle;

@@ -11,7 +11,7 @@ import { CaptchaInput, OTPInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "./ConfirmEmailPage.schema";
+import { OTP_LENGTH, TConfirmEmail, confirmEmailDefaultValues, confirmEmailSchema } from "../model/ConfirmEmailPage.schema";
 import * as S from "./ConfirmEmailPage.styles";
 
 export const ConfirmEmailPage = () => {

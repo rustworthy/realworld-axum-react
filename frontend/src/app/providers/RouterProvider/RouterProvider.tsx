@@ -2,7 +2,17 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "rea
 
 import { MainLayout } from "@/app/layouts";
 import { useAuth } from "@/features/auth";
-import { ArticlePage, ConfirmEmailPage, EditorPage, HomePage, NotFoundPage, SettingsPage, SignInPage, SignUpPage } from "@/pages";
+import {
+  ArticlePage,
+  ConfirmEmailPage,
+  CreateArticlePage,
+  HomePage,
+  NotFoundPage,
+  SettingsPage,
+  SignInPage,
+  SignUpPage,
+  UpdateArticlePage,
+} from "@/pages";
 import { ProfilePage } from "@/pages/ProfilePage/ui/ProfilePage";
 import { ROUTES } from "@/shared/constants/routes.constants";
 
@@ -36,8 +46,8 @@ export const RouterProvider = () => {
 
           <Route element={<ProtectedRoutes />}>
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
-            <Route path={ROUTES.EDITOR} element={<EditorPage.CreateView />} />
-            <Route path={`${ROUTES.EDITOR}/:slug`} element={<EditorPage.UpdateView />} />
+            <Route path={ROUTES.EDITOR} element={<CreateArticlePage />} />
+            <Route path={`${ROUTES.EDITOR}/:slug`} element={<UpdateArticlePage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

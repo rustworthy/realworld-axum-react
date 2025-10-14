@@ -1,21 +1,22 @@
 import { FC } from "react";
 
+import { AuthorInfo } from "@/entities/Article";
 import { UserPayloadUser, useDeleteCommentMutation } from "@/shared/api";
 import { ListCommentsApiResponse } from "@/shared/api/generated";
-import { AuthorInfo } from "@/shared/ui/Article";
 import { ActionButton } from "@/shared/ui/controls/Button";
 import { TrashIcon } from "@radix-ui/react-icons";
 
 import * as S from "./CommentList.styles";
 
-export type CommentListProps = {
+export interface ICommentListProps {
   slug: string;
   comments: ListCommentsApiResponse["comments"];
   user: UserPayloadUser["user"] | null;
-};
+}
 
-export const CommentList: FC<CommentListProps> = ({ slug, comments, user }) => {
+export const CommentList: FC<ICommentListProps> = ({ slug, comments, user }) => {
   const [deleteComment, { isLoading }] = useDeleteCommentMutation();
+
   return comments.map((comment) => (
     <S.Comment key={comment.id}>
       <S.CommentBody>{comment.body}</S.CommentBody>

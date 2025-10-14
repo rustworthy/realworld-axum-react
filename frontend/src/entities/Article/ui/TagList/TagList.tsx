@@ -2,13 +2,13 @@ import { FC } from "react";
 
 import * as S from "./TagsList.styles";
 
-export type TagsListProps = {
+export interface ITagsListProps {
   tagClassName?: string;
   tags: string[];
-  onClick?: (tag: TagsListProps["tags"][number]) => void;
-};
+  onClick?: (tag: ITagsListProps["tags"][number]) => void;
+}
 
-export const TagList: FC<TagsListProps> = ({ tagClassName, tags, onClick }) => {
+export const TagList: FC<ITagsListProps> = ({ tagClassName, tags, onClick }) => {
   return (
     <S.TagList>
       {tags.map((tag) => (

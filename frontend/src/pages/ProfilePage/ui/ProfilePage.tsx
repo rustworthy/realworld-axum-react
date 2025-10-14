@@ -1,16 +1,16 @@
 import { useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
+import { Pagination, PaginationProps } from "@/features/Pagination";
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useFollowProfileMutation, useListArticlesQuery, useProfileQuery, useUnfollowProfileMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { truncateText } from "@/shared/lib/utils";
-import { Preview, PreviewProps } from "@/shared/ui/Article/Preview";
 import { Avatar } from "@/shared/ui/Avatar";
-import { Pagination, PaginationProps } from "@/shared/ui/Pagination";
 import { Tabs } from "@/shared/ui/Tabs";
 import { ActionButton } from "@/shared/ui/controls/Button";
+import { ArticlePreview, IArticlePreviewProps } from "@/widgets/ArticlePreview";
 import { GearIcon, MinusCircledIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 
 import * as S from "./Profile.styles";
@@ -38,7 +38,7 @@ export const ProfilePage = () => {
     favorited: isFavoritedView ? username : undefined,
   });
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
-  const empty = !isArticlesDataLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
+  const isArticlesEmpty = !isArticlesDataLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
 
   // we normally do not render pagination controls at all if there are no pages
   // or there is a single page (the latter is probably a matter of taste and user
@@ -47,12 +47,14 @@ export const ProfilePage = () => {
   // they start revoking the articles; this way they can have the entire `page=2`
   // empty and there will be no control at hand to go to the first (and only) page,
   // unless we cover this case with `(pagesCount === 1 && empty)` check
-  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
+  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && isArticlesEmpty));
 
   const [followProfile, { isLoading: isFollowLoading }] = useFollowProfileMutation();
   const [unfollowProfile, { isLoading: isUnfollowLoading }] = useUnfollowProfileMutation();
   const { data: profileData, isLoading: isProfileDataLoading } = useProfileQuery({ username });
+
   if (!profileData) return isProfileDataLoading ? null : <NotFoundPage />;
+
   const profile = profileData.profile;
   const isProfileOwner = loggedInUser?.username === profile.username;
   const isFollowingProfile = profileData.profile.following;
@@ -65,7 +67,7 @@ export const ProfilePage = () => {
     return selected;
   };
 
-  const afterArticleActionCallback: PreviewProps["afterActionCallback"] = (action) => {
+  const afterArticleActionCallback: IArticlePreviewProps["afterActionCallback"] = (action) => {
     if (action !== "unfavorite") return;
     // this is the last item in the favorited list and they are revoking their
     // "like", so let's navigate them to the previous page (meaning page of the
@@ -125,13 +127,13 @@ export const ProfilePage = () => {
             <Tabs.Item isActive={isFavoritedView} to="?feed=favorited&page=1" label="Favorited Articles" />
           </Tabs.List>
           <S.PreviewList>
-            {empty
+            {isArticlesEmpty
               ? null
               : isArticlesDataLoading
                 ? // TODO: add skeleton while loading
                   null
                 : data!.articles.map((article) => (
-                    <Preview
+                    <ArticlePreview
                       afterActionCallback={afterArticleActionCallback}
                       actionsEnabled={isAuthenticated}
                       article={article}

@@ -2,17 +2,17 @@ import { FC } from "react";
 import { Link } from "react-router";
 
 import { formatDate, truncateText } from "@/shared/lib/utils";
+import { Avatar } from "@/shared/ui/Avatar";
 
-import { Avatar } from "../Avatar";
 import * as S from "./AuthorInfo.styles";
 
-export type AuthorInfoProps = {
+export interface IAuthorInfoProps {
   username: string;
   imageUrl?: string | null;
   authoredAt?: string;
-};
+}
 
-export const AuthorInfo: FC<AuthorInfoProps> = ({ imageUrl, username, authoredAt }) => {
+export const AuthorInfo: FC<IAuthorInfoProps> = ({ imageUrl, username, authoredAt }) => {
   const profilePath = `/profile/${username}`;
 
   return (

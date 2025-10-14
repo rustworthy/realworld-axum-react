@@ -7,17 +7,18 @@ import { Button } from "@/shared/ui/controls/Button";
 import { EditorInput, TextInput } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "./EditorPage.schema";
+import { TEditorPageSchema, editorPageDefaultValues, editorPageSchema } from "../model/EditorPage.schema";
 import * as S from "./EditorPage.styles";
 
-export type EditorFormProps = {
+export interface IEditorFormProps {
   maxLength: number;
   onSubmit: (article: TEditorPageSchema) => void;
   disabled: boolean;
   initialValues?: TEditorPageSchema;
   initialErrors?: FieldErrors<TEditorPageSchema>;
-};
-export const EditorForm: FC<EditorFormProps> = ({ onSubmit, disabled, initialValues, initialErrors, maxLength }) => {
+}
+
+export const EditorForm: FC<IEditorFormProps> = ({ onSubmit, disabled, initialValues, initialErrors, maxLength }) => {
   const {
     control,
     setValue,

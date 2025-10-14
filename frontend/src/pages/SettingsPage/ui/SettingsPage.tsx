@@ -9,7 +9,7 @@ import { PasswordInput, TextInput, Textarea } from "@/shared/ui/controls/inputs"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TSettingsPageSchema, settingsPageDefaultValues, settingsPageSchema } from "./SettingsPage.schema";
+import { TSettingsPageSchema, settingsPageDefaultValues, settingsPageSchema } from "../model/SettingsPage.schema";
 import * as S from "./SettingsPage.styles";
 
 export const SettingsPage = () => {

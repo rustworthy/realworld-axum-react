@@ -1,1 +1,1 @@
-export { EditorPage } from "./ui/EditorPage";
+export { CreateArticlePage, UpdateArticlePage } from "./ui/EditorPage";

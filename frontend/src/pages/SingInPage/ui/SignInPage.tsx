@@ -11,7 +11,7 @@ import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inp
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TSignInPageSchema, signInDefaultValues, signInPageSchema } from "./SignInPage.schema";
+import { TSignInPageSchema, signInDefaultValues, signInPageSchema } from "../model/SignInPage.schema";
 import * as S from "./SignInPage.styles";
 
 export const SignInPage = () => {

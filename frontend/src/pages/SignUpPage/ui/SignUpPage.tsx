@@ -12,7 +12,7 @@ import { CaptchaInput, PasswordInput, TextInput } from "@/shared/ui/controls/inp
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "./SignUpPage.schema";
+import { TSignUpPageSchema, signUpDefaultValues, signUpPageSchema } from "../model/SignUpPage.schema";
 import * as S from "./SignUpPage.styles";
 
 export const SignUpPage = () => {

@@ -1,24 +1,23 @@
 import { FC, useCallback } from "react";
 import { Link } from "react-router";
 
+import { AuthorInfo, TagList } from "@/entities/Article";
 import { ArticlePayloadArticle, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "@/shared/api";
 import { ROUTES } from "@/shared/constants/routes.constants";
 import { formatCount, parseOutErrorMessage, truncateText } from "@/shared/lib/utils";
+import { ActionButton } from "@/shared/ui/controls/Button";
 import { HeartFilledIcon, HeartIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
-import { ActionButton } from "../controls/Button";
-import { AuthorInfo } from "./AuthorInfo";
-import * as S from "./Preview.styles";
-import { TagList } from "./TagList";
+import * as S from "./ArticlePreview.styles";
 
-export type PreviewProps = {
+export interface IArticlePreviewProps {
   article: ArticlePayloadArticle["article"];
   actionsEnabled?: boolean;
   afterActionCallback?: (action: string) => void;
-};
+}
 
-export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterActionCallback }) => {
+export const ArticlePreview: FC<IArticlePreviewProps> = ({ article, actionsEnabled, afterActionCallback }) => {
   const [favArticle, { isLoading: isFavLoading }] = useFavoriteArticleMutation();
   const [unfavArticle, { isLoading: isUnfavLoading }] = useUnfavoriteArticleMutation();
   const isLoading = isFavLoading || isUnfavLoading;
@@ -55,6 +54,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterAction
     <S.PreviewContainer>
       <S.PreviewMeta>
         <AuthorInfo imageUrl={article.author.image} username={article.author.username} authoredAt={article.createdAt} />
+
         {!actionsEnabled ? null : article.favorited ? (
           <ActionButton onClick={() => performAction("unfavorite")} isDisabled={isLoading} className="btn-outline-primary fit">
             <HeartFilledIcon />
@@ -72,6 +72,7 @@ export const Preview: FC<PreviewProps> = ({ article, actionsEnabled, afterAction
         <S.PreviewTitle>{truncateText(article.title, 50)}</S.PreviewTitle>
         <S.PreviewDescription>{truncateText(article.description, 150)}</S.PreviewDescription>
       </Link>
+
       <S.PreviewFooter>
         <S.ReadMoreLink title="Read full article" to={`${ROUTES.ARTICLE}/${article.slug}`}>
           Read more...

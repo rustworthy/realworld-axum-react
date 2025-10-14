@@ -1,13 +1,13 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
+import { TagList } from "@/entities/Article";
+import { Pagination, type PaginationProps } from "@/features/Pagination";
 import { useAuth } from "@/features/auth";
 import { useListArticlesQuery, useListTagsQuery, usePersonalFeedQuery } from "@/shared/api";
-import { TagList } from "@/shared/ui/Article";
-import { Preview } from "@/shared/ui/Article/Preview";
 import { LayoutContainer } from "@/shared/ui/Container";
-import { Pagination, type PaginationProps } from "@/shared/ui/Pagination";
 import { Tabs } from "@/shared/ui/Tabs";
+import { ArticlePreview } from "@/widgets/ArticlePreview";
 
 import * as S from "./HomePage.styles";
 
@@ -34,12 +34,12 @@ export const HomePage: FC = () => {
   // or the global feed view which is currently active), but we are still able to
   // fetch data conditionally with the API rtk-query exposes:
   // https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
-  const personalFeenResult = usePersonalFeedQuery({ limit: ARTICLES_PER_PAGE, offset }, { skip: !isPersonalFeed });
+  const personalFeedResult = usePersonalFeedQuery({ limit: ARTICLES_PER_PAGE, offset }, { skip: !isPersonalFeed });
   const globalFeedResult = useListArticlesQuery(
     { limit: ARTICLES_PER_PAGE, offset, tag: tag ?? undefined },
     { skip: isPersonalFeed },
   );
-  const { data, isLoading } = isPersonalFeed ? personalFeenResult : globalFeedResult;
+  const { data, isLoading } = isPersonalFeed ? personalFeedResult : globalFeedResult;
 
   const pagesCount = useMemo(() => (data ? Math.ceil(data.articlesCount / ARTICLES_PER_PAGE) : null), [data]);
   // it's possible that url contains page that is past the aricles: e.g. they might
@@ -47,8 +47,8 @@ export const HomePage: FC = () => {
   // articles decreased prior to them refreshing the page, and so there _are_ articles,
   // but not at this offset; so we need to check both `artcilesCount` and `articles.length`;
   // note that we prefer not to render pagination controls, if there is only one page
-  const empty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
-  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && empty));
+  const isArticlesEmpty = !isLoading && (!data || data.articlesCount === 0 || data.articles.length === 0);
+  const shouldPaginate = typeof pagesCount === "number" && (pagesCount > 1 || (pagesCount === 1 && isArticlesEmpty));
 
   const { data: tagsData, isLoading: isTagsRequestLoading } = useListTagsQuery();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -96,18 +96,20 @@ export const HomePage: FC = () => {
               <Tabs.Item isActive={!isPersonalFeed && !isTagView} to="?feed=global&page=1" label="Global Feed" />
               {selectedTag ? <Tabs.Item isActive={isTagView} to={`?tag=${selectedTag}&page=1`} label={selectedTag} /> : null}
             </Tabs.List>
+
             <S.PreviewList>
-              {empty
+              {isArticlesEmpty
                 ? null
                 : isLoading
                   ? // TODO: add skeleton while loading
                     null
                   : data!.articles.map((article) => (
-                      <Preview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
+                      <ArticlePreview actionsEnabled={isAuthenticated} article={article} key={article.slug} />
                     ))}
             </S.PreviewList>
             {shouldPaginate ? <Pagination forcePage={page - 1} onPageChange={handlePageClick} pageCount={pagesCount} /> : null}
           </S.FeedContainer>
+
           {isTagsRequestLoading ? null : (
             <S.TagsContainer>
               <p>Popular tags</p>

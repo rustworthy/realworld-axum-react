@@ -1,19 +1,19 @@
 import { FC } from "react";
 import { useLocation, useParams } from "react-router";
 
+import { TagList } from "@/entities/Article";
 import { useAuth } from "@/features/auth";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { useListCommentsQuery, useReadArticleQuery } from "@/shared/api";
 import { useHashScrollIn } from "@/shared/lib/hooks/navigation";
-import { TagList } from "@/shared/ui/Article";
 import { LayoutContainer } from "@/shared/ui/Container";
 import MDEditor from "@uiw/react-md-editor";
 import { useTernaryDarkMode } from "usehooks-ts";
 
-import { ArticleMeta } from "./ArticleMeta";
+import { ArticleMeta } from "../ArticleMeta/ArticleMeta";
+import { CommentForm } from "../CommentForm/CommentForm";
+import { CommentList } from "../CommentList/CommentList";
 import * as S from "./ArticlePage.styles";
-import { CommentForm } from "./CommentForm";
-import { CommentList } from "./CommentList";
 
 /**
  * Adjust links to work with browser router.
@@ -26,7 +26,9 @@ function urlTransform(link: string, path: string): string {
 
 export const ArticlePage: FC = () => {
   const { slug } = useParams<{ slug: string }>();
+
   if (!slug) return <NotFoundPage />;
+
   const location = useLocation();
   const { data, isLoading } = useReadArticleQuery({ slug: slug! });
   const { data: commentsData } = useListCommentsQuery({ slug: slug! });

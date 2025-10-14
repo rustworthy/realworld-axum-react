@@ -3,23 +3,23 @@ import { Controller, FieldErrors, useForm } from "react-hook-form";
 
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
+import { AuthorInfo } from "@/entities/Article";
 import { UserPayloadUser, useCreateCommentMutation } from "@/shared/api";
 import { ANY_TODO } from "@/shared/types/common.types";
-import { AuthorInfo } from "@/shared/ui/Article";
 import { Button } from "@/shared/ui/controls/Button";
 import { Textarea } from "@/shared/ui/controls/inputs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { TCreateCommentSchema, createCommentDefaultValues, createCommentSchema } from "./CommentForm.schema";
+import { TCreateCommentSchema, createCommentDefaultValues, createCommentSchema } from "../../model/CommentForm.schema";
 import * as S from "./CommentForm.styles";
 
-export type ArticleMetaProps = {
+export interface IArticleMetaProps {
   user: UserPayloadUser["user"];
   slug: string;
-};
+}
 
-export const CommentForm: FC<ArticleMetaProps> = ({ user, slug }) => {
+export const CommentForm: FC<IArticleMetaProps> = ({ user, slug }) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation();
 
   const [initialErrors, setInitialErrors] = useState<FieldErrors<TCreateCommentSchema> | undefined>(undefined);

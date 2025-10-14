@@ -1,0 +1,1 @@
+export { ConfirmEmailPage } from "./ConfirmEmailPage";
