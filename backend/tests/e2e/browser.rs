@@ -5,20 +5,20 @@ use crate::utils::TestContext;
 
 const WAIT_TIMEOUT: Duration = Duration::from_secs(5);
 
-async fn has_link_to_github_repo(ctx: TestContext) {
+async fn homepage_contains_link_to_official_website(ctx: TestContext) {
     ctx.client.goto(ctx.frontend_url.as_str()).await.unwrap();
     let elem = ctx
         .client
         .wait()
         .at_most(WAIT_TIMEOUT)
-        .for_element(Locator::LinkText("Fork on GitHub"))
+        .for_element(Locator::LinkText("Thinkster"))
         .await
         .unwrap();
     elem.follow().await.unwrap();
 
     assert_eq!(
         ctx.client.current_url().await.unwrap().domain(),
-        Some("github.com"),
+        Some("thinkster.io"),
     );
 }
 
@@ -36,6 +36,6 @@ async fn homepage_contains_project_name(ctx: TestContext) {
 }
 
 mod tests {
-    crate::async_test!(has_link_to_github_repo);
+    crate::async_test!(homepage_contains_link_to_official_website);
     crate::async_test!(homepage_contains_project_name);
 }
