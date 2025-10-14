@@ -4,9 +4,10 @@
 [![Backend CI](https://github.com/rustworthy/realworld-axum-react/actions/workflows/backend.yaml/badge.svg)](https://github.com/rustworthy/realworld-axum-react/actions/workflows/backend.yaml)
 
 This codebase demonstrates a full-stack implementation [RealWorld] specification
-with `Rust` and `TypeScript`.
+with `Rust` (powering the [API]) and `TypeScript` (for the [end-user]
+interfacing part).
 
-## Technologies
+## Technologies (non-exhaustive)
 
 ### Backend
 
@@ -42,6 +43,8 @@ and backend in corresponding directories.
 Licensed under either of [Apache License, Version 2.0][apache] or [MIT license][mit] at your option.
 
 <!-- Links -->
+[API]: https://api.realworld-axum-react.org/
+[end-user]: https://app.realworld-axum-react.org/
 [RealWorld]: https://github.com/gothinkster/realworld
 [Axum]: https://github.com/tokio-rs/axum
 [Utoipa]: https://github.com/juhaku/utoipa
@@ -59,4 +62,3 @@ Licensed under either of [Apache License, Version 2.0][apache] or [MIT license][
 [Chromedriver]: https://developer.chrome.com/docs/chromedriver/downloads
 [apache]: https://www.apache.org/licenses/LICENSE-2.0
 [mit]: https://opensource.org/licenses/MIT
-

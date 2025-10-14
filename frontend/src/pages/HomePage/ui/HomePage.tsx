@@ -30,9 +30,9 @@ export const HomePage: FC = () => {
   const isTagView = tag !== null;
   const isPersonalFeed = searchParams.get("feed") === "personal" && !isTagView;
 
-  // we cannot call hooks conditionally (depending on whether is personal prior
-  // global feed view), but we are still able to fetch data conditionally with
-  // the API rtk-query offers us:
+  // we cannot call hooks conditionally (depending on whether it is the personal
+  // or the global feed view which is currently active), but we are still able to
+  // fetch data conditionally with the API rtk-query exposes:
   // https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
   const personalFeenResult = usePersonalFeedQuery({ limit: ARTICLES_PER_PAGE, offset }, { skip: !isPersonalFeed });
   const globalFeedResult = useListArticlesQuery(
