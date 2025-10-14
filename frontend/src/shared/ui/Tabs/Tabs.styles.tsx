@@ -13,7 +13,9 @@ export const TabItem = styled.li`
   float: left;
 `;
 
-export const TabLink = styled(Link)<{ $isActive?: boolean }>`
+export const TabLink = styled(Link, {
+  shouldForwardProp: (prop) => prop !== "$isActive",
+})<{ $isActive?: boolean }>`
   text-decoration: none;
   display: block;
   padding: 0.5em 1em;

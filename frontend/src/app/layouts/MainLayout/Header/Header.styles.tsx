@@ -104,7 +104,9 @@ export const HeaderNavList = styled.ul`
   align-items: center;
 `;
 
-export const HeaderNavItem = styled.div<{ $isActive?: boolean }>`
+export const HeaderNavItem = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$isActive",
+})<{ $isActive?: boolean }>`
   height: 1.8rem;
   width: fit-content;
   display: flex;
