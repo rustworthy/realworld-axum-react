@@ -2,6 +2,7 @@ use crate::config::MailerTransport;
 use resend_rs::types::{CreateEmailBaseOptions, EmailId};
 use resend_rs::{Config, Resend, Result};
 use std::time::Duration;
+use tracing::Span;
 use url::Url;
 
 const SEND_EMAIL_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
@@ -39,7 +40,7 @@ impl ResendMailer {
         }
     }
 
-    #[instrument(name = "SEND EMAIL", fields(email_id), skip(html, text))]
+    #[instrument(name = "SEND EMAIL", fields(email_id), skip(self, html, text))]
     pub async fn send_email(
         &self,
         to: &str,
@@ -60,7 +61,7 @@ impl ResendMailer {
         }
 
         let resp = self.client.emails.send(email).await?;
-        tracing::info!(email_id = resp.id.to_string());
+        Span::current().record("email_id", &*resp.id);
         Ok(resp.id)
     }
 }
