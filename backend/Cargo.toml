@@ -46,7 +46,15 @@ tokio = { version = "1.46.1", features = [
   "rt-multi-thread",
   "signal",
 ] }
-tower-http = { version = "0.6.6", features = ["cors", "fs"] }
+tower-http = { version = "0.6.6", features = [
+  "cors",
+  "fs",
+  "catch-panic",
+  "compression-full",
+  "sensitive-headers",
+  "timeout",
+  "limit",
+] }
 axum = { version = "0.8.6", features = ["macros"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"

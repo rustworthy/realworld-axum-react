@@ -25,10 +25,15 @@ use anyhow::Context;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
+use reqwest::header::AUTHORIZATION;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use tokio::net::TcpListener;
+use tower_http::catch_panic::CatchPanicLayer;
+use tower_http::compression::CompressionLayer;
+use tower_http::limit::RequestBodyLimitLayer;
+use tower_http::sensitive_headers::SetSensitiveHeadersLayer;
 use tower_http::services::ServeDir;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
@@ -53,6 +58,10 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .nest("/api", routes::users::router(Arc::clone(&ctx)))
         .nest("/api", routes::articles::router(Arc::clone(&ctx)))
         .layer(cors::layer(config.allowed_origins))
+        .layer(SetSensitiveHeadersLayer::new([AUTHORIZATION]))
+        .layer(CompressionLayer::new())
+        .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
+        .layer(CatchPanicLayer::new())
         .split_for_parts();
 
     // ------------------------ ATTACH DOCUMENTATION ---------------------------
