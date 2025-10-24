@@ -15,6 +15,14 @@ JAEGER_HOST=127.0.0.1
 JAEGER_UI_PORT=8001
 JAEGER_OTEL_PORT=4317
 
+# Documented commands will appear in the help text.
+#
+# Implementation (adjusted though for `group/command/subcommand`) taken from:
+# https://github.com/contribsys/faktory/blob/4e7b8196a14c60f222be1f63bdcced2c1a750971/Makefile#L252-L253
+.PHONY: help
+help:
+	@grep -E '^[/a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
 # --------------------------- AUXILIARY BINARIES -------------------------------
 .PHONY: tools/install
 tools/install:
@@ -175,14 +183,14 @@ test/e2e/spec:
 			./run-api-tests.sh
 
 .PHONY: watch
-watch: db/start prepare
+watch: db/start prepare ## Start app in watch mode
 	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --clear --exec "run" --no-dot-ignores
 
 .PHONY: otel
-watch/otel: jaeger/start
+watch/otel: jaeger/start ## Start app in watch mode with OTEL exporter and Jaeger
 	fuser -k ${APP_PORT}/tcp || true
-	RUST_LOG="realworld_axum_react=info,axum=error" \
+	RUST_LOG="realworld_axum_react=info,axum=info,tower_http=info" \
 		OTEL_EXPORTER_OTLP_ENDPOINT=tcp://${JAEGER_HOST}:${JAEGER_OTEL_PORT} \
 		cargo watch --clear --exec "run" --no-dot-ignores
 
