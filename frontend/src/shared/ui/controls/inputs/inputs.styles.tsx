@@ -30,20 +30,13 @@ export const FormInput = styled.input<{ $padding?: string }>`
   &::placeholder {
     opacity: 0.8;
   }
-  &:is(
-      :autofill,
-      :-webkit-autofill,
-      :-webkit-autofill:hover,
-      :-webkit-autofill:active,
-      :-webkit-autofill:focus
-  ) {
+  &:is(:autofill, :-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:active, :-webkit-autofill:focus) {
     -webkit-background-clip: text;
     -webkit-text-fill-color: ${({ theme }) => theme.shared.input.textColor};
     transition: background-color 5000000s ease-in-out 0s;
     transition: color 5000000s ease-in-out 0s;
     box-shadow: inset 0 0 2rem 2rem ${({ theme }) => theme.shared.input.backgroundColor};
   }
-}
 `;
 
 export const PasswordRevealToggle = styled.div`
