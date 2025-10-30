@@ -1,6 +1,6 @@
 import { Middleware } from "@reduxjs/toolkit";
 
-import { startLoading, stopLoading } from "@/shared/store/loading";
+import { startLoading, stopLoading } from "@/features/loading";
 import { ANY_TODO } from "@/shared/types/common.types";
 
 interface LoadingMiddlewareAction {

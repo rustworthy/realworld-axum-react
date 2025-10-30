@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Outlet } from "react-router";
 
 import { useAuthSnapshotRestoration } from "@/features/auth";
-import { useIsGlobalLoading } from "@/shared/store/loading";
+import { useIsGlobalLoading } from "@/features/loading";
 import { Loader } from "@/shared/ui/Loader";
 
 import { Footer } from "./Footer";
@@ -17,7 +17,7 @@ export const MainLayout = () => {
 
   return (
     <>
-      {isGlobalLoading ? <Loader /> : null}
+      {isGlobalLoading && <Loader />}
 
       <S.Wrapper>
         <Header />
