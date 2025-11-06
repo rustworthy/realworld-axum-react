@@ -66,7 +66,8 @@ const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120).max_burst(120);
 struct RuleProvider;
 
 impl<T> ProvideRule<Request<T>> for RuleProvider {
-    fn provide<'a>(&self, _req: &'a Request<T>) -> ProvideRuleResult<'a> {
+    fn provide<'a>(&self, req: &'a Request<T>) -> ProvideRuleResult<'a> {
+        println!("{:#?}", req.headers());
         Ok(Some(Rule::new("global_key", BASIC_POLICY)))
     }
 }

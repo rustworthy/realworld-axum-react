@@ -209,7 +209,7 @@ test/e2e/spec:
 			./run-api-tests.sh
 
 .PHONY: watch
-watch: db/start prepare ## Start app in watch mode
+watch: redis/start db/start prepare ## Start Redis and PostgreSQL servers, and launch the app in watch mode
 	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --clear --exec "run" --no-dot-ignores
 
