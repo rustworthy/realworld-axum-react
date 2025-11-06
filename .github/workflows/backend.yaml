@@ -64,8 +64,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: rustworthy
+          password: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
       - name: run API tests
         run: cargo test --release --test e2e --features=api-test
   spec-test:
@@ -84,6 +84,9 @@ jobs:
           - 5432:5432
       redis:
         image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
+        credentials:
+          username: rustworthy
+          password: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
       - name: Install stable
