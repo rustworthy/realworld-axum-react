@@ -46,7 +46,7 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-      - name: run API tests
+      - name: run unit tests
         run: cargo test --release
   api-test:
     runs-on: ubuntu-latest
@@ -127,6 +127,7 @@ jobs:
           USERNAME=user`date +%s` PASSWORD=password`date +%s` ./realworld/api/run-api-tests.sh
   browser-test:
     uses: "./.github/workflows/browser-test.yaml"
+    secrets: inherit
   deploy:
     if: github.ref == 'refs/heads/main'
     needs: [check, unit-test, api-test, spec-test, browser-test]
