@@ -100,3 +100,12 @@ accessories:
         - POSTGRES_USER
         - POSTGRES_PASSWORD
         - POSTGRES_DB
+  redis:
+    image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
+    host: 91.107.231.70
+    cmd: "/bin/sh -c 'valkey-server --requirepass $REDIS_PASSWORD --loadmodule /usr/local/lib/valkey/modules/libredis_cell.so'"
+    env:
+      secret:
+        - REDIS_PASSWORD
+    directories:
+      - redis-data:/data
