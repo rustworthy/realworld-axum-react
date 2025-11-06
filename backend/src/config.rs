@@ -16,6 +16,7 @@ pub enum MailerTransport {
 pub struct Config {
     pub secret_key: SecretString,
     pub database_url: SecretString,
+    pub redis_url: SecretString,
     #[serde(default)]
     pub mailer_transport: MailerTransport,
     pub mailer_token: SecretString,

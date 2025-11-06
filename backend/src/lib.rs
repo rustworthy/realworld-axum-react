@@ -26,6 +26,7 @@ use axum::Router;
 use axum::http::header;
 use axum::routing::get;
 use reqwest::header::AUTHORIZATION;
+use secrecy::ExposeSecret;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -47,9 +48,66 @@ pub use telemetry::init_tracing;
 
 static OPENAPI_JSON: OnceLock<&'static str> = OnceLock::new();
 
+use axum::body::Body;
+use axum::http::Request;
+use axum::http::StatusCode;
+use axum::response::AppendHeaders;
+use axum::response::IntoResponse as _;
+use deadpool_redis::{Config as DeadpoolConfig, Runtime};
+use tower_redis_cell::Error as RateLimitError;
+use tower_redis_cell::RateLimitConfig;
+use tower_redis_cell::deadpool::RateLimitLayer;
+use tower_redis_cell::redis_cell::Policy;
+use tower_redis_cell::{ProvideRule, ProvideRuleResult, Rule};
+
+const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120).max_burst(120);
+
+#[derive(Clone)]
+struct RuleProvider;
+
+impl<T> ProvideRule<Request<T>> for RuleProvider {
+    fn provide<'a>(&self, _req: &'a Request<T>) -> ProvideRuleResult<'a> {
+        Ok(Some(Rule::new("global_key", BASIC_POLICY)))
+    }
+}
+
 pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
     let ctx = Arc::new(AppContext::try_build(&config).await?);
+
+    let rate_limit_config = RateLimitConfig::new(RuleProvider, |err, _req| match err {
+        RateLimitError::ProvideRule(err) => {
+            tracing::warn!(
+                key = ?err.key,
+                detail = err.detail.as_deref(),
+                "failed to define rule for request"
+            );
+            (StatusCode::UNAUTHORIZED, err.to_string()).into_response()
+        }
+        RateLimitError::RateLimit(err) => {
+            tracing::warn!(
+                key = %err.rule.key,
+                policy = err.rule.policy.name,
+                "request throttled"
+            );
+            (
+                StatusCode::TOO_MANY_REQUESTS,
+                AppendHeaders([(header::RETRY_AFTER, err.details.retry_after)]),
+                Body::from("too many requests"),
+            )
+                .into_response()
+        }
+        err => {
+            tracing::error!(err = %err, "unexpected error");
+            (StatusCode::INTERNAL_SERVER_ERROR).into_response()
+        }
+    });
+
+    let cfg = DeadpoolConfig::from_url(config.redis_url.expose_secret());
+    let pool = cfg
+        .create_pool(Some(Runtime::Tokio1))
+        .context("failed to create pool")?;
+    let rate_limit_layer = RateLimitLayer::new(rate_limit_config, pool);
 
     // ------------------------- PREPARE AXUM APP ------------------------------
     let (app, docs) = OpenApiRouter::with_openapi(openapi::RootApiDoc::openapi())
@@ -61,6 +119,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .layer(SetSensitiveHeadersLayer::new([AUTHORIZATION]))
         .layer(CompressionLayer::new())
         .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
+        .layer(rate_limit_layer)
         .layer(CatchPanicLayer::new())
         .split_for_parts();
 
