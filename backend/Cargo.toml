@@ -86,7 +86,7 @@ reqwest = { version = "0.12.24", default-features = false, features = [
   "rustls-tls",
 ] }
 rand = "0.9"
-resend-rs = { version = "0.18", default-features = false, features = [
+resend-rs = { version = "0.19", default-features = false, features = [
   "rustls-tls",
 ] }
 secrecy = { version = "0.10.3", features = ["serde"] }
