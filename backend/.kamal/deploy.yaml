@@ -27,6 +27,7 @@ env:
     MAILER_ENDPOINT: https://api.resend.com
   secret:
     - DATABASE_URL
+    - REDIS_URL
     - SECRET_KEY
     - MAILER_TOKEN
     - CAPTCHA_SECRET

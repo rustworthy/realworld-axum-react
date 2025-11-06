@@ -60,6 +60,12 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: run API tests
         run: cargo test --release --test e2e --features=api-test
   spec-test:
@@ -76,6 +82,8 @@ jobs:
           POSTGRES_DB: realworld-axum-react
         ports:
           - 5432:5432
+      redis:
+        image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
     steps:
       - uses: actions/checkout@v5
       - name: Install stable
@@ -98,6 +106,7 @@ jobs:
           # A 256-bit log base64-encoded secret from .env.example
           SECRET_KEY: "R1ltNBHbZ1XngTiBxOo7oEWySPiuUxQ9b2uI2URJ94g="
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realworld-axum-react
+          REDIS_URL: redis://localhost:6379
           #  We are skipping email verification for the purpose of the e2e spec tests,
           #  but the token, endpoint, and sender address are still required variable,
           #  so taking from our .env.example (same for captcha and content moderation)
@@ -141,8 +150,10 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           # app runtime secrets:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
           CAPTCHA_SECRET: ${{ secrets.CAPTCHA_SECRET }}
