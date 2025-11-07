@@ -101,6 +101,7 @@ jobs:
           SKIP_EMAIL_VERIFICATION: true   # NB
           SKIP_CAPTCHA_VERIFICATION: true # NB
           SKIP_CONTENT_MODERATION: true   # NB
+          SKIP_RATE_LIMITING: true        # NB
           IP: 127.0.0.1
           PORT: 8000
           MIGRATE: true

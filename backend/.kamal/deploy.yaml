@@ -108,5 +108,6 @@ accessories:
     env:
       secret:
         - REDIS_PASSWORD
-    directories:
-      - redis-data:/data
+    volumes:
+      - ./data/redis-data:/data:rw
+

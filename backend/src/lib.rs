@@ -23,9 +23,8 @@ use crate::http::routes;
 use crate::state::AppContext;
 use anyhow::Context;
 use axum::Router;
-use axum::http::header;
+use axum::http::{Method, header};
 use axum::routing::get;
-use reqwest::header::AUTHORIZATION;
 use secrecy::ExposeSecret;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -36,6 +35,7 @@ use tower_http::compression::CompressionLayer;
 use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::sensitive_headers::SetSensitiveHeadersLayer;
 use tower_http::services::ServeDir;
+use tower_redis_cell::ProvideRuleError;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 
@@ -60,15 +60,55 @@ use tower_redis_cell::deadpool::RateLimitLayer;
 use tower_redis_cell::redis_cell::Policy;
 use tower_redis_cell::{ProvideRule, ProvideRuleResult, Rule};
 
-const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120).max_burst(120);
+const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120)
+    .max_burst(120)
+    .name("basic");
+const STRICT_POLICY: Policy = Policy::from_tokens_per_day(5).max_burst(5).name("strict");
+const VERY_STRICT_POLICY: Policy = Policy::from_tokens_per_day(1)
+    .max_burst(1)
+    .name("very_strict");
 
-#[derive(Clone)]
-struct RuleProvider;
+#[derive(Clone, Debug, Default)]
+struct RuleProvider {
+    skip_rate_limiting: bool,
+}
 
 impl<T> ProvideRule<Request<T>> for RuleProvider {
     fn provide<'a>(&self, req: &'a Request<T>) -> ProvideRuleResult<'a> {
-        println!("{:#?}", req.headers());
-        Ok(Some(Rule::new("global_key", BASIC_POLICY)))
+        // we want to accomodate for the end-to-end test suites
+        if self.skip_rate_limiting {
+            return Ok(None);
+        }
+
+        let header = req
+            .headers()
+            .get("x-forwarded-for")
+            .ok_or("'x-forwarded-for' header is missing")?;
+        let ip = header
+            .to_str()
+            .map_err(|e| ProvideRuleError::default().detail(e.to_string()))?;
+
+        let (path, method) = (req.uri().path(), req.method());
+
+        // writing and updating articles is a fairly expensive operation due to
+        // content moderation and so we are applying a stricter policy
+        if path.contains("/articles") && (method == Method::POST || method == Method::PUT) {
+            return Ok(Some(Rule::new(ip, STRICT_POLICY)));
+        }
+
+        // we allow them to login quite a few times a day from the same
+        // IP address, but...
+        if path.ends_with("/users/login") {
+            return Ok(Some(Rule::new(ip, STRICT_POLICY)));
+        }
+
+        // ... we want to impose a very strict limit on the number of accounts
+        // they can create using the same IP address
+        if path.ends_with("/users/confirm-email") || path.ends_with("/users") {
+            return Ok(Some(Rule::new(ip, VERY_STRICT_POLICY)));
+        }
+
+        Ok(Some(Rule::new(ip, BASIC_POLICY)))
     }
 }
 
@@ -76,33 +116,38 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
     let ctx = Arc::new(AppContext::try_build(&config).await?);
 
-    let rate_limit_config = RateLimitConfig::new(RuleProvider, |err, _req| match err {
-        RateLimitError::ProvideRule(err) => {
-            tracing::warn!(
-                key = ?err.key,
-                detail = err.detail.as_deref(),
-                "failed to define rule for request"
-            );
-            (StatusCode::UNAUTHORIZED, err.to_string()).into_response()
-        }
-        RateLimitError::RateLimit(err) => {
-            tracing::warn!(
-                key = %err.rule.key,
-                policy = err.rule.policy.name,
-                "request throttled"
-            );
-            (
-                StatusCode::TOO_MANY_REQUESTS,
-                AppendHeaders([(header::RETRY_AFTER, err.details.retry_after)]),
-                Body::from("too many requests"),
-            )
-                .into_response()
-        }
-        err => {
-            tracing::error!(err = %err, "unexpected error");
-            (StatusCode::INTERNAL_SERVER_ERROR).into_response()
-        }
-    });
+    let rate_limit_config = RateLimitConfig::new(
+        RuleProvider {
+            skip_rate_limiting: ctx.skip_rate_limiting,
+        },
+        |err, _req| match err {
+            RateLimitError::ProvideRule(err) => {
+                tracing::warn!(
+                    key = ?err.key,
+                    detail = err.detail.as_deref(),
+                    "failed to define rule for request"
+                );
+                (StatusCode::UNAUTHORIZED, err.to_string()).into_response()
+            }
+            RateLimitError::RateLimit(err) => {
+                tracing::warn!(
+                    key = %err.rule.key,
+                    policy = err.rule.policy.name,
+                    "request throttled"
+                );
+                (
+                    StatusCode::TOO_MANY_REQUESTS,
+                    AppendHeaders([(header::RETRY_AFTER, err.details.retry_after)]),
+                    Body::from("too many requests"),
+                )
+                    .into_response()
+            }
+            err => {
+                tracing::error!(err = %err, "unexpected error");
+                (StatusCode::INTERNAL_SERVER_ERROR).into_response()
+            }
+        },
+    );
 
     let cfg = DeadpoolConfig::from_url(config.redis_url.expose_secret());
     let pool = cfg
@@ -117,7 +162,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .nest("/api", routes::users::router(Arc::clone(&ctx)))
         .nest("/api", routes::articles::router(Arc::clone(&ctx)))
         .layer(cors::layer(config.allowed_origins))
-        .layer(SetSensitiveHeadersLayer::new([AUTHORIZATION]))
+        .layer(SetSensitiveHeadersLayer::new([header::AUTHORIZATION]))
         .layer(CompressionLayer::new())
         .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
         .layer(rate_limit_layer)

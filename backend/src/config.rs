@@ -41,6 +41,7 @@ pub struct Config {
     pub skip_email_verification: Option<bool>,
     pub skip_captcha_verification: Option<bool>,
     pub skip_content_moderation: Option<bool>,
+    pub skip_rate_limiting: Option<bool>,
 }
 
 impl Config {

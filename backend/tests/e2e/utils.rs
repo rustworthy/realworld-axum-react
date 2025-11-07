@@ -204,6 +204,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         openai_base_url: None,
         skip_email_verification: None,
         skip_captcha_verification: None,
+        // TODO: unset once we figure out how to surgically set rate limits for
+        // the each case; once we do this, we will also be able to test the rate-limiting
+        // itself; a possible approach would be to ignore the rate-limiting test
+        // and then launch a dedicated test run for these `--ignored` tests;
+        // notice that we are still creating all the necessary infra: a Redis
+        // (with the Redis Cell module) container and a connection pool
+        skip_rate_limiting: Some(true),
         // TODO: unset once the mock server is ready
         skip_content_moderation: Some(true),
     };

@@ -18,6 +18,7 @@ pub(crate) struct AppContext {
     pub skip_email_verification: bool,
     pub skip_captcha_verification: bool,
     pub skip_content_moderation: bool,
+    pub skip_rate_limiting: bool,
 }
 
 impl AppContext {
@@ -51,6 +52,7 @@ impl AppContext {
             skip_email_verification: config.skip_email_verification.unwrap_or_default(),
             skip_captcha_verification: config.skip_captcha_verification.unwrap_or_default(),
             skip_content_moderation: config.skip_content_moderation.unwrap_or_default(),
+            skip_rate_limiting: config.skip_rate_limiting.unwrap_or_default(),
         };
         Ok(ctx)
     }

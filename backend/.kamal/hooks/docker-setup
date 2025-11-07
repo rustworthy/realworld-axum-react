@@ -1,0 +1,5 @@
+#! /bin/bash
+
+# Redis/Valkey data
+kamal server exec 'mkdir -m 777 -p data' -c .kamal/deploy.yaml
+kamal server exec 'mkdir -m 777 -p data/redis-data' -c .kamal/deploy.yaml
