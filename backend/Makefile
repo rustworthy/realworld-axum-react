@@ -1,5 +1,10 @@
 PROJECT_NAME=realworld-axum-react
 
+REDIS_CONTAINER_NAME=redis
+REDIS_PASSWORD=redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=127.0.0.1
@@ -37,6 +42,27 @@ tools/uninstall:
 	@cargo uninstall sqlx-cli > /dev/null 2>&1 || true
 
 # --------------------------- DATABASE COMMANDS --------------------------------
+
+.PHONY: redis/start
+redis/start:
+	docker ps -a | grep -i ${REDIS_CONTAINER_NAME} && \
+	docker start ${REDIS_CONTAINER_NAME} || \
+	docker run -d \
+	-p ${REDIS_HOST}:${REDIS_PORT}:6379 \
+	-e REDIS_PASSWORD=${REDIS_PASSWORD} \
+	--name ${REDIS_CONTAINER_NAME} \
+	ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0 \
+  /bin/sh -c 'valkey-server --requirepass $$REDIS_PASSWORD --loadmodule /usr/local/lib/valkey/modules/libredis_cell.so'
+
+.PHONY: redis/stop
+redis/stop:
+	@docker ps | grep -i ${REDIS_CONTAINER_NAME} && \
+	docker stop -s SIGKILL ${REDIS_CONTAINER_NAME} || true
+
+.PHONY: redis/rm
+redis/rm: redis/stop
+	docker rm ${REDIS_CONTAINER_NAME} || true
+
 .PHONY: db/start
 db/start:
 	docker ps -a | grep -i ${POSTGRES_CONTAINER_NAME} && \
@@ -101,7 +127,7 @@ db/purge: db/stop
 	@docker volume rm --force ${POSTGRES_CONTAINER_NAME}-data
 
 .PHONY: db/show
-db/show: 
+db/show:
 	docker exec -it ${POSTGRES_CONTAINER_NAME} \
 		psql -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE} \
 		-x -c "SELECT * FROM $(table)"
@@ -183,7 +209,7 @@ test/e2e/spec:
 			./run-api-tests.sh
 
 .PHONY: watch
-watch: db/start prepare ## Start app in watch mode
+watch: redis/start db/start prepare ## Start Redis and PostgreSQL servers, and launch the app in watch mode
 	fuser -k ${APP_PORT}/tcp || true
 	cargo watch --clear --exec "run" --no-dot-ignores
 

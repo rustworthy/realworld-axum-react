@@ -16,6 +16,7 @@ pub enum MailerTransport {
 pub struct Config {
     pub secret_key: SecretString,
     pub database_url: SecretString,
+    pub redis_url: SecretString,
     #[serde(default)]
     pub mailer_transport: MailerTransport,
     pub mailer_token: SecretString,
@@ -40,6 +41,7 @@ pub struct Config {
     pub skip_email_verification: Option<bool>,
     pub skip_captcha_verification: Option<bool>,
     pub skip_content_moderation: Option<bool>,
+    pub skip_rate_limiting: Option<bool>,
 }
 
 impl Config {

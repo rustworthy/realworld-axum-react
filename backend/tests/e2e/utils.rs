@@ -5,14 +5,19 @@ use argon2::password_hash::rand_core::RngCore as _;
 use axum::Router;
 use base64::Engine as _;
 use base64::prelude::BASE64_STANDARD;
+use deadpool_redis::Config as DeadpoolConfig;
+use deadpool_redis::Pool as RedisPool;
+use deadpool_redis::Runtime;
 use realworld_axum_react::{Config, MailerTransport};
 use secrecy::SecretString;
 use sqlx::PgPool;
 use std::time::Duration;
 use testcontainers_modules::postgres;
 use testcontainers_modules::postgres::Postgres;
+use testcontainers_modules::testcontainers::core::IntoContainerPort as _;
+use testcontainers_modules::testcontainers::core::WaitFor;
 use testcontainers_modules::testcontainers::runners::AsyncRunner as _;
-use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
+use testcontainers_modules::testcontainers::{ContainerAsync, GenericImage, ImageExt};
 use tokio::task::JoinHandle;
 use url::Url;
 use uuid::Uuid;
@@ -34,6 +39,9 @@ pub struct TestContext {
     pub db_pool: PgPool,
 
     #[allow(unused)]
+    pub redis_pool: RedisPool,
+
+    #[allow(unused)]
     pub mailer_server: MockServer,
 
     #[cfg(feature = "api-test")]
@@ -49,6 +57,8 @@ pub struct TestContext {
 pub struct TestRunContext {
     pub db_container: ContainerAsync<Postgres>,
     pub db_pool: PgPool,
+    pub redis_container: ContainerAsync<GenericImage>,
+    pub redis_pool: RedisPool,
     pub ctx: TestContext,
     pub backend_handle: JoinHandle<()>,
     #[cfg(feature = "browser-test")]
@@ -130,6 +140,18 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         .await
         .expect("creds to be correct and db to be accepting connections already");
 
+    // in the similar fashion, let's launch a Valkey container
+    let redis_container = GenericImage::new("ghcr.io/rustworthy/valkey-cell", "9.0.0-0.4.0")
+        .with_exposed_port(6379.tcp())
+        .with_wait_for(WaitFor::message_on_stdout("Ready to accept connections"))
+        .start()
+        .await
+        .unwrap();
+    let port = redis_container.get_host_port_ipv4(6379).await.unwrap();
+    let redis_url = format!("redis://localhost:{}", port);
+    let cfg = DeadpoolConfig::from_url(&redis_url);
+    let redis_pool = cfg.create_pool(Some(Runtime::Tokio1)).unwrap();
+
     #[allow(unused)]
     let frontend_url: Url = "http://localhost".parse().expect("value url");
     // launch front-end application (if browser test)
@@ -166,6 +188,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         ip: "127.0.0.1".parse().unwrap(),
         port: 0,
         database_url: SecretString::from(database_url),
+        redis_url: SecretString::from(redis_url),
         secret_key: SecretString::from(gen_b64_secret_key()),
         // https://developers.cloudflare.com/turnstile/troubleshooting/testing/#dummy-sitekeys-and-secret-keys
         captcha_secret: SecretString::from("1x0000000000000000000000000000000AA"),
@@ -181,6 +204,13 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         openai_base_url: None,
         skip_email_verification: None,
         skip_captcha_verification: None,
+        // TODO: unset once we figure out how to surgically set rate limits for
+        // the each case; once we do this, we will also be able to test the rate-limiting
+        // itself; a possible approach would be to ignore the rate-limiting test
+        // and then launch a dedicated test run for these `--ignored` tests;
+        // notice that we are still creating all the necessary infra: a Redis
+        // (with the Redis Cell module) container and a connection pool
+        skip_rate_limiting: Some(true),
         // TODO: unset once the mock server is ready
         skip_content_moderation: Some(true),
     };
@@ -208,6 +238,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     let ctx = TestContext {
         backend_url: be_url,
         db_pool: pg_pool.clone(),
+        redis_pool: redis_pool.clone(),
         mailer_server,
         #[cfg(feature = "browser-test")]
         frontend_url: frontend_url.clone(),
@@ -223,6 +254,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
     TestRunContext {
         db_container: pg_container,
         db_pool: pg_pool,
+        redis_container,
+        redis_pool,
         ctx,
         backend_handle: be_handle,
         #[cfg(feature = "browser-test")]
@@ -282,6 +315,12 @@ macro_rules! async_test {
             testrun_ctx.db_pool.close().await;
             testrun_ctx
                 .db_container
+                .stop_with_timeout(Some(0))
+                .await
+                .ok();
+            testrun_ctx.redis_pool.close();
+            testrun_ctx
+                .redis_container
                 .stop_with_timeout(Some(0))
                 .await
                 .ok();

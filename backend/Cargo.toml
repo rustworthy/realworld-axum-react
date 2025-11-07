@@ -72,6 +72,8 @@ sqlx = { version = "0.8", features = [
   "postgres",
   "uuid",
 ] }
+tower-redis-cell = { version = "0.2.0", features = ["deadpool"] }
+deadpool-redis = "0.22.0"
 figment = { version = "0.10.19", features = ["env"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.17", features = ["serde"] }

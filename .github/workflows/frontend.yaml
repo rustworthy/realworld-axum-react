@@ -48,6 +48,7 @@ jobs:
         run: npm run types:check
   browser-test:
     uses: './.github/workflows/browser-test.yaml'
+    secrets: inherit
   deploy:
     if: github.ref == 'refs/heads/main' 
     needs: [lint, types, browser-test]
