@@ -3438,9 +3438,9 @@ dependencies = [
 
 [[package]]
 name = "redis-cell-rs"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0a0265b54f55f0540ec99f4e7b22f5cd39c888d785a46f2046806ffc6fb745b"
+checksum = "a19ad57f203fd5dac22b5289546093af885c099a51b9f4c146ef0c7c17d90c67"
 dependencies = [
  "redis",
 ]
@@ -4819,9 +4819,9 @@ checksum = "121c2a6cda46980bb0fcd1647ffaf6cd3fc79a013de288782836f6df9c48780e"
 
 [[package]]
 name = "tower-redis-cell"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7771ab140355f10de7da9b7bf8c89773b8083a2f5e75143768868b5f44d7a787"
+checksum = "dc3299600b03b4bec7a09a2cf94a8a8e8ac24a906388d2cb72d5626746883f5b"
 dependencies = [
  "deadpool-redis",
  "redis",

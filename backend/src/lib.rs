@@ -57,7 +57,7 @@ use deadpool_redis::{Config as DeadpoolConfig, Runtime};
 use tower_redis_cell::Error as RateLimitError;
 use tower_redis_cell::RateLimitConfig;
 use tower_redis_cell::deadpool::RateLimitLayer;
-use tower_redis_cell::redis_cell::Policy;
+use tower_redis_cell::redis_cell::{Key, Policy};
 use tower_redis_cell::{ProvideRule, ProvideRuleResult, Rule};
 
 const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120)
@@ -80,35 +80,42 @@ impl<T> ProvideRule<Request<T>> for RuleProvider {
             return Ok(None);
         }
 
-        let header = req
-            .headers()
-            .get("x-forwarded-for")
-            .ok_or("'x-forwarded-for' header is missing")?;
-        let ip = header
-            .to_str()
-            .map_err(|e| ProvideRuleError::default().detail(e.to_string()))?;
+        let ip = if cfg!(debug_assertions) {
+            "localhost"
+        } else {
+            req.headers()
+                .get("x-forwarded-for")
+                .ok_or("'x-forwarded-for' header is missing")?
+                .to_str()
+                .map_err(|e| ProvideRuleError::default().detail(e.to_string()))?
+        };
 
         let (path, method) = (req.uri().path(), req.method());
 
         // writing and updating articles is a fairly expensive operation due to
         // content moderation and so we are applying a stricter policy
         if path.contains("/articles") && (method == Method::POST || method == Method::PUT) {
-            return Ok(Some(Rule::new(ip, STRICT_POLICY)));
+            let key = Key::triple(ip, path, method.as_str());
+            let rule = Rule::new(key, STRICT_POLICY).resource("articles::create");
+            return Ok(Some(rule));
         }
 
         // we allow them to login quite a few times a day from the same
-        // IP address, but...
+        // IP address ...
         if path.ends_with("/users/login") {
-            return Ok(Some(Rule::new(ip, STRICT_POLICY)));
+            let key = Key::triple(ip, path, method.as_str());
+            return Ok(Some(Rule::new(key, STRICT_POLICY)));
         }
 
-        // ... we want to impose a very strict limit on the number of accounts
-        // they can create using the same IP address
+        // ... but  we want to impose a very strict limit on the number of
+        // accounts they can create using the same IP address
         if path.ends_with("/users/confirm-email") || path.ends_with("/users") {
-            return Ok(Some(Rule::new(ip, VERY_STRICT_POLICY)));
+            let key = Key::triple(ip, path, method.as_str());
+            return Ok(Some(Rule::new(key, VERY_STRICT_POLICY)));
         }
-
-        Ok(Some(Rule::new(ip, BASIC_POLICY)))
+        let key = Key::pair(ip, path);
+        dbg!(&key);
+        Ok(Some(Rule::new(key, BASIC_POLICY)))
     }
 }
 
@@ -161,11 +168,11 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .with_state(Arc::clone(&ctx))
         .nest("/api", routes::users::router(Arc::clone(&ctx)))
         .nest("/api", routes::articles::router(Arc::clone(&ctx)))
-        .layer(cors::layer(config.allowed_origins))
-        .layer(SetSensitiveHeadersLayer::new([header::AUTHORIZATION]))
+        .layer(rate_limit_layer)
         .layer(CompressionLayer::new())
         .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
-        .layer(rate_limit_layer)
+        .layer(cors::layer(config.allowed_origins))
+        .layer(SetSensitiveHeadersLayer::new([header::AUTHORIZATION]))
         .layer(CatchPanicLayer::new())
         .split_for_parts();
 
