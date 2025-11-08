@@ -31,17 +31,28 @@ impl<T> ProvideRule<Request<T>> for RuleProvider {
             return Ok(None);
         }
 
-        let ip = if cfg!(debug_assertions) {
-            "localhost"
-        } else {
-            req.headers()
-                .get("x-forwarded-for")
-                .ok_or("'x-forwarded-for' header is missing")?
-                .to_str()
-                .map_err(|e| ProvideRuleError::default().detail(e.to_string()))?
-        };
-
         let (path, method) = (req.uri().path(), req.method());
+
+        // the app is sitting behind `Kamal-Proxy` which sets 'x-forwarded-for' for us:
+        // https://kamal-deploy.org/docs/configuration/proxy/#forward-headers
+        let ip = match req.headers().get("x-forwarded-for") {
+            None => {
+                // we are developing locally w/o reverse-proxy
+                if cfg!(debug_assertions) {
+                    "localhost"
+                // the `Kamal-Proxy` itself is monitoring the app's health,
+                // and - since this is the only route that `Kamal-Proxy` might
+                // be pinging - we can return the rule right away
+                } else if path == "healthz" {
+                    return Ok(Some(Rule::new("proxy-healthcheck", BASIC_POLICY)));
+                } else {
+                    return Err("'x-forwarded-for' header is missing".into());
+                }
+            }
+            Some(ip_header) => ip_header
+                .to_str()
+                .map_err(|e| ProvideRuleError::default().detail(e.to_string()))?,
+        };
 
         // writing and updating articles is a fairly expensive operation due to
         // content moderation and so we are applying a stricter policy
@@ -65,7 +76,6 @@ impl<T> ProvideRule<Request<T>> for RuleProvider {
             return Ok(Some(Rule::new(key, VERY_STRICT_POLICY)));
         }
         let key = Key::pair(ip, path);
-        dbg!(&key);
         Ok(Some(Rule::new(key, BASIC_POLICY)))
     }
 }
