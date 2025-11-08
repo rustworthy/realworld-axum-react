@@ -43,7 +43,7 @@ impl<T> ProvideRule<Request<T>> for RuleProvider {
                 // the `Kamal-Proxy` itself is monitoring the app's health,
                 // and - since this is the only route that `Kamal-Proxy` might
                 // be pinging - we can return the rule right away
-                } else if path == "healthz" {
+                } else if path == "/healthz" {
                     return Ok(Some(Rule::new("proxy-healthcheck", BASIC_POLICY)));
                 } else {
                     return Err("'x-forwarded-for' header is missing".into());
