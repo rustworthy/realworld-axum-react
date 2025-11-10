@@ -2,7 +2,7 @@ use axum::http::{Method, header};
 use regex::RegexSet;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
-pub(crate) fn layer<I, S>(allowed_origins: I) -> CorsLayer
+pub(crate) fn cors_layer<I, S>(allowed_origins: I) -> CorsLayer
 where
     I: IntoIterator<Item = S>,
     S: AsRef<str>,
