@@ -117,41 +117,32 @@ pub(crate) async fn register_user(
     })?;
 
     if ctx.skip_email_verification {
-        let jwt_string = issue_token(user_uuid, &ctx.enc_key).unwrap();
+        warn!(
+            skip_email_verification = ctx.skip_email_verification,
+            "skipping email verification"
+        )
+    } else {
+        let otp = gen_numeric_string(EMAIL_CONFIRMATION_TOKEN_LEN);
+        let expires_at = Utc::now() + EMAIL_CONFIRMATION_TOKEN_TTL;
 
-        let payload = UserPayload {
-            user: User {
-                email: user.email.clone(),
-                token: jwt_string,
-                username: user.username,
-                bio: "".into(),
-                image: None,
-            },
-        };
-
-        return Ok((StatusCode::CREATED, Json(payload)));
-    };
-
-    let otp = gen_numeric_string(EMAIL_CONFIRMATION_TOKEN_LEN);
-    let expires_at = Utc::now() + EMAIL_CONFIRMATION_TOKEN_TTL;
-
-    sqlx::query!(
-        r#"
+        sqlx::query!(
+            r#"
             INSERT INTO "confirmation_tokens" (token, purpose, user_id, expires_at)
             VALUES ($1, 'EMAIL_CONFIRMATION', $2, $3)
         "#,
-        &otp,
-        &user_uuid,
-        &expires_at
-    )
-    .execute(&ctx.db)
-    .await?;
+            &otp,
+            &user_uuid,
+            &expires_at
+        )
+        .execute(&ctx.db)
+        .await?;
 
-    let email_id =
-        send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
-    Span::current().record("email_id", &*email_id);
+        let email_id =
+            send_confirm_email_letter(&otp, &ctx.frontend_url, &user.email, &ctx.mailer).await?;
+        Span::current().record("email_id", &*email_id);
+    }
 
-    let jwt_string = issue_token(user_uuid, &ctx.enc_key).unwrap();
+    let jwt_string = issue_token(user_uuid, &ctx.enc_key)?;
 
     let payload = UserPayload {
         user: User {
@@ -162,6 +153,7 @@ pub(crate) async fn register_user(
             image: None,
         },
     };
+
     Ok((StatusCode::CREATED, Json(payload)))
 }
 
@@ -232,7 +224,7 @@ pub(crate) async fn confirm_email(
     .fetch_one(&ctx.db)
     .await?;
 
-    let jwt_string = issue_token(user_id, &ctx.enc_key).unwrap();
+    let jwt_string = issue_token(user_id, &ctx.enc_key)?;
 
     let payload = UserPayload {
         user: User {

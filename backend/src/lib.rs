@@ -73,7 +73,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
         .split_for_parts();
 
     // ------------------------ ATTACH DOCUMENTATION ---------------------------
-    let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().unwrap().leak());
+    let oai = OPENAPI_JSON.get_or_init(|| docs.to_json().expect("valid JSON").leak());
     #[allow(unused_mut)]
     let mut app = app.merge(
         Router::new()
