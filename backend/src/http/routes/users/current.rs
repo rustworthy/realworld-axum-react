@@ -157,7 +157,7 @@ pub(crate) async fn update_current_user(
         Error::unprocessable_entity([("email", "email taken")])
     })?;
 
-    let jwt_string = issue_token(id.0, &ctx.enc_key).unwrap();
+    let jwt_string = issue_token(id.0, &ctx.enc_key)?;
 
     let payload = UserPayload {
         user: User {
