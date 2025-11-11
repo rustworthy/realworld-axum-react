@@ -16,7 +16,7 @@ pub struct Moderator {
     client: Arc<Client>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Verdict {
     pub processable: bool,
     pub flagged: bool,

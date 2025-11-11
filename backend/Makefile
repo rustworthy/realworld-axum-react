@@ -54,6 +54,10 @@ redis/start:
 	ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0 \
   /bin/sh -c 'valkey-server --requirepass $$REDIS_PASSWORD --loadmodule /usr/local/lib/valkey/modules/libredis_cell.so'
 
+.PHONY: redis/shell
+redis/shell:
+	docker exec -it ${REDIS_CONTAINER_NAME} redis-cli -a ${REDIS_PASSWORD}
+
 .PHONY: redis/stop
 redis/stop:
 	@docker ps | grep -i ${REDIS_CONTAINER_NAME} && \
