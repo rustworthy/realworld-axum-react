@@ -3393,6 +3393,7 @@ dependencies = [
  "figment",
  "jsonwebtoken",
  "linkify",
+ "md-5",
  "openai_dive",
  "opentelemetry",
  "opentelemetry-appender-tracing",

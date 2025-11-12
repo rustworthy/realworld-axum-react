@@ -5,6 +5,9 @@ use argon2::PasswordHasher as _;
 use argon2::PasswordVerifier;
 use argon2::password_hash::Salt;
 use argon2::password_hash::SaltString;
+use base64::Engine;
+use base64::prelude::BASE64_STANDARD;
+use md5::{Digest as _, Md5};
 use rand::Rng as _;
 use rand::TryRngCore;
 use rand::distr::Alphanumeric;
@@ -61,6 +64,13 @@ pub fn verify_password(
         .verify_password(password.as_ref(), &parsed_hash)
         .is_ok();
     Ok(checks_out)
+}
+
+pub fn md5_hash(data: impl AsRef<[u8]>) -> String {
+    let mut hasher = Md5::new();
+    hasher.update(data.as_ref());
+    let result = hasher.finalize();
+    BASE64_STANDARD.encode(result)
 }
 
 #[cfg(test)]

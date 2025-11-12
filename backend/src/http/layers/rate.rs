@@ -14,7 +14,8 @@ use tower_redis_cell::{ProvideRule, ProvideRuleResult, Rule};
 pub(crate) const BASIC_POLICY: Policy = Policy::from_tokens_per_minute(120)
     .max_burst(120)
     .name("basic");
-pub(crate) const STRICT_POLICY: Policy = Policy::from_tokens_per_day(5).max_burst(5).name("strict");
+pub(crate) const STRICT_POLICY: Policy =
+    Policy::from_tokens_per_day(10).max_burst(10).name("strict");
 pub(crate) const VERY_STRICT_POLICY: Policy = Policy::from_tokens_per_day(1)
     .max_burst(1)
     .name("very_strict");

@@ -17,7 +17,8 @@ mod telemetry;
 mod templates;
 mod utils;
 
-use crate::http::layers;
+use crate::http::layers::cors::cors_layer;
+use crate::http::layers::rate::rate_limit_layer;
 use crate::http::openapi;
 use crate::http::routes;
 use crate::state::AppContext;
@@ -25,8 +26,6 @@ use anyhow::Context;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
-use deadpool_redis::{Config as DeadpoolConfig, Runtime};
-use secrecy::ExposeSecret;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -52,22 +51,16 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     // ------------------------- PREPARE CONTEXT -------------------------------
     let ctx = Arc::new(AppContext::try_build(&config).await?);
 
-    let cfg = DeadpoolConfig::from_url(config.redis_url.expose_secret());
-    let pool = cfg
-        .create_pool(Some(Runtime::Tokio1))
-        .context("failed to create pool")?;
-    let rate_limit_layer = layers::rate::rate_limit_layer(pool, ctx.skip_rate_limiting)?;
-
     // ------------------------- PREPARE AXUM APP ------------------------------
     let (app, docs) = OpenApiRouter::with_openapi(openapi::RootApiDoc::openapi())
         .route("/healthz", get(routes::healthz::health))
         .with_state(Arc::clone(&ctx))
         .nest("/api", routes::users::router(Arc::clone(&ctx)))
         .nest("/api", routes::articles::router(Arc::clone(&ctx)))
-        .layer(rate_limit_layer)
+        .layer(rate_limit_layer(ctx.redis.clone(), ctx.skip_rate_limiting)?)
         .layer(CompressionLayer::new())
         .layer(RequestBodyLimitLayer::new(1024 * 1024 * 10))
-        .layer(layers::cors::layer(config.allowed_origins))
+        .layer(cors_layer(config.allowed_origins))
         .layer(SetSensitiveHeadersLayer::new([header::AUTHORIZATION]))
         .layer(CatchPanicLayer::new())
         .split_for_parts();

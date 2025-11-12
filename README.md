@@ -16,6 +16,7 @@ interfacing part).
 - **[SQLx]** - Async SQL toolkit with compile-time checked queries
 - **[OpenTelemetry]** - Observability and tracing
 - **[PostgreSQL]** - Primary database
+- **[Valkey]** - Cache database
 - **[Kamal]** - Zero-downtime deployments
 
 ### Frontend
@@ -49,6 +50,7 @@ Licensed under either of [Apache License, Version 2.0][apache] or [MIT license][
 [Axum]: https://github.com/tokio-rs/axum
 [Utoipa]: https://github.com/juhaku/utoipa
 [PostgreSQL]: https://www.postgresql.org/
+[Valkey]: https://github.com/valkey-io/valkey
 [SQLx]: https://github.com/launchbadge/sqlx
 [OpenTelemetry]: https://opentelemetry.io/
 [Kamal]: https://kamal-deploy.org/
