@@ -2,12 +2,13 @@ use crate::AppContext;
 use crate::http::errors::Error;
 use crate::services::moderator::Verdict;
 use crate::utils;
-use anyhow::Context as _;
-use deadpool_redis::redis::Cmd as RedisCmd;
 use deadpool_redis::redis::ErrorKind as RedisErrorKind;
 use deadpool_redis::redis::FromRedisValue;
 use deadpool_redis::redis::RedisResult;
 use deadpool_redis::redis::Value as RedisValue;
+use std::time::Duration;
+
+const VERDICT_CACHE_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 30);
 
 pub async fn moderate_content(ctx: &AppContext, content: &str, field: &str) -> Result<(), Error> {
     if ctx.skip_content_moderation {
@@ -19,11 +20,13 @@ pub async fn moderate_content(ctx: &AppContext, content: &str, field: &str) -> R
         // using a colon as per the naming convention:
         // https://redis.io/docs/latest/develop/using-commands/keyspace/#content-of-keys
         let content_key = format!("moderation:{}", utils::md5_hash(content));
-        match restore_verdict(&content_key, ctx).await? {
+        match ctx.cache.get::<MaybeVerdict>(&content_key).await?.0 {
             Some(cached_verdict) => cached_verdict,
             None => {
                 let verdict = ctx.moderator.moderate(content).await?;
-                cache_verdict(&content_key, &verdict, ctx).await?;
+                ctx.cache
+                    .set(&content_key, &verdict, Some(VERDICT_CACHE_TTL))
+                    .await?;
                 verdict
             }
         }
@@ -54,47 +57,6 @@ pub async fn moderate_content(ctx: &AppContext, content: &str, field: &str) -> R
     Ok(())
 }
 
-pub async fn cache_verdict(
-    content_key: &str,
-    verdict: &Verdict,
-    ctx: &AppContext,
-) -> anyhow::Result<()> {
-    let mut conn = ctx
-        .redis
-        .get()
-        .await
-        .context("failed to acquire Redis connenction from pool")?;
-    let verdict_string = serde_json::to_string(&verdict).context("failed to serialize verdict")?;
-    RedisCmd::set_ex(
-        content_key,
-        verdict_string,
-        60 * 60 * 24 * 30, // for a month
-    )
-    .exec_async(&mut conn)
-    .await
-    .context("failed to cache verdict")?;
-
-    Ok(())
-}
-
-pub async fn restore_verdict(
-    content_key: &str,
-    ctx: &AppContext,
-) -> anyhow::Result<Option<Verdict>> {
-    let mut conn = ctx
-        .redis
-        .get()
-        .await
-        .context("failed to acquire Redis connenction from pool")?;
-    let value: RedisValue = RedisCmd::get(content_key)
-        .query_async(&mut conn)
-        .await
-        .context("failed to get value from Redis")?;
-    let result: MaybeVerdict =
-        FromRedisValue::from_redis_value(&value).context("failed to deserialize verdict")?;
-    Ok(result.0)
-}
-
 struct MaybeVerdict(Option<Verdict>);
 
 impl FromRedisValue for MaybeVerdict {
@@ -105,7 +67,7 @@ impl FromRedisValue for MaybeVerdict {
                 let verdict: Verdict = serde_json::from_slice(value).map_err(|e| {
                     (
                         RedisErrorKind::ParseError,
-                        "verdict deserialization falied",
+                        "verdict deserialization failed",
                         format!("failed to deserialize as Verdict: {}", e),
                     )
                 })?;
@@ -114,7 +76,7 @@ impl FromRedisValue for MaybeVerdict {
             _ => {
                 return Err((
                     RedisErrorKind::ParseError,
-                    "verdict deserialization falied",
+                    "verdict deserialization failed",
                     format!("Expected an optional bulk string, got: {:?}", v),
                 )
                     .into());

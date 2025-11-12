@@ -1,3 +1,4 @@
+use crate::services::cache::Cache;
 use crate::services::mailer::ResendMailer;
 use crate::services::moderator::Moderator;
 use crate::{config::Config, services::captcha::Captcha};
@@ -13,6 +14,7 @@ pub(crate) struct AppContext {
     pub dec_key: DecodingKey,
     pub db: PgPool,
     pub redis: RedisPool,
+    pub cache: Cache,
     pub mailer: ResendMailer,
     pub captcha: Captcha,
     pub moderator: Moderator,
@@ -25,12 +27,12 @@ pub(crate) struct AppContext {
 
 impl AppContext {
     pub async fn try_build(config: &Config) -> anyhow::Result<Self> {
-        let postgres = PgPoolOptions::new()
+        let postgres_pool = PgPoolOptions::new()
             .connect(config.database_url.expose_secret())
             .await
             .context("Failed to connect to database")?;
         let cfg = DeadpoolConfig::from_url(config.redis_url.expose_secret());
-        let redis = cfg
+        let redis_pool = cfg
             .create_pool(Some(Runtime::Tokio1))
             .context("failed to create pool")?;
         let secret = config.secret_key.expose_secret();
@@ -50,8 +52,9 @@ impl AppContext {
         let ctx = AppContext {
             enc_key: EncodingKey::from_base64_secret(secret)?,
             dec_key: DecodingKey::from_base64_secret(secret)?,
-            db: postgres,
-            redis,
+            db: postgres_pool,
+            redis: redis_pool.clone(),
+            cache: Cache::new(redis_pool),
             mailer: resend,
             captcha,
             moderator,
