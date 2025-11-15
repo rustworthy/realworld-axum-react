@@ -26,11 +26,12 @@ pub struct Config {
     pub openai_api_key: SecretString,
     pub openai_base_url: Option<Url>,
     pub frontend_url: Url,
-    pub migrate: bool,
     pub allowed_origins: Vec<String>,
     pub ip: IpAddr,
     pub port: u16,
     pub docs_ui_path: Option<String>,
+    pub migrate: Option<bool>,
+    pub worker: Option<bool>,
 
     /// Skip email and/or captcha verification logic and/or content moderation.
     ///

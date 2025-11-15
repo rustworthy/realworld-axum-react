@@ -23,10 +23,14 @@ use crate::http::openapi;
 use crate::http::routes;
 use crate::state::AppContext;
 use anyhow::Context;
+use apalis::layers::WorkerBuilderExt;
+use apalis::prelude::WorkerFactoryFn;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
+use chrono::Utc;
 use std::net::SocketAddr;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use tokio::net::TcpListener;
@@ -96,12 +100,25 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     }
 
     // -------------------------- RUN MIGRATIONS -------------------------------
-    if config.migrate {
+    if config.migrate.unwrap_or_default() {
         info!("Applying database migrations");
         sqlx::migrate!()
             .run(&ctx.db)
             .await
             .context("failed to run migrations")?;
+    }
+
+    // ----------------------- LAUNCH BACKGROUND WORKER ------------------------
+    if config.worker.unwrap_or_default() {
+        let schedule = apalis_cron::Schedule::from_str("1/1 * * * * *").expect("valid cron expr");
+        let cron_stream = apalis_cron::CronStream::new(schedule);
+        let worker = apalis::prelude::WorkerBuilder::new("generic_worker")
+            .enable_tracing()
+            .backend(cron_stream)
+            .build_fn(|_job: (), _ctx: apalis_cron::CronContext<Utc>| async {
+                println!("working...")
+            });
+        tokio::spawn(async { worker.run().await });
     }
 
     Ok(app)

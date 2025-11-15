@@ -184,7 +184,8 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         .await;
 
     let config = Config {
-        migrate: true,
+        migrate: Some(true),
+        worker: Some(true),
         ip: "127.0.0.1".parse().unwrap(),
         port: 0,
         database_url: SecretString::from(database_url),

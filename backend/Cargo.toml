@@ -108,6 +108,9 @@ openai_dive = { version = "1.3.2", default-features = false, features = [
 ] }
 md-5 = "0.10.6"
 base64 = "0.22.1"
+apalis-cron = "0.7.3"
+apalis-redis = "0.7.3"
+apalis = { version = "0.7.3", features = ["catch-panic", "tracing"] }
 # -------------------------- CONTENT MODERATION END ----------------------------
 
 [dev-dependencies]

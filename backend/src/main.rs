@@ -19,18 +19,18 @@ async fn main() {
         dotenv().ok();
     }
 
-    // --------------------  INITIALIZE TELEMETRY  -----------------------------
+    // ---------------------  INITIALIZE TELEMETRY  ----------------------------
     let service_name = env!("CARGO_PKG_NAME");
     let otel_endpoint = std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT").ok();
     init_tracing(service_name, otel_endpoint);
 
-    // --------------------     RUN APPLICATION    -----------------------------
+    // ----------------------- BUILD CONFIGURATION -----------------------------
     let config = match Config::try_build() {
         Err(e) => panic!("Failed to build applications's configuration: {:?}", e),
         Ok(config) => config,
     };
 
-    // --------------------     RUN APPLICATION    -----------------------------
+    // ------------------------- RUN APPLICATION -------------------------------
     if let Err(e) = serve(config).await {
         panic!("Failed to start application: {:?}", e);
     }
