@@ -28,11 +28,12 @@ use apalis::prelude::WorkerFactoryFn;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
-use chrono::Utc;
+use secrecy::ExposeSecret;
 use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::OnceLock;
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tower_http::catch_panic::CatchPanicLayer;
 use tower_http::compression::CompressionLayer;
@@ -110,15 +111,22 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 
     // ----------------------- LAUNCH BACKGROUND WORKER ------------------------
     if config.worker.unwrap_or_default() {
-        let schedule = apalis_cron::Schedule::from_str("1/1 * * * * *").expect("valid cron expr");
+        // Apalis will instantiate `redis::aio::ConnectionManager` here, which is
+        // similar to the connections that our Redis pool holds (since they are
+        // all `aio::ConnectionLike`), but it also auto-reconnects when needed
+        let conn = apalis_redis::connect(config.redis_url.expose_secret())
+            .await
+            .expect("Apalis to have created redis::aio::ConnectionManager");
+        let redis_storage = apalis_redis::RedisStorage::new(conn);
+        let schedule = apalis_cron::Schedule::from_str("1/30 * * * * *").expect("valid cron expr");
         let cron_stream = apalis_cron::CronStream::new(schedule);
+        let backend = cron_stream.pipe_to_storage(redis_storage);
         let worker = apalis::prelude::WorkerBuilder::new("generic_worker")
             .enable_tracing()
-            .backend(cron_stream)
-            .build_fn(|_job: (), _ctx: apalis_cron::CronContext<Utc>| async {
-                println!("working...")
-            });
-        tokio::spawn(async { worker.run().await });
+            .rate_limit(1, Duration::from_secs(60))
+            .backend(backend)
+            .build_fn(|_job: ()| async { println!("working...") });
+        tokio::spawn(async { apalis::prelude::Monitor::new().register(worker).run().await });
     }
 
     Ok(app)
