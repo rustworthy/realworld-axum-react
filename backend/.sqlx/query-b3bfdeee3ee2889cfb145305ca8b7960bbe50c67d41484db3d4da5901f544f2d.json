@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM confirmation_tokens WHERE expires_at >= NOW() ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "b3bfdeee3ee2889cfb145305ca8b7960bbe50c67d41484db3d4da5901f544f2d"
+}
