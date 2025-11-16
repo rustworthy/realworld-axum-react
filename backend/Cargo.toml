@@ -113,7 +113,7 @@ base64 = "0.22.1"
 # -------------------------- BACKGROUND JOBS START  ----------------------------
 apalis-cron = "0.7.3"
 apalis-redis = "0.7.3"
-apalis = { version = "0.7.3", features = ["catch-panic", "tracing", "limit"] }
+apalis = { version = "0.7.3", features = ["catch-panic", "tracing"] }
 # -------------------------- BACKGROUND JOBS END  ------------------------------
 
 [dev-dependencies]
