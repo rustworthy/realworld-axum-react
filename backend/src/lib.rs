@@ -107,8 +107,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
 
     if let Some(url) = &config.temporal_url {
         let mut client = temporal::init_client(url.to_owned()).await?;
-        let resp = temporal::create_maintenance_schedule(&mut client).await?;
-        dbg!(resp);
+        let _resp = temporal::create_maintenance_schedule(&mut client).await?;
     }
 
     Ok(app)
