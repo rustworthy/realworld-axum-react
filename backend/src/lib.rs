@@ -15,6 +15,7 @@ mod services;
 mod state;
 mod telemetry;
 mod templates;
+mod temporal;
 mod utils;
 
 use crate::http::layers::cors::cors_layer;
@@ -96,12 +97,18 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     }
 
     // -------------------------- RUN MIGRATIONS -------------------------------
-    if config.migrate {
+    if config.migrate.unwrap_or_default() {
         info!("Applying database migrations");
         sqlx::migrate!()
             .run(&ctx.db)
             .await
             .context("failed to run migrations")?;
+    }
+
+    if let Some(url) = &config.temporal_url {
+        let mut client = temporal::init_client(url.to_owned()).await?;
+        let resp = temporal::create_maintenance_schedule(&mut client).await?;
+        dbg!(resp);
     }
 
     Ok(app)

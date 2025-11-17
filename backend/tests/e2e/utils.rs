@@ -184,7 +184,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         .await;
 
     let config = Config {
-        migrate: true,
+        migrate: Some(true),
         ip: "127.0.0.1".parse().unwrap(),
         port: 0,
         database_url: SecretString::from(database_url),
@@ -202,6 +202,7 @@ pub(crate) async fn setup(test_name: &'static str) -> TestRunContext {
         openai_api_key: SecretString::from("sk-pro-test"),
         // TODO: spawn service similar to email
         openai_base_url: None,
+        temporal_url: None,
         skip_email_verification: None,
         skip_captcha_verification: None,
         // TODO: unset once we figure out how to surgically set rate limits for

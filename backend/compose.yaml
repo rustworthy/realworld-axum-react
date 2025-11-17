@@ -1,0 +1,65 @@
+services:
+  redis:
+    container_name: rar-redis
+    image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
+    environment:
+      REDIS_PASSWORD: redis
+    command: /bin/sh -c 'valkey-server --requirepass $$REDIS_PASSWORD --loadmodule /usr/local/lib/valkey/modules/libredis_cell.so'
+    volumes:
+      - /data
+    networks:
+      - rar
+    ports:
+      - 127.0.0.1:6379:6379
+
+  postgres:
+    container_name: rar-postgres
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: realworld-axum-react
+    volumes:
+      - /var/lib/postgresql/data
+    networks:
+      - rar
+    ports:
+      - 127.0.0.1:5432:5432
+
+  temporal:
+    container_name: rar-temporal
+    image: temporalio/auto-setup:1.29.1
+    depends_on:
+      - postgres
+    environment:
+      # https://hub.docker.com/r/temporalio/auto-setup#general-environment-variables
+      DB: postgres12
+      DB_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PWD:  postgres
+      POSTGRES_SEEDS: postgres
+      # DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CLI_ADDRESS: temporal:7233
+    #volumes:
+    #  - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    networks:
+      - rar
+    ports:
+      - 127.0.0.1:7233:7233
+
+  temporal-ui:
+    container_name: rar-temporal-ui
+    image: temporalio/ui:2.43.3
+    depends_on:
+      - temporal
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    networks:
+      - rar
+    ports:
+      - 127.0.0.1:8080:8080
+
+networks:
+  rar:
+    driver: bridge
