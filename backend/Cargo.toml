@@ -113,6 +113,7 @@ base64 = "0.22.1"
 # expects `protoc` being in the PATH
 temporal-client = { package = "temporalio-client", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 temporal-sdk = { package = "temporalio-sdk", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
+temporal-sdk-core = { package = "temporalio-sdk-core", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 temporal-common = { package = "temporalio-common", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 
 [dev-dependencies]
