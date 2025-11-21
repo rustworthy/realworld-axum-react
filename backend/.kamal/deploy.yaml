@@ -90,17 +90,17 @@ accessories:
     env:
       clear:
         OTEL_EXPORTER_OTLP_BACKEND_ENDPOINT: "host.docker.internal:4317"
-  db:
-    image: postgres:17
-    host: 91.107.231.70
-    port: "127.0.0.1:5432:5432"
-    directories:
-      - postgresql-data:/var/lib/postgresql/data
-    env:
-      secret:
-        - POSTGRES_USER
-        - POSTGRES_PASSWORD
-        - POSTGRES_DB
+ # db:
+ #   image: postgres:17
+ #   host: 91.107.231.70
+ #   port: "127.0.0.1:5432:5432"
+ #   directories:
+ #     - postgresql-data:/var/lib/postgresql/data
+ #   env:
+ #     secret:
+ #       - POSTGRES_USER
+ #       - POSTGRES_PASSWORD
+ #       - POSTGRES_DB
   redis:
     image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
     host: 91.107.231.70
