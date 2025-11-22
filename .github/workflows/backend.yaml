@@ -17,6 +17,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
         with:
