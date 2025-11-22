@@ -32,17 +32,12 @@ services:
     depends_on:
       - postgres
     environment:
-      # https://hub.docker.com/r/temporalio/auto-setup#general-environment-variables
       DB: postgres12
-      DB_PORT: 5432
       POSTGRES_USER: postgres
-      POSTGRES_PWD:  postgres
+      POSTGRES_PWD: postgres
       POSTGRES_SEEDS: postgres
-      # DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
-      TEMPORAL_ADDRESS: temporal:7233
-      TEMPORAL_CLI_ADDRESS: temporal:7233
-    #volumes:
-    #  - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+      DB_PORT: 5432
+      DEFAULT_NAMESPACE_RETENTION: 72h
     networks:
       - rar
     ports:
