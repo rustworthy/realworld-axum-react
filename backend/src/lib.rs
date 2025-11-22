@@ -127,8 +127,7 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
                 )
                 .await
                 .context("failed to initialize temporal worker")?;
-                worker.run().await.context("temporal worker failed")?;
-                Ok::<(), anyhow::Error>(())
+                worker.run().await.context("temporal worker failed")
             });
             tokio_rt.block_on(local);
         });

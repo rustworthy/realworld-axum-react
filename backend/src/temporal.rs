@@ -6,7 +6,7 @@ use temporal_common::{
     protos::{
         coresdk::AsJsonPayloadExt,
         temporal::api::{
-            common::v1::{Payload, WorkflowType},
+            common::v1::WorkflowType,
             enums::v1::{ScheduleOverlapPolicy, TaskQueueKind},
             schedule::v1::{
                 Schedule, ScheduleAction, SchedulePolicies, ScheduleSpec, schedule_action::Action,
