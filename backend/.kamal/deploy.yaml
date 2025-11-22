@@ -90,17 +90,38 @@ accessories:
     env:
       clear:
         OTEL_EXPORTER_OTLP_BACKEND_ENDPOINT: "host.docker.internal:4317"
- # db:
- #   image: postgres:17
- #   host: 91.107.231.70
- #   port: "127.0.0.1:5432:5432"
- #   directories:
- #     - postgresql-data:/var/lib/postgresql/data
- #   env:
- #     secret:
- #       - POSTGRES_USER
- #       - POSTGRES_PASSWORD
- #       - POSTGRES_DB
+
+  temporal:
+    image: temporalio/auto-setup:1.29.1
+    host: 91.107.231.70
+    env:
+      # https://hub.docker.com/r/temporalio/auto-setup#server-setup-environment-variables
+      # https://hub.docker.com/r/temporalio/server#mysqlpostgresql-environment-variables
+      clear:
+        DEFAULT_NAMESPACE_RETENTION: 72h
+        POSTGRES_TLS_ENABLED: true
+        POSTGRES_TLS_DISABLE_HOST_VERIFICATION: true
+        SQL_TLS_ENABLED: true
+        DB: postgres12
+        DBNAME: temporal
+        VISIBILITY_DBNAME: temporal_visibility
+        SKIP_DB_CREATE: true
+      secret:
+        - POSTGRES_USER:ACCESSORIES__TEMPORAL__POSTGRES_USER
+        - POSTGRES_PWD:ACCESSORIES__TEMPORAL__POSTGRES_PWD
+        - POSTGRES_SEEDS:ACCESSORIES__TEMPORAL__POSTGRES_SEEDS
+        - DB_PORT:ACCESSORIES__TEMPORAL__DB_PORT
+
+  temporal-ui:
+    image: temporalio/ui:2.43.3
+    host: 91.107.231.70
+    env:
+      clear:
+        TEMPORAL_ADDRESS: realworld-axum-react-temporal:7233
+    options:
+      publish:
+        - "127.0.0.1:8080:8080"
+
   redis:
     image: ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0
     host: 91.107.231.70
