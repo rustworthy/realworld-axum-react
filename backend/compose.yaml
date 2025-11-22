@@ -1,3 +1,10 @@
+networks:
+  rar:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
 services:
   redis:
     container_name: rar-redis
@@ -20,7 +27,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: realworld-axum-react
     volumes:
-      - /var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - rar
     ports:
@@ -55,6 +62,3 @@ services:
     ports:
       - 127.0.0.1:8080:8080
 
-networks:
-  rar:
-    driver: bridge

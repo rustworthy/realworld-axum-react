@@ -117,16 +117,18 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
                 .expect("current thread runtime");
             let local = tokio::task::LocalSet::new();
             local.spawn_local(async move {
-                let rt = temporal::init_runtime().await.unwrap();
+                let rt = temporal::init_runtime()
+                    .await
+                    .context("failed to init temporal worker runtime")?;
                 let mut worker = temporal::create_maintenance_worker(
                     &rt,
                     config.database_url.expose_secret(),
                     client,
                 )
                 .await
-                .context("failed to initialize temporal worker")
-                .unwrap();
-                worker.run().await.unwrap();
+                .context("failed to initialize temporal worker")?;
+                worker.run().await.context("temporal worker failed")?;
+                Ok::<(), anyhow::Error>(())
             });
             tokio_rt.block_on(local);
         });
