@@ -9,7 +9,9 @@ _should_ be used to run tests on CI with [`Newman`][2].
 
 ## Setup
 
-Make sure you got [`cargo`][4], [`GNU Make`][5], and [`docker`][6] installed.
+Make sure you got [`cargo`][4], [`GNU Make`][5], and [`docker`][6] installed,
+and [protoc][9]. The latter is needed to compile the [Prost types][10] crate,
+which - it its turn - is wanted by `Temporal`.
 Change your working directory to `backend` and hit:
 
 ```console
@@ -87,7 +89,7 @@ make db/migrate/revert
 
 Note that those `make` commands are thin wrappers over the `sqlx` CLI commands,
 that just make sure to provide the correct connection string (see [`Makefile](./Makefile)).
-I.e. you can achieve all of that and even more - if needed - using the `sqlx` tool
+I.e. you can achieve all of that and even more - if needed - using the`sqlx` tool
 directly. Most of the time, though, we want to create a new migration file, apply it,
 then revert it as a sanity check, and then re-apply it.
 
@@ -100,3 +102,6 @@ then revert it as a sanity check, and then re-apply it.
 [6]: https://docs.docker.com/engine/install/
 [7]: https://www.google.com/chrome/
 [8]: https://googlechromelabs.github.io/chrome-for-testing/#stable
+[9]: https://protobuf.dev/installation/
+[10]: https://github.com/fdeantoni/prost-wkt/
+
