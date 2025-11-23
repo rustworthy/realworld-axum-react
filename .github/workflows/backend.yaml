@@ -17,6 +17,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -41,6 +43,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -55,6 +59,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -89,6 +95,8 @@ jobs:
           password: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -149,12 +157,14 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: setup accessories, build and publish image, and deploy application
         env:
+          # kamal cli secrets
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           # accessories secrets
-          # DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          # DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-          # DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          ACCESSORIES__TEMPORAL__POSTGRES_USER: ${{ secrets.ACCESSORIES__TEMPORAL__POSTGRES_USER }}
+          ACCESSORIES__TEMPORAL__POSTGRES_PWD: ${{ secrets.ACCESSORIES__TEMPORAL__POSTGRES_PWD }}
+          ACCESSORIES__TEMPORAL__POSTGRES_SEEDS: ${{ secrets.ACCESSORIES__TEMPORAL__POSTGRES_SEEDS }}
+          ACCESSORIES__TEMPORAL__DB_PORT: ${{ secrets.ACCESSORIES__TEMPORAL__DB_PORT }}
           # app runtime secrets:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REDIS_URL: ${{ secrets.REDIS_URL }}

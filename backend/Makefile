@@ -1,6 +1,7 @@
 PROJECT_NAME=realworld-axum-react
+SHORT_PROJECT_NAME=rar
 
-REDIS_CONTAINER_NAME=redis
+REDIS_CONTAINER_NAME=${SHORT_PROJECT_NAME}-redis
 REDIS_PASSWORD=redis
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
@@ -11,7 +12,7 @@ POSTGRES_HOST=127.0.0.1
 POSTGRES_PORT=5432
 POSTGRES_DATABASE=${PROJECT_NAME}
 POSTGRES_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
-POSTGRES_CONTAINER_NAME=${PROJECT_NAME}-postgres
+POSTGRES_CONTAINER_NAME=${SHORT_PROJECT_NAME}-postgres
 
 APP_PORT=8000
 
@@ -41,18 +42,10 @@ tools/uninstall:
 	@cargo uninstall bunyan > /dev/null 2>&1 || true
 	@cargo uninstall sqlx-cli > /dev/null 2>&1 || true
 
-# --------------------------- DATABASE COMMANDS --------------------------------
-
+# ---------------------------- REDIS COMMANDS ----------------------------------
 .PHONY: redis/start
 redis/start:
-	docker ps -a | grep -i ${REDIS_CONTAINER_NAME} && \
-	docker start ${REDIS_CONTAINER_NAME} || \
-	docker run -d \
-	-p ${REDIS_HOST}:${REDIS_PORT}:6379 \
-	-e REDIS_PASSWORD=${REDIS_PASSWORD} \
-	--name ${REDIS_CONTAINER_NAME} \
-	ghcr.io/rustworthy/valkey-cell:9.0.0-0.4.0 \
-  /bin/sh -c 'valkey-server --requirepass $$REDIS_PASSWORD --loadmodule /usr/local/lib/valkey/modules/libredis_cell.so'
+	docker compose up -d redis
 
 .PHONY: redis/shell
 redis/shell:
@@ -67,18 +60,10 @@ redis/stop:
 redis/rm: redis/stop
 	docker rm ${REDIS_CONTAINER_NAME} || true
 
+# --------------------------- POSTGRES COMMANDS --------------------------------
 .PHONY: db/start
 db/start:
-	docker ps -a | grep -i ${POSTGRES_CONTAINER_NAME} && \
-	docker start ${POSTGRES_CONTAINER_NAME} || \
-	docker run -d \
-	-v ${POSTGRES_CONTAINER_NAME}-data:/var/lib/postgresql/data \
-	-p ${POSTGRES_HOST}:${POSTGRES_PORT}:5432 \
-	-e POSTGRES_USER=${POSTGRES_USER} \
-	-e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-	-e POSTGRES_DB=${POSTGRES_DATABASE} \
-	--name ${POSTGRES_CONTAINER_NAME} \
-	postgres:17
+	docker compose up -d postgres
 
 .PHONY: db/migrate/add
 db/migrate/add:

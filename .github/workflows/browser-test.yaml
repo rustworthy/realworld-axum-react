@@ -23,6 +23,8 @@ jobs:
       NODE_VERSION: 22
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Launch web driver in background
         run: chromedriver --port=${{ env.WEBDRIVER_PORT}} &
       - name: Install Node.js

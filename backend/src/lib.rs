@@ -15,6 +15,7 @@ mod services;
 mod state;
 mod telemetry;
 mod templates;
+mod temporal;
 mod utils;
 
 use crate::http::layers::cors::cors_layer;
@@ -26,6 +27,7 @@ use anyhow::Context;
 use axum::Router;
 use axum::http::header;
 use axum::routing::get;
+use secrecy::ExposeSecret;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -96,12 +98,39 @@ pub async fn api(config: Config) -> anyhow::Result<Router> {
     }
 
     // -------------------------- RUN MIGRATIONS -------------------------------
-    if config.migrate {
+    if config.migrate.unwrap_or_default() {
         info!("Applying database migrations");
         sqlx::migrate!()
             .run(&ctx.db)
             .await
             .context("failed to run migrations")?;
+    }
+
+    // --------------------------- LAUNCH WORKER -------------------------------
+    if let Some(url) = &config.temporal_url {
+        let mut client = temporal::init_client(url.to_owned()).await?;
+        let _resp = temporal::create_maintenance_schedule(&mut client).await?;
+        std::thread::spawn(move || {
+            let tokio_rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .expect("current thread runtime");
+            let local = tokio::task::LocalSet::new();
+            local.spawn_local(async move {
+                let rt = temporal::init_runtime()
+                    .await
+                    .context("failed to init temporal worker runtime")?;
+                let mut worker = temporal::create_maintenance_worker(
+                    &rt,
+                    config.database_url.expose_secret(),
+                    client,
+                )
+                .await
+                .context("failed to initialize temporal worker")?;
+                worker.run().await.context("temporal worker failed")
+            });
+            tokio_rt.block_on(local);
+        });
     }
 
     Ok(app)
