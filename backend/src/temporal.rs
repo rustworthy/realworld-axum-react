@@ -1,7 +1,10 @@
 use anyhow::Context as _;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::{sync::Arc, time::Duration};
-use temporal_client::{Client, RetryClient, WorkflowService, tonic};
+use temporal_client::{
+    Client, RetryClient, WorkflowService,
+    tonic::{self, Status},
+};
 use temporal_common::{
     protos::{
         coresdk::{AsJsonPayloadExt, FromJsonPayloadExt},
@@ -22,6 +25,8 @@ use temporal_sdk::{ActContext, ActivityOptions, WfContext, Worker, sdk_client_op
 use temporal_sdk_core::{CoreRuntime, RuntimeOptionsBuilder, WorkerConfigBuilder, init_worker};
 use url::Url;
 
+const SCHEDULE_ID: &str = "scheduled_maintenance_id_001";
+
 pub(crate) type TemporalClient = RetryClient<Client>;
 
 pub(crate) async fn init_client(url: Url) -> anyhow::Result<TemporalClient> {
@@ -40,11 +45,11 @@ pub(crate) async fn init_runtime() -> anyhow::Result<CoreRuntime> {
 
 pub(crate) async fn create_maintenance_schedule(
     client: &mut TemporalClient,
-) -> anyhow::Result<CreateScheduleResponse> {
-    let res = client
+) -> Result<Option<CreateScheduleResponse>, Status> {
+    let response = client
         .create_schedule(tonic::Request::new(CreateScheduleRequest {
-            schedule_id: "scheduled_maintenance_id_001".into(),
-            request_id: "scheduled_maintenance_id_001_create_request_dedup".into(),
+            schedule_id: SCHEDULE_ID.into(),
+            request_id: format!("{}_create_request_dedup", SCHEDULE_ID),
             namespace: "default".into(),
             schedule: Some(Schedule {
                 spec: Some(ScheduleSpec {
@@ -73,8 +78,23 @@ pub(crate) async fn create_maintenance_schedule(
             }),
             ..Default::default()
         }))
-        .await?;
-    Ok(res.into_inner())
+        .await
+        .context("failed to create schedule");
+
+    // we cannot solely rely on the dedup request ID and need to check
+    // if the request failed due to a conflict, which we consider to be ok
+    match response {
+        Ok(res) => Ok(Some(res.into_inner())),
+        Err(e) => {
+            let grpc_status = Status::from_error(e.into_boxed_dyn_error());
+            if grpc_status.code() == tonic::Code::AlreadyExists {
+                info!(schedule_id = SCHEDULE_ID, "schedule already exists");
+                Ok(None)
+            } else {
+                Err(grpc_status)
+            }
+        }
+    }
 }
 
 pub(crate) async fn create_maintenance_worker(
