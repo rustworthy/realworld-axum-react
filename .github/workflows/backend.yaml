@@ -172,15 +172,11 @@ jobs:
           MAILER_TOKEN: ${{ secrets.MAILER_TOKEN }}
           CAPTCHA_SECRET: ${{ secrets.CAPTCHA_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # note how we are using the `setup` comamand over `deploy`; this is 
-          # to ensure that the accessories (including the otlp sidecar) are
-          # launched if they are not already running, while if they are running,
-          # Kamal will not restart them, rather just skip that step and proceed
-          # with the applicaiton deploymentl this is equivalent to running:
-          # ```console
-          # $ kamal proxy boot -c .kamal/deploy.yaml
-          # $ kamal accessory boot all -c .kamal/deploy.yaml
-          # $ kamal deploy -c .kamal/deploy.yaml
-          # ```
-        run: kamal setup -c .kamal/deploy.yaml
+        # https://github.com/basecamp/kamal/discussions/1326#discussioncomment-11982063
+        run: |
+          kamal server bootstrap -c .kamal/deploy.yaml
+          kamal proxy boot -c .kamal/deploy.yaml
+          kamal accessory boot all -c .kamal/deploy.yaml
+          kamal build push -c .kamal/deploy.yaml
+          kamal deploy -c .kamal/deploy.yaml
 
