@@ -11,7 +11,7 @@ builder:
 servers:
   web:
     hosts:
-      - 91.107.231.70: [migrator]
+      - 91.107.231.70: [ migrator, worker ]
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -22,7 +22,6 @@ env:
     RUST_LOG: "realworld_axum_react=info,axum=error"
     FRONTEND_URL: "https://app.realworld-axum-react.org"
     ALLOWED_ORIGINS: '["^https://app.realworld-axum-react.org"]'
-    MIGRATE: false
     MAILER_FROM: info@realworld-axum-react.org
     MAILER_ENDPOINT: https://api.resend.com
   secret:
@@ -36,6 +35,9 @@ env:
     migrator:
       clear:
         MIGRATE: true
+    worker:
+      clear:
+        TEMPORAL_URL: "http://realworld-axum-react-temporal:7233"
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.

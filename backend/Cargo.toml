@@ -111,11 +111,12 @@ md-5 = "0.10.6"
 base64 = "0.22.1"
 # -------------------------- CONTENT MODERATION END ----------------------------
 
-# expects `protoc` being in the PATH
+# --------------------------- BACKGROUND JOBS START  ---------------------------
 temporal-client = { package = "temporalio-client", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 temporal-sdk = { package = "temporalio-sdk", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 temporal-sdk-core = { package = "temporalio-sdk-core", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
 temporal-common = { package = "temporalio-common", git = "https://github.com/temporalio/sdk-core.git", rev = "32cdd90" }
+# ---------------------------- BACKGROUND JOBS END  ----------------------------
 
 [dev-dependencies]
 fake = "4.3.0"

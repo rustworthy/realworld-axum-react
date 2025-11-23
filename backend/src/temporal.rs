@@ -4,7 +4,7 @@ use std::{sync::Arc, time::Duration};
 use temporal_client::{Client, RetryClient, WorkflowService, tonic};
 use temporal_common::{
     protos::{
-        coresdk::AsJsonPayloadExt,
+        coresdk::{AsJsonPayloadExt, FromJsonPayloadExt},
         temporal::api::{
             common::v1::WorkflowType,
             enums::v1::{ScheduleOverlapPolicy, TaskQueueKind},
@@ -43,12 +43,12 @@ pub(crate) async fn create_maintenance_schedule(
 ) -> anyhow::Result<CreateScheduleResponse> {
     let res = client
         .create_schedule(tonic::Request::new(CreateScheduleRequest {
-            request_id: "maintenance_create_schedule_request_id_004".into(),
+            schedule_id: "scheduled_maintenance_id_001".into(),
+            request_id: "scheduled_maintenance_id_001_create_request_dedup".into(),
             namespace: "default".into(),
-            schedule_id: "maintenance".into(),
             schedule: Some(Schedule {
                 spec: Some(ScheduleSpec {
-                    cron_string: vec!["@every 20s".into()],
+                    cron_string: vec!["@every 24h".into()],
                     ..Default::default()
                 }),
                 policies: Some(SchedulePolicies {
@@ -57,13 +57,12 @@ pub(crate) async fn create_maintenance_schedule(
                 }),
                 action: Some(ScheduleAction {
                     action: Some(Action::StartWorkflow(NewWorkflowExecutionInfo {
-                        //workflow_id: "maintenance_workflow".into(),
+                        workflow_id: "scheduled_maintenance_workflow".into(),
                         workflow_type: Some(WorkflowType {
-                            name: "schedule".into(),
+                            name: "scheduled_maintenance".into(),
                         }),
                         task_queue: Some(TaskQueue {
-                            name: "schedule".into(),
-                            //normal_name: "schedule_task_queue".into(),
+                            name: "scheduled_maintenance".into(),
                             kind: TaskQueueKind::Unspecified as i32,
                             ..Default::default()
                         }),
@@ -86,44 +85,45 @@ pub(crate) async fn create_maintenance_worker(
     let config = WorkerConfigBuilder::default()
         .namespace("default")
         .task_types(WorkerTaskTypes::all())
-        .task_queue("schedule")
+        .task_queue("scheduled_maintenance")
         .versioning_strategy(WorkerVersioningStrategy::default())
-        .client_identity_override(Some("worker_001".into()))
+        .client_identity_override(Some("scheduled_maintenance_worker_001".into()))
         .build()?;
     let core_worker = init_worker(rt, config, client)?;
-    let mut worker = Worker::new_from_core(Arc::new(core_worker), "schedule");
+    let mut worker = Worker::new_from_core(Arc::new(core_worker), "scheduled_maintenance");
     let postgres_pool = PgPoolOptions::new()
         .connect(db_url)
         .await
         .context("Failed to connect to database")?;
-    worker.register_wf("schedule", move |ctx: WfContext| async move {
-        println!(
-            "[WORKER][WORKFLOW] task_queue={} args={:?}",
-            ctx.task_queue(),
-            ctx.get_args(),
-        );
-        let _res = ctx
+    worker.register_wf("scheduled_maintenance", move |ctx: WfContext| async move {
+        info!(task_queue = %ctx.task_queue(), "staring workflow execution");
+        let payload = ctx
             .activity(ActivityOptions {
                 activity_type: "confirmation_tokens_clean_up".into(),
                 start_to_close_timeout: Some(Duration::from_secs(5)),
                 input: Empty.as_json_payload().expect("valid json"),
                 ..Default::default()
             })
-            .await;
-        dbg!(_res);
-        Ok(temporal_sdk::WfExitValue::Normal(1003))
+            .await
+            .success_payload_or_error()?
+            .ok_or(anyhow::anyhow!(
+                "Expected payload from 'confirmation_tokens_clean_up' activity"
+            ))?;
+        let result = CleanUpResult::from_json_payload(&payload)
+            .context("failed to deserialize activity result")?;
+        Ok(temporal_sdk::WfExitValue::Normal(result))
     });
     worker.register_activity(
         "confirmation_tokens_clean_up",
         |ctx: ActContext, _input: Empty| async move {
-            let pool: &PgPool = ctx.app_data().expect("pool");
+            let pool: &PgPool = ctx.app_data().expect("PostgrSQL connection pool");
             let naffected =
                 sqlx::query!("DELETE FROM confirmation_tokens WHERE expires_at >= NOW()")
                     .execute(pool)
                     .await?
                     .rows_affected();
-            println!("[WORKER][ACTIVITY] naffected={}", naffected);
-            Ok(naffected)
+            ctx.record_heartbeat(vec![CleanUpResult { naffected }.as_json_payload().unwrap()]);
+            Ok(CleanUpResult { naffected })
         },
     );
     worker.insert_app_data(postgres_pool);
@@ -133,3 +133,8 @@ pub(crate) async fn create_maintenance_worker(
 
 #[derive(Serialize, Deserialize)]
 struct Empty;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CleanUpResult {
+    naffected: u64,
+}

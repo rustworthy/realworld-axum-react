@@ -43,6 +43,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -57,6 +59,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -91,6 +95,8 @@ jobs:
           password: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
     steps:
       - uses: actions/checkout@v6
+      - name: install protoc
+        run: sudo apt install -y protobuf-compiler
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile

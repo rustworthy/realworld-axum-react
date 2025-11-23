@@ -2,16 +2,23 @@ FROM docker.io/rust:1-slim-bookworm AS build
 
 WORKDIR /build
 
-COPY . .
+COPY Cargo.* ./
+COPY src ./src
+COPY static ./static
+COPY templates ./templates
+COPY migrations ./migrations
+COPY .sqlx ./.sqlx
 
 ENV SQLX_OFFLINE=1
 
+RUN apt update && apt install -y protobuf-compiler
+
 RUN --mount=type=cache,target=/build/target \
-    --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    set -eux; \
-    cargo build --release; \
-    objcopy --compress-debug-sections target/release/realworld-axum-react ./main
+  --mount=type=cache,target=/usr/local/cargo/registry \
+  --mount=type=cache,target=/usr/local/cargo/git \
+  set -eux; \
+  cargo build --release; \
+  objcopy --compress-debug-sections target/release/realworld-axum-react ./main
 
 ################################################################################
 
