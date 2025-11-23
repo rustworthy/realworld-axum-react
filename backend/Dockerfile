@@ -24,14 +24,19 @@ RUN --mount=type=cache,target=/build/target \
 
 FROM docker.io/debian:bookworm-slim
 
-WORKDIR /app
+# https://www.docker.com/blog/understanding-the-docker-user-instruction/
+RUN groupadd --gid 1234 app
+RUN useradd --uid 1234 --create-home --gid app app
 
-# copy the main binary
+WORKDIR /home/app
+
 COPY --from=build /build/main ./
-
-# copy runtime assets which may or may not exist
 COPY --from=build /build/stati[c] ./static
 COPY --from=build /build/template[s] ./templates
 COPY --from=build /build/migration[s] ./migrations
+
+RUN chown -R app:app .
+
+USER app
 
 CMD ["./main"]
