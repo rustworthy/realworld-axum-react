@@ -122,7 +122,7 @@ temporal-common = { package = "temporalio-common", git = "https://github.com/tem
 fake = "4.3.0"
 fantoccini = "0.22.0"
 linkify = "0.10.0"
-testcontainers-modules = { version = "0.13", features = ["postgres"] }
+testcontainers-modules = { version = "0.14", features = ["postgres"] }
 uuid = { version = "1.17", features = ["v4"] }
 wiremock = "0.6.4"
 
