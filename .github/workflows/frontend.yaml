@@ -63,7 +63,7 @@ jobs:
           ruby-version: '3.3'
           bundler-cache: true 
       - run: gem install kamal
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
